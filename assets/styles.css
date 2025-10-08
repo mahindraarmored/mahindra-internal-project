@@ -225,6 +225,55 @@ a:hover {
     border: 0;
 }
 
+/* --- Iframe Specific Styling and Loading Spinner --- */
+/* ... (Existing iframe-wrap styles here) ... */
+
+/* Initial state: Default message is shown */
+.iframe-wrap .default-message {
+    /* Styles for the select category box (must be here or in your <style> block) */
+    text-align: center;
+    padding: 100px 20px;
+    font-size: 1.2em;
+    color: var(--muted);
+    background-color: var(--card);
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+/* Hides the default message once a tab has been clicked */
+.iframe-active .default-message {
+    display: none;
+}
+
+/* Initial state (NOT loading, NOT active) */
+.iframe-wrap .spinner,
+.iframe-wrap iframe {
+    display: none; /* Spinner and iframe are hidden by default */
+}
+
+
+/* Loading state (Triggered by button click in JS) */
+.iframe-loading .default-message {
+    display: none; /* Hide message */
+}
+.iframe-loading .spinner {
+    display: block; /* Show spinner */
+}
+.iframe-loading iframe {
+    opacity: 0; /* Keep iframe content hidden while loading */
+    display: block; /* Make iframe reserve its space */
+}
+
+/* Loaded state (Triggered by iframe.onload in JS) */
+.iframe-loaded .spinner {
+    display: none;
+}
+.iframe-loaded iframe {
+    opacity: 1; /* Show iframe content */
+    display: block;
+    transition: opacity 0.5s ease-in-out;
+}
+
 /* --- Vehicle Tab Menu Styling --- */
 .tab-menu {
     display: flex;
