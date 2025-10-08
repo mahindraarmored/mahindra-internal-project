@@ -165,15 +165,58 @@ a:hover {
     padding-top: 10px;
     border-top: 1px solid #ddd;
 }
-/* --- Iframe Specific Styling for Vehicles/Events page --- */
+
+/* --- Iframe Specific Styling and Loading Spinner --- */
 .iframe-wrap {
     position: relative;
     width: 100%;
     height: 750px; /* Controls the visible height of the spreadsheet */
     overflow-y: hidden; /* Prevents container from having a scrollbar */
     margin-bottom: 24px;
+    
+    /* Loading Spinner Control */
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f8f8; /* Light gray background while loading */
+    transition: background-color 0.3s;
 }
 
+/* Spinner element */
+.spinner {
+    border: 6px solid #f3f3f3; /* Light grey */
+    border-top: 6px solid var(--accent); /* Red/Accent color */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite; /* Animation name, duration, timing, loop */
+    z-index: 10; /* Ensure spinner is on top */
+}
+
+/* Spinner animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Initial state (loading) */
+.iframe-loading .spinner {
+    display: block; /* Show spinner */
+}
+.iframe-loading iframe {
+    opacity: 0; /* Hide iframe */
+}
+
+/* Loaded state */
+.iframe-loaded .spinner {
+    display: none;
+}
+.iframe-loaded iframe {
+    opacity: 1; /* Show iframe */
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Iframe dimensions */
 .iframe-wrap iframe {
     position: absolute;
     inset: 0;
