@@ -9,9 +9,27 @@
     <script id="base-url-script">
         const BASE_URL = "https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True";
     </script>
+
+    <style>
+        /* Styles the default message */
+        .default-message {
+            text-align: center;
+            padding: 100px 20px;
+            font-size: 1.2em;
+            color: var(--muted);
+            background-color: var(--card);
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        /* Hides the default message once a tab has been clicked */
+        .iframe-active .default-message {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
+<div class="container" id="main-container">
     
     <div class="header-top">
         <div class="logo">
@@ -26,7 +44,6 @@
             <button class="cta-chat">FAQs</button>
         </div>
     </div>
-    
     <nav class="main-nav-bar">
         <ul>
             <li><a href="/">Home</a></li>
@@ -40,7 +57,7 @@
     <h1 class="section-title">Vehicle Specifications & Resources</h1>
     
     <div class="tab-menu" id="vehicle-tabs">
-        <button class="tab-button active" data-category="CAV" data-item="'CAV'!A1%3AD18">CAV</button>
+        <button class="tab-button" data-category="CAV" data-item="'CAV'!A1%3AD18">CAV</button>
         <button class="tab-button" data-category="APC" data-item="'APC'!A1%3AD24">APC</button>
         <button class="tab-button" data-category="ALSV-MRAP" data-item="'ALSV-MRAP'!A1%3AD6">ALSV-MRAP</button>
         <button class="tab-button" data-category="PICKUP" data-item="'Pickup'!A1%3AD12">PICKUPS</button>
@@ -50,14 +67,17 @@
         <button class="tab-button" data-category="INDUSTRIAL" data-item="'Industrial Vehicles'!A1%3AD10">INDUSTRIAL VEHICLES</button>
     </div>
     
-    <div class="iframe-wrap iframe-loading" id="iframe-container">
+    <div class="iframe-wrap" id="iframe-container">
         
         <div class="spinner"></div>
+        
+        <div class="default-message">
+            <p><strong>Please select a vehicle category from the menu above to view its detailed specifications spreadsheet.</strong></p>
+        </div>
 
         <iframe  
             id="vehicle-iframe"
-            /* Initial SRC for the CAV sheet */
-            src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&Item='CAV'!A1%3AD18&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True" 
+            src="" 
             frameborder="0"
             scrolling="yes"
             allowfullscreen
@@ -73,7 +93,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Retrieve BASE_URL from the script tag (now it's much simpler)
         const BASE_URL = document.getElementById('base-url-script').textContent.match(/BASE_URL\s*=\s*"(.*?)"/)[1];
 
         const tabsContainer = document.getElementById('vehicle-tabs');
@@ -83,29 +102,32 @@
         if (!tabsContainer || !iframe || !iframeContainer || !BASE_URL) return; 
 
         // Function to handle loading state and source change
-        function setIframeSource(itemParam) {
-            // Show Spinner / Hide Iframe (CSS classes handle the visual state)
+        function setIframeSource(itemParam, button) {
+            // 1. Hide the default message and mark container as active
+            iframeContainer.classList.add('iframe-active');
+
+            // 2. Show Spinner / Hide Iframe (CSS classes handle the visual state)
             iframeContainer.classList.add('iframe-loading');
             iframeContainer.classList.remove('iframe-loaded');
 
-            // Construct the full URL
+            // 3. Construct the full URL
             const newUrl = `${BASE_URL}&Item=${itemParam}`;
             
-            // Update the iframe's source URL (triggers the browser to reload the iframe content)
+            // 4. Update the iframe's source URL (triggers the browser to reload)
             iframe.src = newUrl;
         }
 
         // Event listener for tab clicks
         tabsContainer.addEventListener('click', function(event) {
             const button = event.target.closest('.tab-button');
-            if (!button || button.classList.contains('active')) return; // Ignore if already active
+            if (!button || button.classList.contains('active')) return;
 
             const itemParam = button.getAttribute('data-item');
             
-            // 1. Trigger the loading state and source change
-            setIframeSource(itemParam);
+            // Trigger the loading state and source change
+            setIframeSource(itemParam, button);
 
-            // 2. Update active state for styling
+            // Update active state for styling
             tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -113,7 +135,6 @@
         });
 
         // Event listener for iframe LOAD COMPLETE
-        // This is the critical part that hides the spinner
         iframe.onload = function() {
             // Hide Spinner / Show Iframe
             iframeContainer.classList.remove('iframe-loading');
