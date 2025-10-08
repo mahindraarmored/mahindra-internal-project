@@ -34,31 +34,52 @@
     <p class="breadcrumbs"><a href="/">Home</a> / <strong>Vehicles</strong></p>
     <h1 class="section-title">Vehicle Specifications & Resources</h1>
     
-    <script>
+ <script>
+        // Use the common base URL from your embed codes
         const BASE_URL = "https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True";
     </script>
 
     <div class="tab-menu" id="vehicle-tabs">
         
-        <button class="tab-button" data-category="CAV" data-item="'CAV'!A1%3AD18">CAV</button>
+        <button class="tab-button active" data-category="CAV" data-item="'CAV'!A1%3AD18">CAV</button>
+        
         <button class="tab-button" data-category="APC" data-item="'APC'!A1%3AD24">APC</button>
+        
         <button class="tab-button" data-category="ALSV-MRAP" data-item="'ALSV-MRAP'!A1%3AD6">ALSV-MRAP</button>
-        <button class="tab-button" data-category="PICKUP" data-item="'PICKUP'!A1%3AD12">PICKUPS</button>
+        
+        <button class="tab-button" data-category="PICKUP" data-item="'Pickup'!A1%3AD12">PICKUPS</button>
+        
         <button class="tab-button" data-category="CITV" data-item="'CITV'!A1%3AD15">CITV</button>
-        <button class="tab-button" data-category="AMBULANCE" data-item="'AMBULANCE'!A1%3AD9">AMBULANCE</button>
-        <button class="tab-button" data-category="BUS-VAN-TRUCK" data-item="'BUS-VAN-TRUCK'!A1%3AD9">BUS-VAN-TRUCK</button>
-    </div>
+        
+        <button class="tab-button" data-category="AMBULANCE" data-item="'Ambulance'!A1%3AD9">AMBULANCE</button>
+        
+        <button class="tab-button" data-category="BUS-VAN-TRUCK" data-item="'Bus-Van-Truck'!A1%3AD9">BUS-VAN-TRUCK</button>
 
+        <button class="tab-button" data-category="INDUSTRIAL" data-item="'Industrial Vehicles'!A1%3AD10">INDUSTRIAL VEHICLES</button>
+    </div>
+    
     <div class="iframe-wrap">
         <iframe  
             id="vehicle-iframe"
-            src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&Item='ALL'!A1%3AD18&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True" 
+            /* Set the initial SRC to a working sheet (CAV) */
+            src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&Item='CAV'!A1%3AD18&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True" 
             frameborder="0"
             scrolling="yes"
             allowfullscreen
             style="position:absolute;inset:0;width:100%;height:100%;border:0;"
         ></iframe>
     </div>
+    
+    ```
+
+### Key Changes Summary:
+
+1.  **Default Tab:** The initial active tab and the iframe's `src` are now set to the `'CAV'` sheet, which should fix the initial error from trying to load a non-existent `'ALL'` sheet.
+2.  **`Bus-Van-Truck` and `ALSV-MRAP`:** These names are now used exactly as they appear in the sheet tabs.
+3.  **New Tab:** Added the final sheet you provided, `Industrial Vehicles`.
+4.  **Case-Sensitivity:** All sheet names are used with their exact capitalization.
+
+This structure is now robust and should resolve the "Unable to Display Named Item" error, provided the ranges (`A1:Dxx`) are valid for each sheet.
     
     <div class="footer">
         © Mahindra Armored — Internal Use Only.<br>
