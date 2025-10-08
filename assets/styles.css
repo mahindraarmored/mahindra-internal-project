@@ -1,11 +1,11 @@
 /* --- Global Variables (Sets the light theme and colors) --- */
 :root{
-    --bg:#f2f2f2;      /* Light background for the overall page */
-    --card:#ffffff;    /* White cards */
-    --text:#333333;    /* Dark primary text */
-    --muted:#666666;   /* Gray text */
-    --accent:#b31b1b;  /* Deep Red for accents */
-    --nav-bg: #333333; /* Dark background for the nav bar */
+    --bg:#f2f2f2;       /* Light background for the overall page */
+    --card:#ffffff;     /* White cards */
+    --text:#333333;     /* Dark primary text */
+    --muted:#666666;    /* Gray text */
+    --accent:#b31b1b;   /* Deep Red for accents */
+    --nav-bg: #333333;  /* Dark background for the nav bar */
 }
 
 /* --- Base & Reset --- */
@@ -16,6 +16,17 @@ body{
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     background:var(--bg);
     color:var(--text);
+}
+
+/* --- Global Link Styling (FIXES THE UNDERLINE ISSUE) --- */
+a {
+    color: inherit; /* Inherit color from parent (or use var(--text) for dark color) */
+    text-decoration: none; /* <-- THIS REMOVES THE UNDERLINE */
+    transition: color 0.2s;
+}
+a:hover {
+    text-decoration: underline; /* Add underline back only on hover */
+    color: var(--accent); /* Optional: changes link color on hover */
 }
 
 /* --- Container (Main Content Wrapper) --- */
@@ -37,7 +48,7 @@ body{
     margin-bottom: 0; 
 }
 .header-top a {
-    text-decoration: none;
+    text-decoration: none; /* Keep links in the header-top clean */
 }
 .header-utilities {
     display: flex;
@@ -78,7 +89,7 @@ body{
 }
 .main-nav-bar li a {
     display: block;
-    color: white;
+    color: white; /* Links in the nav bar are white */
     padding: 15px 20px;
     text-decoration: none;
     font-size: 15px;
@@ -91,7 +102,6 @@ body{
 /* --- Original Portal Grid and Card Styles (Updated for Light Theme) --- */
 .grid{
     display:grid;
-    /* Keeps the 3-column layout you had */
     grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); 
     gap:20px;
     margin-top: 20px;
@@ -121,7 +131,7 @@ body{
 }
 .card a{
     color:inherit;
-    text-decoration:none;
+    text-decoration:none; /* Ensure card content links don't interfere */
     display:block;
 }
 
