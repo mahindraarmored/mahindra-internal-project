@@ -35,14 +35,16 @@
     <p class="breadcrumbs"><a href="/">Home</a> / <strong>Events</strong></p>
     <h1 class="section-title">Events to Consider</h1>
 
-    <div class="iframe-wrap">
+    <div class="iframe-wrap iframe-loading" id="iframe-container">
+        
+        <div class="spinner"></div>
+
         <iframe 
             id="events-iframe" 
             src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID57SIAAAAAAdUfaZ0sVVCFA45X-zYfeEE?em=2&wdAllowInteractivity=False&Item='Q3'!A1%3AN30&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True"
             frameborder="0"
             scrolling="yes"
             allowfullscreen
-            /* The style attributes defined in styles.css are sufficient, but keeping inset/width/height here as a backup is fine */
             style="position:absolute;inset:0;width:100%;height:100%;border:0;"
         ></iframe>
     </div>
@@ -52,5 +54,24 @@
         Unauthorized sharing prohibited. Responsibility for violations rests with the originating user.
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const iframe = document.getElementById('events-iframe');
+        const iframeContainer = document.getElementById('iframe-container');
+        
+        if (!iframe || !iframeContainer) return; 
+
+        // Event listener for iframe LOAD COMPLETE
+        // This stops the spinner and makes the iframe content visible
+        iframe.onload = function() {
+            iframeContainer.classList.remove('iframe-loading');
+            iframeContainer.classList.add('iframe-loaded');
+        };
+        
+        // Since the iframe starts with the source set, the browser immediately begins 
+        // loading. The iframe.onload event will fire once the content is ready.
+    });
+</script>
 </body>
 </html>
