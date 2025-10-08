@@ -1,1 +1,51 @@
-<iframe width="402" height="346" frameborder="0" scrolling="no" src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID57SIAAAAAAdUfaZ0sVVCFA45X-zYfeEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True"></iframe>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Events</title>
+  <style>
+    /* Page layout (optional) */
+    body { margin: 0; padding: 24px; font-family: system-ui, Arial, sans-serif; background:#fff; }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* Responsive iframe wrapper */
+    .iframe-wrap {
+      position: relative;
+      width: 100%;
+      /* Choose a ratio: 4/3 works well for Excel; adjust if needed */
+      aspect-ratio: 4 / 3;
+      /* Fallback for older browsers that don't support aspect-ratio */
+    }
+    .iframe-wrap::before {
+      content: "";
+      float: left;
+      padding-top: calc(100% * 3 / 4); /* 4:3 ratio fallback */
+    }
+    .iframe-wrap::after { content: ""; display: block; clear: both; }
+
+    .iframe-wrap iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
+    /* Optional: make it taller on large screens */
+    @media (min-width: 1200px) {
+      .iframe-wrap { aspect-ratio: 16 / 9; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="margin:0 0 12px;">Events Calendar</h1>
+    <div class="iframe-wrap">
+      <iframe
+        src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID57SIAAAAAAdUfaZ0sVVCFA45X-zYfeEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True"
+        loading="lazy"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </div>
+</body>
+</html>
