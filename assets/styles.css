@@ -36,7 +36,14 @@ body{
 .card h2{margin:0 0 8px;font-size:18px}
 .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.4}
 .card a{color:inherit;text-decoration:none;display:block}
-.footer{margin-top:40px;color:var(--muted);font-size:12px;opacity:.9}
+.footer{
+  border-top: 1px solid rgba(255, 255, 255, .08); /* Added separator line */
+  padding-top: 24px; /* Added spacing above text */
+  margin-top:40px;
+  color:var(--muted);
+  font-size:12px;
+  opacity:.9
+}
 /* Responsive iframe wrapper */
 .iframe-wrap{position:relative;width:100%;aspect-ratio:4/3}
 .iframe-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
