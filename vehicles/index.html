@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Vehicles Specifications</title>
     <link rel="stylesheet" href="/assets/styles.css" />
+    
+    <script id="base-url-script">
+        const BASE_URL = "https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True";
+    </script>
 </head>
 <body>
 <div class="container">
@@ -35,10 +39,6 @@
     <p class="breadcrumbs"><a href="/">Home</a> / <strong>Vehicles</strong></p>
     <h1 class="section-title">Vehicle Specifications & Resources</h1>
     
-    <script id="base-url-script">
-        const BASE_URL = "https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True";
-    </script>
-
     <div class="tab-menu" id="vehicle-tabs">
         <button class="tab-button active" data-category="CAV" data-item="'CAV'!A1%3AD18">CAV</button>
         <button class="tab-button" data-category="APC" data-item="'APC'!A1%3AD24">APC</button>
@@ -73,9 +73,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Retrieve the BASE_URL from the script tag with id="base-url-script"
-        const baseScript = document.getElementById('base-url-script');
-        const BASE_URL = baseScript ? baseScript.textContent.match(/BASE_URL\s*=\s*"(.*?)"/)[1] : null;
+        // Retrieve BASE_URL from the script tag (now it's much simpler)
+        const BASE_URL = document.getElementById('base-url-script').textContent.match(/BASE_URL\s*=\s*"(.*?)"/)[1];
 
         const tabsContainer = document.getElementById('vehicle-tabs');
         const iframe = document.getElementById('vehicle-iframe');
@@ -84,15 +83,15 @@
         if (!tabsContainer || !iframe || !iframeContainer || !BASE_URL) return; 
 
         // Function to handle loading state and source change
-        function setIframeSource(itemParam, isInitialLoad = false) {
-            // Show Spinner / Hide Iframe
+        function setIframeSource(itemParam) {
+            // Show Spinner / Hide Iframe (CSS classes handle the visual state)
             iframeContainer.classList.add('iframe-loading');
             iframeContainer.classList.remove('iframe-loaded');
 
             // Construct the full URL
             const newUrl = `${BASE_URL}&Item=${itemParam}`;
             
-            // Update the iframe's source URL (triggers reload)
+            // Update the iframe's source URL (triggers the browser to reload the iframe content)
             iframe.src = newUrl;
         }
 
@@ -114,14 +113,12 @@
         });
 
         // Event listener for iframe LOAD COMPLETE
+        // This is the critical part that hides the spinner
         iframe.onload = function() {
             // Hide Spinner / Show Iframe
             iframeContainer.classList.remove('iframe-loading');
             iframeContainer.classList.add('iframe-loaded');
         };
-        
-        // Note: The initial load is handled by the browser starting with the 
-        // iframe src already set in the HTML. The onload event will fire once.
     });
 </script>
 </body>
