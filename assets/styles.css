@@ -43,8 +43,22 @@ body{
 .card a{color:inherit;text-decoration:none;display:block}
 .footer{margin-top:40px;color:var(--muted);font-size:12px;opacity:.9}
 /* Responsive iframe wrapper */
-.iframe-wrap{position:relative;width:100%;aspect-ratio:4/3}
-.iframe-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* Responsive iframe wrapper */
+.iframe-wrap{
+  position:relative;
+  width:100%;
+  height: 85vh; /* Initial height: 85% of the viewport height */
+  max-height: 950px; /* Do not let it exceed 950 pixels */
+  overflow-y: auto; /* Adds a scrollbar if content exceeds max-height */
+  /* Remove aspect-ratio:4/3 */
+}
+.iframe-wrap iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%; 
+  border:0
+}
 @media (min-width:1200px){.iframe-wrap{aspect-ratio:16/9}}
 .breadcrumbs{margin:6px 0 18px;color:var(--muted);font-size:13px}
 .breadcrumbs a{color:var(--muted);text-decoration:none}
