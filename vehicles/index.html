@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vehicles</title>
+    <title>Vehicles Specifications</title>
     <link rel="stylesheet" href="/assets/styles.css" />
 </head>
 <body>
@@ -22,7 +22,6 @@
             <button class="cta-chat">FAQs</button>
         </div>
     </div>
-    
     <nav class="main-nav-bar">
         <ul>
             <li><a href="/">Home</a></li>
@@ -33,11 +32,25 @@
     </nav>
     
     <p class="breadcrumbs"><a href="/">Home</a> / <strong>Vehicles</strong></p>
-    <h1 class="section-title">Vehicles</h1>
-      
-    <div class="iframe-wrap" style="position:relative;width:100%;aspect-ratio:16/9;">
-        <iframe 
-            src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&ActiveCell='CAV'!B1&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True"
+    <h1 class="section-title">Vehicle Specifications & Resources</h1>
+    
+    <script>
+        const BASE_URL = "https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True";
+    </script>
+
+    <div class="tab-menu" id="vehicle-tabs">
+        <button class="tab-button active" data-category="ALL" data-item="'ALL'!A1%3AD18">ALL VEHICLES</button>
+        <button class="tab-button" data-category="CAV" data-item="'CAV'!A1%3AD18">CAV</button>
+        <button class="tab-button" data-category="APC" data-item="'APC'!A1%3AD18">APC</button>
+        <button class="tab-button" data-category="PICKUP" data-item="'PICKUP'!A1%3AD18">PICKUPS</button>
+        <button class="tab-button" data-category="CITV" data-item="'CITV'!A1%3AD18">CITV</button>
+        <button class="tab-button" data-category="LUXURY" data-item="'LUXURY'!A1%3AD18">LUXURY</button>
+    </div>
+
+    <div class="iframe-wrap">
+        <iframe  
+            id="vehicle-iframe"
+            src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&Item='ALL'!A1%3AD18&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True" 
             frameborder="0"
             scrolling="yes"
             allowfullscreen
@@ -50,5 +63,37 @@
         Unauthorized sharing prohibited. Responsibility for violations rests with the originating user.
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Retrieve the BASE_URL defined above
+        const BASE_URL = document.querySelector('script').textContent.match(/BASE_URL\s*=\s*"(.*?)"/)[1];
+        
+        const tabsContainer = document.getElementById('vehicle-tabs');
+        const iframe = document.getElementById('vehicle-iframe');
+        
+        if (!tabsContainer || !iframe) return; 
+
+        tabsContainer.addEventListener('click', function(event) {
+            const button = event.target.closest('.tab-button');
+            if (!button) return;
+
+            // 1. Get the specific Item parameter (the sheet/range)
+            const itemParam = button.getAttribute('data-item');
+            
+            // 2. Construct the full URL by appending the Item parameter
+            const newUrl = `${BASE_URL}&Item=${itemParam}`;
+            
+            // 3. Update the iframe's source URL
+            iframe.src = newUrl; 
+
+            // 4. Update active state for styling
+            tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+        });
+    });
+</script>
 </body>
 </html>
