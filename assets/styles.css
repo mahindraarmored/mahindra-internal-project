@@ -14,7 +14,7 @@ body{
   color:var(--text);
 }
 .container{
-  max-width: 1800px; /* Increase this value greatly, or remove it */
+  
   width: 100%;       /* Explicitly set it to 100% */
   margin:0 auto;
   padding:24px;
