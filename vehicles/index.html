@@ -9,9 +9,8 @@
     <script id="base-url-script">
         const BASE_URL = "https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True";
     </script>
-
+    
     <style>
-        /* Styles the default message */
         .default-message {
             text-align: center;
             padding: 100px 20px;
@@ -93,6 +92,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Retrieve BASE_URL
         const BASE_URL = document.getElementById('base-url-script').textContent.match(/BASE_URL\s*=\s*"(.*?)"/)[1];
 
         const tabsContainer = document.getElementById('vehicle-tabs');
@@ -103,10 +103,10 @@
 
         // Function to handle loading state and source change
         function setIframeSource(itemParam, button) {
-            // 1. Hide the default message and mark container as active
+            // 1. Hide the default message and show the iframe area
             iframeContainer.classList.add('iframe-active');
 
-            // 2. Show Spinner / Hide Iframe (CSS classes handle the visual state)
+            // 2. Show Spinner / Hide Iframe (This starts the spinner animation)
             iframeContainer.classList.add('iframe-loading');
             iframeContainer.classList.remove('iframe-loaded');
 
@@ -136,7 +136,7 @@
 
         // Event listener for iframe LOAD COMPLETE
         iframe.onload = function() {
-            // Hide Spinner / Show Iframe
+            // This stops the spinner and makes the iframe content visible
             iframeContainer.classList.remove('iframe-loading');
             iframeContainer.classList.add('iframe-loaded');
         };
