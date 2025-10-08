@@ -13,7 +13,12 @@ body{
   background:var(--bg);
   color:var(--text);
 }
-.container{max-width:1200px;margin:0 auto;padding:24px}
+.container{
+  max-width: 1800px; /* Increase this value greatly, or remove it */
+  width: 100%;       /* Explicitly set it to 100% */
+  margin:0 auto;
+  padding:24px;
+}
 .header{
   display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:24px
 }
