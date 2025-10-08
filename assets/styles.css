@@ -18,15 +18,15 @@ body{
     color:var(--text);
 }
 
-/* --- Global Link Styling (FIXES THE UNDERLINE ISSUE) --- */
+/* --- Global Link Styling (FIXES THE UNDERLINE AND BLUE COLOR) --- */
 a {
-    color: inherit; /* Inherit color from parent (or use var(--text) for dark color) */
-    text-decoration: none; /* <-- THIS REMOVES THE UNDERLINE */
+    color: var(--text); /* Forces link color to dark text, overriding browser default blue */
+    text-decoration: none; /* <-- This removes the underline everywhere */
     transition: color 0.2s;
 }
 a:hover {
-    text-decoration: underline; /* Add underline back only on hover */
-    color: var(--accent); /* Optional: changes link color on hover */
+    text-decoration: underline; /* Adds underline only on hover for feedback */
+    color: var(--accent); /* Changes link color to red on hover */
 }
 
 /* --- Container (Main Content Wrapper) --- */
@@ -48,7 +48,8 @@ a:hover {
     margin-bottom: 0; 
 }
 .header-top a {
-    text-decoration: none; /* Keep links in the header-top clean */
+    text-decoration: none; /* Ensures no underline in the top bar links */
+    color: inherit;
 }
 .header-utilities {
     display: flex;
@@ -131,7 +132,7 @@ a:hover {
 }
 .card a{
     color:inherit;
-    text-decoration:none; /* Ensure card content links don't interfere */
+    text-decoration:none; 
     display:block;
 }
 
@@ -146,6 +147,16 @@ a:hover {
     color:var(--muted);
     font-size:16px;
 }
+/* SPECIFICALLY TARGETS LINKS IN BREADCRUMBS TO USE MUTED COLOR AND REMOVE HOVER UNDERLINE */
+.breadcrumbs a {
+    color: var(--muted);
+    text-decoration: none;
+}
+.breadcrumbs a:hover {
+    text-decoration: none; /* Prevent underline on hover for breadcrumbs */
+    color: var(--accent);
+}
+
 .footer{
     margin-top:60px;
     color:var(--muted);
