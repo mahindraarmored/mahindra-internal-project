@@ -22,6 +22,7 @@
             <button class="cta-chat">FAQs</button>
         </div>
     </div>
+    
     <nav class="main-nav-bar">
         <ul>
             <li><a href="/">Home</a></li>
@@ -34,34 +35,28 @@
     <p class="breadcrumbs"><a href="/">Home</a> / <strong>Vehicles</strong></p>
     <h1 class="section-title">Vehicle Specifications & Resources</h1>
     
- <script>
-        // Use the common base URL from your embed codes
+    <script id="base-url-script">
         const BASE_URL = "https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True";
     </script>
 
     <div class="tab-menu" id="vehicle-tabs">
-        
         <button class="tab-button active" data-category="CAV" data-item="'CAV'!A1%3AD18">CAV</button>
-        
         <button class="tab-button" data-category="APC" data-item="'APC'!A1%3AD24">APC</button>
-        
         <button class="tab-button" data-category="ALSV-MRAP" data-item="'ALSV-MRAP'!A1%3AD6">ALSV-MRAP</button>
-        
         <button class="tab-button" data-category="PICKUP" data-item="'Pickup'!A1%3AD12">PICKUPS</button>
-        
         <button class="tab-button" data-category="CITV" data-item="'CITV'!A1%3AD15">CITV</button>
-        
         <button class="tab-button" data-category="AMBULANCE" data-item="'Ambulance'!A1%3AD9">AMBULANCE</button>
-        
         <button class="tab-button" data-category="BUS-VAN-TRUCK" data-item="'Bus-Van-Truck'!A1%3AD9">BUS-VAN-TRUCK</button>
-
         <button class="tab-button" data-category="INDUSTRIAL" data-item="'Industrial Vehicles'!A1%3AD10">INDUSTRIAL VEHICLES</button>
     </div>
     
-    <div class="iframe-wrap">
+    <div class="iframe-wrap iframe-loading" id="iframe-container">
+        
+        <div class="spinner"></div>
+
         <iframe  
             id="vehicle-iframe"
-            /* Set the initial SRC to a working sheet (CAV) */
+            /* Initial SRC for the CAV sheet */
             src="https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&Item='CAV'!A1%3AD18&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True" 
             frameborder="0"
             scrolling="yes"
@@ -69,10 +64,6 @@
             style="position:absolute;inset:0;width:100%;height:100%;border:0;"
         ></iframe>
     </div>
-    
-    
-
-
     
     <div class="footer">
         © Mahindra Armored — Internal Use Only.<br>
@@ -82,33 +73,55 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Retrieve the BASE_URL defined above
-        const BASE_URL = document.querySelector('script').textContent.match(/BASE_URL\s*=\s*"(.*?)"/)[1];
-        
+        // Retrieve the BASE_URL from the script tag with id="base-url-script"
+        const baseScript = document.getElementById('base-url-script');
+        const BASE_URL = baseScript ? baseScript.textContent.match(/BASE_URL\s*=\s*"(.*?)"/)[1] : null;
+
         const tabsContainer = document.getElementById('vehicle-tabs');
         const iframe = document.getElementById('vehicle-iframe');
+        const iframeContainer = document.getElementById('iframe-container');
         
-        if (!tabsContainer || !iframe) return; 
+        if (!tabsContainer || !iframe || !iframeContainer || !BASE_URL) return; 
 
-        tabsContainer.addEventListener('click', function(event) {
-            const button = event.target.closest('.tab-button');
-            if (!button) return;
+        // Function to handle loading state and source change
+        function setIframeSource(itemParam, isInitialLoad = false) {
+            // Show Spinner / Hide Iframe
+            iframeContainer.classList.add('iframe-loading');
+            iframeContainer.classList.remove('iframe-loaded');
 
-            // 1. Get the specific Item parameter (the sheet/range)
-            const itemParam = button.getAttribute('data-item');
-            
-            // 2. Construct the full URL by appending the Item parameter
+            // Construct the full URL
             const newUrl = `${BASE_URL}&Item=${itemParam}`;
             
-            // 3. Update the iframe's source URL
-            iframe.src = newUrl; 
+            // Update the iframe's source URL (triggers reload)
+            iframe.src = newUrl;
+        }
 
-            // 4. Update active state for styling
+        // Event listener for tab clicks
+        tabsContainer.addEventListener('click', function(event) {
+            const button = event.target.closest('.tab-button');
+            if (!button || button.classList.contains('active')) return; // Ignore if already active
+
+            const itemParam = button.getAttribute('data-item');
+            
+            // 1. Trigger the loading state and source change
+            setIframeSource(itemParam);
+
+            // 2. Update active state for styling
             tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
             });
             button.classList.add('active');
         });
+
+        // Event listener for iframe LOAD COMPLETE
+        iframe.onload = function() {
+            // Hide Spinner / Show Iframe
+            iframeContainer.classList.remove('iframe-loading');
+            iframeContainer.classList.add('iframe-loaded');
+        };
+        
+        // Note: The initial load is handled by the browser starting with the 
+        // iframe src already set in the HTML. The onload event will fire once.
     });
 </script>
 </body>
