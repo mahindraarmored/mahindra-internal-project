@@ -3,26 +3,300 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Internal Portal</title>
-    <link rel="stylesheet" href="/assets/styles.css" /> 
+    <title>Internal Portal | Mahindra Emirates</title>
+    <style>
+        /* --- Global Variables & Theme --- */
+        :root {
+            --bg: #f2f2f2;
+            --card: #ffffff;
+            --text: #333333;
+            --muted: #666666;
+            --accent: #b31b1b;
+            --nav-bg: #333333;
+            --border: #e5e5e5;
+            --sidebar: #f9f9f9;
+            --upcoming: #2e7d32; /* Green for nearby dates */
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        a { color: inherit; text-decoration: none; transition: 0.2s; }
+        a:hover { color: var(--accent); }
+
+        .container {
+            max-width: 1400px;
+            width: 90%;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* --- Header --- */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .header-utilities { display: flex; align-items: center; gap: 15px; }
+        .cta-request, .cta-chat {
+            padding: 8px 15px;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .cta-request { background: transparent; color: var(--accent); }
+        .cta-chat { background: var(--accent); color: white; }
+
+        /* --- Nav Bar --- */
+        .main-nav-bar {
+            background-color: var(--nav-bg);
+            margin: 20px -24px 30px -24px;
+            padding: 0 24px;
+        }
+        .main-nav-bar ul { list-style: none; display: flex; margin: 0; padding: 0; }
+        .main-nav-bar li a {
+            display: block;
+            color: white;
+            padding: 15px 20px;
+            font-size: 15px;
+        }
+        .main-nav-bar li a:hover { background-color: #555; }
+
+        /* --- Content --- */
+        .section-title { margin: 20px 0 12px; font-size: 2.2em; font-weight: 800; letter-spacing: -0.02em; }
+        .breadcrumbs { margin: 6px 0 32px; color: var(--muted); font-size: 16px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .card h2 { margin: 0 0 10px; font-size: 22px; }
+        .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+        /* --- Modal System --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            justify-content: center; align-items: center;
+        }
+
+        .modal-container {
+            background: var(--card);
+            width: 95%;
+            max-width: 1200px;
+            height: 85vh;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .modal-main { display: flex; flex: 1; overflow: hidden; }
+
+        .modal-sidebar {
+            width: 300px;
+            border-right: 1px solid var(--border);
+            background: var(--sidebar);
+            display: flex; flex-direction: column;
+        }
+
+        .sidebar-search { padding: 15px; background: white; border-bottom: 1px solid var(--border); }
+        .sidebar-search input {
+            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border);
+        }
+
+        .sidebar-list { overflow-y: auto; flex: 1; }
+        .region-group { padding: 15px 15px 5px; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+        .country-item { padding: 10px 15px; cursor: pointer; font-size: 14px; color: #444; }
+        .country-item:hover { background: #eee; }
+        .country-item.active { background: white; color: var(--accent); font-weight: 700; border-right: 3px solid var(--accent); }
+
+        .modal-detail { flex: 1; padding: 40px; overflow-y: auto; background: white; }
+        .detail-header h2 { margin: 0; font-size: 32px; font-weight: 800; }
+        .region-badge { color: var(--accent); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+
+        /* --- Sections Styling --- */
+        .detail-section { margin-top: 30px; }
+        .detail-section h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 15px; border-bottom: 2px solid var(--accent); display: inline-block; }
+        
+        .accordion-item {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 15px 20px;
+            background: #fdfdfd;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .accordion-header:hover { background: #f5f5f5; }
+        .accordion-header::after {
+            content: '+';
+            font-size: 18px;
+            color: var(--muted);
+        }
+        .accordion-item.active .accordion-header::after { content: '−'; }
+        
+        .accordion-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+            background: white;
+        }
+        .accordion-item.active .accordion-content {
+            padding: 20px;
+            max-height: 1000px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* --- Office Detail Grid --- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .info-box label { display: block; font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+        .info-box span { font-size: 14px; font-weight: 500; color: var(--text); }
+        .info-box.full { grid-column: span 2; }
+
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--accent);
+            background: #fff0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* --- Improved Important Days Styling --- */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #f9f9f9;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border-left: 4px solid var(--border);
+            position: relative;
+        }
+        .timeline-item.upcoming {
+            border-left-color: var(--upcoming);
+            background: #f1f8e9;
+        }
+        .date-circle {
+            min-width: 60px;
+            height: 60px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .timeline-item.upcoming .date-circle {
+            border-color: var(--upcoming);
+            color: var(--upcoming);
+        }
+        .date-month { font-size: 10px; text-transform: uppercase; color: var(--muted); }
+        .date-day { font-size: 18px; }
+        
+        .event-info { flex: 1; }
+        .event-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        .event-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            background: #ddd;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+        .timeline-item.upcoming .event-badge { background: var(--upcoming); color: white; }
+
+        .sync-status { padding: 10px 15px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
+        .close-btn { cursor: pointer; font-size: 30px; line-height: 1; color: var(--muted); }
+
+        .footer {
+            margin-top: 60px; padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px; color: var(--muted);
+        }
+
+        .empty-state { padding: 40px; text-align: center; color: var(--muted); }
+    </style>
 </head>
 <body>
+
 <div class="container">
-    
-    <div class="header-top">
+    <header class="header-top">
         <div class="logo">
             <a href="/">
-                <strong style="color:var(--accent); font-size:1.4em;">MAHINDRA EMIRATES VEHICLE ARMOURING</strong> 
-                <span style="font-size:1.1em; color:var(--text);"></span>
+                <strong style="color:var(--accent); font-size:1.4em;">MAHINDRA EMIRATES VEHICLE ARMOURING</strong>
             </a>
         </div>
         <div class="header-utilities">
             <span style="color:var(--muted); font-size:14px;">Internal Portal</span>
-             <a href="https://mevaconnect.com" class="cta-request" target="_blank">MEVA Connect</a>
-    
-    <a href="https://www.mahindraarmored.com" class="cta-chat" target="_blank">MEVA Website</a>
+            <a href="https://mevaconnect.com" class="cta-request" target="_blank">MEVA Connect</a>
+            <a href="https://www.mahindraarmored.com" class="cta-chat" target="_blank">MEVA Website</a>
         </div>
-    </div>
+    </header>
     
     <nav class="main-nav-bar">
         <ul>
@@ -34,35 +308,272 @@
     </nav>
     
     <h1 class="section-title">RESOURCES PORTAL</h1>
-    <p class="breadcrumbs">Choose a section:</p>
+    <p class="breadcrumbs">Global Diplomatic Assets & Mission Database</p>
     
     <div class="grid">
-        <div class="card"><a href="/vehicles/">
+        <div class="card" onclick="window.location.href='/vehicles/'">
             <h2>Vehicles</h2>
             <p>Specs, brochures, and internal resources.</p>
-        </a></div>
-        <div class="card"><a href="/events/">
+        </div>
+        <div class="card" onclick="window.location.href='/events/'">
             <h2>Events</h2>
             <p>Monthly events calendar and schedules.</p>
-        </a></div>
-        <div class="card"><a href="/templates/">
+        </div>
+        <div class="card" onclick="window.location.href='/templates/'">
             <h2>Templates</h2>
-            <p>Approval Notes, templates, SOPs....</p>
-        </a></div>
-    </div>
-    
-    <br><br><br>
-    
-    <div class="disclaimer" style="margin-top:40px; padding:16px 20px; border-left:4px solid var(--accent); background:var(--card); color:var(--text); border-radius:8px;">
-        <p><strong>🔒 Disclaimer:</strong><br>
-        The contents are intended <strong>for internal use by MEVA/MAVJ employees and authorized partners only</strong>. Unauthorized access, sharing, or reproduction of any material from this site is strictly prohibited.</p>
-    
-        <p>All documents, images, and data remain the intellectual property of <strong>Mahindra Emirates Vehicle Armouring Fz LLC</strong>. Any copyright or confidentiality violation arising from improper use, distribution, or reproduction of content shall be the <strong>sole responsibility of the originating user and their respective access chain</strong>.</p>
-    
-        <p>By accessing this site, you agree to comply with all internal data handling and confidentiality policies.</p>
+            <p>Approval Notes, templates, SOPs.</p>
+        </div>
+        <div class="card" onclick="openModal()">
+            <h2>Embassy Data</h2>
+            <p>Live mission database synced from central Excel sheet.</p>
+        </div>
     </div>
 
-    <div class="footer">© Mahindra Armored — Internal </div>
+    <div class="footer">© Mahindra Armored — Internal Portal — Ver 4.1</div>
 </div>
+
+<!-- Embassy Modal -->
+<div id="embassyModal" class="modal-overlay" onclick="if(event.target == this) closeModal()">
+    <div class="modal-container">
+        <div class="modal-header">
+            <div style="font-weight: 800; color: var(--accent); font-size: 12px; text-transform: uppercase;">Mission Database</div>
+            <div class="close-btn" onclick="closeModal()">&times;</div>
+        </div>
+        <div class="modal-main">
+            <aside class="modal-sidebar">
+                <div class="sidebar-search">
+                    <input type="text" id="countrySearch" placeholder="Search mission..." onkeyup="filterSidebar()">
+                </div>
+                <div class="sidebar-list" id="sidebarList">
+                    <div class="empty-state">Syncing from Excel...</div>
+                </div>
+                <div class="sync-status" id="syncStatus">Status: Offline</div>
+            </aside>
+            <main class="modal-detail" id="detailPane">
+                <div class="empty-state" style="margin-top: 100px;">
+                    <h2>Select a mission to view extended details</h2>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<script>
+    const EXPORT_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv';
+
+    let missionData = [];
+
+    async function fetchDatabase() {
+        const statusEl = document.getElementById('syncStatus');
+        const listEl = document.getElementById('sidebarList');
+
+        try {
+            statusEl.innerText = "Status: Syncing...";
+            const response = await fetch(EXPORT_URL);
+            const csvText = await response.text();
+            
+            const rows = csvText.split(/\r?\n/).filter(row => row.trim().length > 0);
+            const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+            
+            missionData = rows.slice(1).map(row => {
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                const data = {};
+                headers.forEach((h, i) => {
+                    data[h] = cols[i]?.replace(/"/g, '').trim() || "";
+                });
+                return data;
+            }).filter(d => d.country && d.country.length > 0);
+
+            renderSidebar();
+            statusEl.innerText = "Status: Synced " + new Date().toLocaleTimeString();
+        } catch (error) {
+            statusEl.innerText = "Status: Sync Error";
+        }
+    }
+
+    function renderSidebar() {
+        const list = document.getElementById('sidebarList');
+        list.innerHTML = '';
+        
+        const grouped = missionData.reduce((acc, curr) => {
+            const reg = curr.region || "Global";
+            if (!acc[reg]) acc[reg] = [];
+            acc[reg].push(curr);
+            return acc;
+        }, {});
+
+        for (const [region, countries] of Object.entries(grouped)) {
+            const head = document.createElement('div');
+            head.className = 'region-group';
+            head.innerText = region;
+            list.appendChild(head);
+
+            countries.sort((a,b) => a.country.localeCompare(b.country)).forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'country-item';
+                el.innerText = item.country;
+                el.onclick = (e) => showDetail(item, e.target);
+                list.appendChild(el);
+            });
+        }
+    }
+
+    function toggleAccordion(el) {
+        const item = el.parentElement;
+        item.classList.toggle('active');
+    }
+
+    function copyToClipboard(text) {
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+    }
+
+    /**
+     * Helper to parse dates like "2 Dec" or "Dec 2" or "02/12"
+     * Returns a Date object for the current/upcoming year
+     */
+    function parseImportantDate(str) {
+        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+        const parts = str.toLowerCase().split(/[\s/]+/);
+        let day = NaN, monthIdx = -1;
+
+        parts.forEach(p => {
+            const m = months.indexOf(p.substring(0, 3));
+            if (m !== -1) monthIdx = m;
+            else if (!isNaN(parseInt(p))) day = parseInt(p);
+        });
+
+        if (!isNaN(day) && monthIdx !== -1) {
+            const d = new Date();
+            return new Date(d.getFullYear(), monthIdx, day);
+        }
+        return null;
+    }
+
+    function showDetail(item, target) {
+        document.querySelectorAll('.country-item').forEach(i => i.classList.remove('active'));
+        target.classList.add('active');
+
+        let agenciesHTML = '';
+        const officeSets = [
+            { t: item.type, a: item.address, c: item.contact, e: item.email },
+            { t: item['type 2'], a: item['address 2'], c: item['contact 2'], e: item['email 2'] },
+            { t: item['type 3'], a: item['address 3'], c: item['contact 3'], e: item['email 3'] },
+            { t: item['type 4'], a: item['address 4'], c: item['contact 4'], e: item['email 4'] }
+        ];
+
+        officeSets.forEach((office, index) => {
+            if (office.t && office.a) {
+                const isOpen = index === 0 ? 'active' : '';
+                // Rule: Use name EXACTLY as written in the spreadsheet for all types (no "of Country" suffix added)
+                const headerText = office.t;
+                agenciesHTML += `
+                    <div class="accordion-item ${isOpen}">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            ${headerText}
+                        </div>
+                        <div class="accordion-content">
+                            <div class="info-grid">
+                                <div class="info-box full">
+                                    <label>Location / Address</label>
+                                    <span>${office.a.replace(/\n/g, '<br>')}</span>
+                                </div>
+                                <div class="info-box">
+                                    <label>Primary Contact</label>
+                                    <span>${office.c || 'Not specified'}</span>
+                                </div>
+                                <div class="info-box">
+                                    <label>Email Address</label>
+                                    <span>${office.e || 'Not specified'}</span>
+                                    ${office.e ? `<button class="copy-btn" onclick="copyToClipboard('${office.e}')">Copy Email</button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // --- Improved Logic for Important Days ---
+        const daysRaw = item['important days'] || "";
+        const daysList = daysRaw ? daysRaw.split(',').map(d => d.trim()).filter(d => d.length > 0) : [];
+        
+        let timelineHTML = '';
+        if (daysList.length > 0) {
+            timelineHTML = '<div class="timeline">';
+            const now = new Date();
+            
+            daysList.forEach(dayStr => {
+                const eventDate = parseImportantDate(dayStr);
+                let isUpcoming = false;
+                let displayDay = "??", displayMonth = "???";
+
+                if (eventDate) {
+                    displayDay = eventDate.getDate();
+                    displayMonth = eventDate.toLocaleString('default', { month: 'short' });
+                    
+                    // Logic: Is this date within the next 30 days?
+                    const diffTime = eventDate - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays >= 0 && diffDays <= 30) isUpcoming = true;
+                }
+
+                timelineHTML += `
+                    <div class="timeline-item ${isUpcoming ? 'upcoming' : ''}">
+                        <div class="date-circle">
+                            <span class="date-month">${displayMonth}</span>
+                            <span class="date-day">${displayDay}</span>
+                        </div>
+                        <div class="event-info">
+                            <div class="event-title">${dayStr.replace(/[0-9\/]/g, '').trim() || 'Mission Event'}</div>
+                            <span class="event-badge">${isUpcoming ? 'Action Recommended' : 'Annual Event'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            timelineHTML += '</div>';
+        } else {
+            timelineHTML = '<p style="color:var(--muted); font-size:14px;">No specific calendar dates found.</p>';
+        }
+
+        document.getElementById('detailPane').innerHTML = `
+            <div class="detail-header">
+                <span class="region-badge">${item.region || 'Region'}</span>
+                <h2>${item.country}</h2>
+            </div>
+            
+            <div class="detail-section">
+                <h3>Office Information</h3>
+                ${agenciesHTML || '<p style="color:var(--muted);">No detailed agency data available.</p>'}
+            </div>
+
+            <div class="detail-section">
+                <h3>Calendar & Events</h3>
+                ${timelineHTML}
+            </div>
+        `;
+    }
+
+    function filterSidebar() {
+        const q = document.getElementById('countrySearch').value.toLowerCase();
+        document.querySelectorAll('.country-item').forEach(i => {
+            i.style.display = i.innerText.toLowerCase().includes(q) ? 'block' : 'none';
+        });
+    }
+
+    function openModal() {
+        document.getElementById('embassyModal').style.display = 'flex';
+        fetchDatabase();
+    }
+
+    function closeModal() {
+        document.getElementById('embassyModal').style.display = 'none';
+    }
+</script>
+
 </body>
 </html>
