@@ -15,13 +15,18 @@
             --nav-bg: #333333;
             --border: #e5e5e5;
             --sidebar: #f9f9f9;
-            --upcoming: #2e7d32; /* Green for nearby dates */
+            --cal-bg: #ffffff;
+            --cal-header: #f8f9fa;
+            /* Event Colors */
+            --color-mission: #b31b1b;
+            --color-corporate: #2563eb;
+            --color-event: #10b981; /* Green for country-specific events */
         }
 
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.5;
@@ -115,7 +120,7 @@
             width: 95%;
             max-width: 1200px;
             height: 85vh;
-            border-radius: 16px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -126,6 +131,7 @@
             padding: 15px 30px;
             border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
+            background: #fff;
         }
 
         .modal-main { display: flex; flex: 1; overflow: hidden; }
@@ -139,7 +145,7 @@
 
         .sidebar-search { padding: 15px; background: white; border-bottom: 1px solid var(--border); }
         .sidebar-search input {
-            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border);
+            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); outline: none;
         }
 
         .sidebar-list { overflow-y: auto; flex: 1; }
@@ -149,137 +155,110 @@
         .country-item.active { background: white; color: var(--accent); font-weight: 700; border-right: 3px solid var(--accent); }
 
         .modal-detail { flex: 1; padding: 40px; overflow-y: auto; background: white; }
-        .detail-header h2 { margin: 0; font-size: 32px; font-weight: 800; }
-        .region-badge { color: var(--accent); font-size: 11px; font-weight: 800; text-transform: uppercase; }
 
-        /* --- Sections Styling --- */
-        .detail-section { margin-top: 30px; }
-        .detail-section h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 15px; border-bottom: 2px solid var(--accent); display: inline-block; }
-        
-        .accordion-item {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
+        /* --- Calendar System --- */
+        .calendar-view-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: white;
         }
-        .accordion-header {
-            padding: 15px 20px;
-            background: #fdfdfd;
-            cursor: pointer;
+
+        .calendar-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: 600;
-            transition: background 0.2s;
+            padding: 20px 30px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
         }
-        .accordion-header:hover { background: #f5f5f5; }
-        .accordion-header::after {
-            content: '+';
-            font-size: 18px;
-            color: var(--muted);
+
+        .calendar-nav { display: flex; gap: 10px; align-items: center; }
+        .nav-btn {
+            background: #f0f0f0; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 12px;
         }
-        .accordion-item.active .accordion-header::after { content: '−'; }
-        
-        .accordion-content {
-            padding: 0 20px;
-            max-height: 0;
+        .nav-btn:hover { background: #e0e0e0; }
+        .nav-btn.active { background: var(--accent); color: white; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            flex: 1;
             overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease;
-            background: white;
+            border-top: 1px solid var(--border);
+            border-left: 1px solid var(--border);
         }
-        .accordion-item.active .accordion-content {
-            padding: 20px;
-            max-height: 1000px;
+
+        .day-label {
+            background: var(--cal-header);
+            text-align: center;
+            padding: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+        }
+
+        .day-cell {
+            min-height: 110px;
+            background: white;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 6px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .day-cell.other-month { background: #fafafa; color: #ccc; }
+        .day-cell.today { background: #fffcf0; }
+        .day-cell.today .day-number { background: var(--accent); color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; }
+
+        .day-number { font-size: 12px; font-weight: 600; margin-bottom: 5px; display: inline-block; }
+
+        .event-chip {
+            font-size: 10px;
+            padding: 3px 6px;
+            background: #f0f4f8;
+            border-left: 3px solid var(--color-mission);
+            margin-bottom: 4px;
+            border-radius: 3px;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.2;
+            cursor: pointer;
+            color: #111;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .event-chip.corporate { border-left-color: var(--color-corporate); background: #eff6ff; }
+        .event-chip.country-event { border-left-color: var(--color-event); background: #ecfdf5; }
+        .event-chip:hover { filter: brightness(0.95); }
+
+        .calendar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 10px 30px;
+            font-size: 11px;
+            background: #fafafa;
             border-top: 1px solid var(--border);
         }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        /* --- Office Detail Grid --- */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .info-box label { display: block; font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
-        .info-box span { font-size: 14px; font-weight: 500; color: var(--text); }
-        .info-box.full { grid-column: span 2; }
-
-        .copy-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            color: var(--accent);
-            background: #fff0f0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-top: 8px;
-            cursor: pointer;
-            border: none;
+        .event-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
         }
 
-        /* --- Improved Important Days Styling --- */
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 500px;
-        }
-        .timeline-item {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: #f9f9f9;
-            padding: 12px 18px;
-            border-radius: 10px;
-            border-left: 4px solid var(--border);
-            position: relative;
-        }
-        .timeline-item.upcoming {
-            border-left-color: var(--upcoming);
-            background: #f1f8e9;
-        }
-        .date-circle {
-            min-width: 60px;
-            height: 60px;
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            line-height: 1.1;
-        }
-        .timeline-item.upcoming .date-circle {
-            border-color: var(--upcoming);
-            color: var(--upcoming);
-        }
-        .date-month { font-size: 10px; text-transform: uppercase; color: var(--muted); }
-        .date-day { font-size: 18px; }
-        
-        .event-info { flex: 1; }
-        .event-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-        .event-badge {
-            font-size: 10px;
-            padding: 2px 6px;
-            background: #ddd;
-            border-radius: 4px;
-            text-transform: uppercase;
-            font-weight: 800;
-        }
-        .timeline-item.upcoming .event-badge { background: var(--upcoming); color: white; }
-
+        .close-btn { cursor: pointer; font-size: 30px; color: var(--muted); }
         .sync-status { padding: 10px 15px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
-        .close-btn { cursor: pointer; font-size: 30px; line-height: 1; color: var(--muted); }
-
-        .footer {
-            margin-top: 60px; padding-top: 20px;
-            border-top: 1px solid #ddd;
-            font-size: 12px; color: var(--muted);
-        }
-
-        .empty-state { padding: 40px; text-align: center; color: var(--muted); }
+        .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: var(--muted); }
     </style>
 </head>
 <body>
@@ -302,7 +281,7 @@
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/vehicles/">Vehicles</a></li>
-            <li><a href="/events/">Events</a></li>
+            <li><a href="#" onclick="openCalendarModal()">Events</a></li>
             <li><a href="/templates/">Templates</a></li>
         </ul>
     </nav>
@@ -315,7 +294,7 @@
             <h2>Vehicles</h2>
             <p>Specs, brochures, and internal resources.</p>
         </div>
-        <div class="card" onclick="window.location.href='/events/'">
+        <div class="card" onclick="openCalendarModal()">
             <h2>Events</h2>
             <p>Monthly events calendar and schedules.</p>
         </div>
@@ -323,21 +302,21 @@
             <h2>Templates</h2>
             <p>Approval Notes, templates, SOPs.</p>
         </div>
-        <div class="card" onclick="openModal()">
+        <div class="card" onclick="openEmbassyModal()">
             <h2>Embassy Data</h2>
             <p>Live mission database synced from central Excel sheet.</p>
         </div>
     </div>
 
-    <div class="footer">© Mahindra Armored — Internal Portal — Ver 4.1</div>
+    <div class="footer">© Mahindra Armored — Internal Portal — Ver 4.9</div>
 </div>
 
 <!-- Embassy Modal -->
-<div id="embassyModal" class="modal-overlay" onclick="if(event.target == this) closeModal()">
+<div id="embassyModal" class="modal-overlay" onclick="if(event.target == this) closeModal('embassyModal')">
     <div class="modal-container">
         <div class="modal-header">
             <div style="font-weight: 800; color: var(--accent); font-size: 12px; text-transform: uppercase;">Mission Database</div>
-            <div class="close-btn" onclick="closeModal()">&times;</div>
+            <div class="close-btn" onclick="closeModal('embassyModal')">&times;</div>
         </div>
         <div class="modal-main">
             <aside class="modal-sidebar">
@@ -345,7 +324,7 @@
                     <input type="text" id="countrySearch" placeholder="Search mission..." onkeyup="filterSidebar()">
                 </div>
                 <div class="sidebar-list" id="sidebarList">
-                    <div class="empty-state">Syncing from Excel...</div>
+                    <div class="empty-state">Syncing...</div>
                 </div>
                 <div class="sync-status" id="syncStatus">Status: Offline</div>
             </aside>
@@ -358,43 +337,112 @@
     </div>
 </div>
 
+<!-- Calendar Modal -->
+<div id="calendarModal" class="modal-overlay" onclick="if(event.target == this) closeModal('calendarModal')">
+    <div class="modal-container">
+        <div class="modal-header">
+            <div style="font-weight: 800; color: var(--accent); font-size: 12px; text-transform: uppercase;">Global Events Calendar</div>
+            <div class="close-btn" onclick="closeModal('calendarModal')">&times;</div>
+        </div>
+        <div class="calendar-view-container">
+            <div class="calendar-controls">
+                <div style="display:flex; align-items:center; gap:20px;">
+                    <h2 id="calendarTitle" style="margin:0; font-weight:800;">Month Year</h2>
+                    <div class="calendar-nav" style="border-left: 1px solid #ddd; padding-left: 20px;">
+                        <button class="nav-btn" onclick="setFilter('all')" id="btn-all">Show All</button>
+                        <button class="nav-btn" onclick="setFilter('mission')" id="btn-mission">Special Days</button>
+                        <button class="nav-btn" onclick="setFilter('corporate')" id="btn-corporate">Events</button>
+                    </div>
+                </div>
+                <div class="calendar-nav">
+                    <button class="nav-btn" onclick="changeMonth(-1)">Prev</button>
+                    <button class="nav-btn" onclick="resetCalendar()">Today</button>
+                    <button class="nav-btn" onclick="changeMonth(1)">Next</button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="calendar-legend">
+                <div class="legend-item"><div class="dot" style="background:var(--color-mission)"></div> Special Day (National Day)</div>
+                <div class="legend-item"><div class="dot" style="background:var(--color-corporate)"></div> Scheduled Event</div>
+                <div class="legend-item"><div class="dot" style="background:var(--color-event)"></div> Local Country Event</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    const EXPORT_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv';
+    // Configuration
+    const EMBASSY_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=0';
+    const OTHER_EVENTS_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=258527421'; 
 
     let missionData = [];
+    let otherEventsData = [];
+    let currentCalDate = new Date();
+    let currentFilter = 'all';
 
     async function fetchDatabase() {
+        if (missionData.length > 0 && otherEventsData.length > 0) return;
         const statusEl = document.getElementById('syncStatus');
-        const listEl = document.getElementById('sidebarList');
-
         try {
             statusEl.innerText = "Status: Syncing...";
-            const response = await fetch(EXPORT_URL);
-            const csvText = await response.text();
-            
-            const rows = csvText.split(/\r?\n/).filter(row => row.trim().length > 0);
-            const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
-            
-            missionData = rows.slice(1).map(row => {
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                const data = {};
-                headers.forEach((h, i) => {
-                    data[h] = cols[i]?.replace(/"/g, '').trim() || "";
-                });
-                return data;
-            }).filter(d => d.country && d.country.length > 0);
+            const [resp1, resp2] = await Promise.all([
+                fetch(EMBASSY_URL),
+                fetch(OTHER_EVENTS_URL)
+            ]);
 
+            const csv1 = await resp1.text();
+            missionData = parseCSV(csv1).filter(d => d.country);
+
+            const csv2 = await resp2.text();
+            otherEventsData = parseCSV(csv2);
+            
             renderSidebar();
             statusEl.innerText = "Status: Synced " + new Date().toLocaleTimeString();
-        } catch (error) {
+        } catch (e) {
+            console.error("Fetch error:", e);
             statusEl.innerText = "Status: Sync Error";
         }
     }
 
+    function parseCSV(text) {
+        const rows = text.split(/\r?\n/).filter(row => row.trim().length > 0);
+        if (rows.length === 0) return [];
+        const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+        return rows.slice(1).map(row => {
+            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const data = {};
+            headers.forEach((h, i) => { 
+                data[h] = cols[i]?.replace(/"/g, '').trim() || ""; 
+            });
+            return data;
+        });
+    }
+
+    // --- Enhanced Date Parser ---
+    function parseAnyDate(val) {
+        if (!val) return null;
+        const str = val.toString().trim().toLowerCase();
+        if (!str) return null;
+        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+        for (let i = 0; i < months.length; i++) {
+            if (str.includes(months[i])) {
+                const dayMatch = str.match(/\b\d{1,2}\b/);
+                if (dayMatch) return { day: parseInt(dayMatch[0]), month: i };
+            }
+        }
+        const parts = str.split(/[\/\-]/);
+        if (parts.length >= 2) {
+            const p1 = parseInt(parts[0]);
+            const p2 = parseInt(parts[1]);
+            if (p1 > 0 && p1 <= 31 && p2 > 0 && p2 <= 12) return { day: p1, month: p2 - 1 };
+        }
+        return null;
+    }
+
     function renderSidebar() {
         const list = document.getElementById('sidebarList');
+        if(!list) return;
         list.innerHTML = '';
-        
         const grouped = missionData.reduce((acc, curr) => {
             const reg = curr.region || "Global";
             if (!acc[reg]) acc[reg] = [];
@@ -402,178 +450,160 @@
             return acc;
         }, {});
 
-        for (const [region, countries] of Object.entries(grouped)) {
+        Object.keys(grouped).sort().forEach(region => {
             const head = document.createElement('div');
             head.className = 'region-group';
             head.innerText = region;
             list.appendChild(head);
-
-            countries.sort((a,b) => a.country.localeCompare(b.country)).forEach(item => {
+            grouped[region].sort((a,b) => a.country.localeCompare(b.country)).forEach(item => {
                 const el = document.createElement('div');
                 el.className = 'country-item';
                 el.innerText = item.country;
                 el.onclick = (e) => showDetail(item, e.target);
                 list.appendChild(el);
             });
-        }
-    }
-
-    function toggleAccordion(el) {
-        const item = el.parentElement;
-        item.classList.toggle('active');
-    }
-
-    function copyToClipboard(text) {
-        const el = document.createElement('textarea');
-        el.value = text;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-    }
-
-    /**
-     * Helper to parse dates like "2 Dec" or "Dec 2" or "02/12"
-     * Returns a Date object for the current/upcoming year
-     */
-    function parseImportantDate(str) {
-        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-        const parts = str.toLowerCase().split(/[\s/]+/);
-        let day = NaN, monthIdx = -1;
-
-        parts.forEach(p => {
-            const m = months.indexOf(p.substring(0, 3));
-            if (m !== -1) monthIdx = m;
-            else if (!isNaN(parseInt(p))) day = parseInt(p);
         });
-
-        if (!isNaN(day) && monthIdx !== -1) {
-            const d = new Date();
-            return new Date(d.getFullYear(), monthIdx, day);
-        }
-        return null;
     }
 
     function showDetail(item, target) {
         document.querySelectorAll('.country-item').forEach(i => i.classList.remove('active'));
         target.classList.add('active');
 
-        let agenciesHTML = '';
-        const officeSets = [
-            { t: item.type, a: item.address, c: item.contact, e: item.email },
-            { t: item['type 2'], a: item['address 2'], c: item['contact 2'], e: item['email 2'] },
-            { t: item['type 3'], a: item['address 3'], c: item['contact 3'], e: item['email 3'] },
-            { t: item['type 4'], a: item['address 4'], c: item['contact 4'], e: item['email 4'] }
-        ];
-
-        officeSets.forEach((office, index) => {
-            if (office.t && office.a) {
-                const isOpen = index === 0 ? 'active' : '';
-                // Rule: Use name EXACTLY as written in the spreadsheet for all types (no "of Country" suffix added)
-                const headerText = office.t;
-                agenciesHTML += `
-                    <div class="accordion-item ${isOpen}">
-                        <div class="accordion-header" onclick="toggleAccordion(this)">
-                            ${headerText}
-                        </div>
-                        <div class="accordion-content">
-                            <div class="info-grid">
-                                <div class="info-box full">
-                                    <label>Location / Address</label>
-                                    <span>${office.a.replace(/\n/g, '<br>')}</span>
-                                </div>
-                                <div class="info-box">
-                                    <label>Primary Contact</label>
-                                    <span>${office.c || 'Not specified'}</span>
-                                </div>
-                                <div class="info-box">
-                                    <label>Email Address</label>
-                                    <span>${office.e || 'Not specified'}</span>
-                                    ${office.e ? `<button class="copy-btn" onclick="copyToClipboard('${office.e}')">Copy Email</button>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        });
-
-        // --- Improved Logic for Important Days ---
-        const daysRaw = item['important days'] || "";
-        const daysList = daysRaw ? daysRaw.split(',').map(d => d.trim()).filter(d => d.length > 0) : [];
-        
-        let timelineHTML = '';
-        if (daysList.length > 0) {
-            timelineHTML = '<div class="timeline">';
-            const now = new Date();
-            
-            daysList.forEach(dayStr => {
-                const eventDate = parseImportantDate(dayStr);
-                let isUpcoming = false;
-                let displayDay = "??", displayMonth = "???";
-
-                if (eventDate) {
-                    displayDay = eventDate.getDate();
-                    displayMonth = eventDate.toLocaleString('default', { month: 'short' });
-                    
-                    // Logic: Is this date within the next 30 days?
-                    const diffTime = eventDate - now;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 0 && diffDays <= 30) isUpcoming = true;
-                }
-
-                timelineHTML += `
-                    <div class="timeline-item ${isUpcoming ? 'upcoming' : ''}">
-                        <div class="date-circle">
-                            <span class="date-month">${displayMonth}</span>
-                            <span class="date-day">${displayDay}</span>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-title">${dayStr.replace(/[0-9\/]/g, '').trim() || 'Mission Event'}</div>
-                            <span class="event-badge">${isUpcoming ? 'Action Recommended' : 'Annual Event'}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            timelineHTML += '</div>';
-        } else {
-            timelineHTML = '<p style="color:var(--muted); font-size:14px;">No specific calendar dates found.</p>';
+        let eventSection = '';
+        if (item.event1) {
+            eventSection = `
+                <div class="event-box">
+                    <label style="color:var(--color-event); font-weight:800; font-size:10px; display:block; margin-bottom:10px; text-transform:uppercase;">Upcoming Local Event</label>
+                    <h4 style="margin:0 0 5px 0; color:#1e293b;">${item.event1}</h4>
+                    <p style="margin:0 0 5px 0; font-size:12px; color:var(--accent); font-weight:700;">${item.eventdate1 || ''}</p>
+                    <p style="margin:0 0 10px 0; font-size:13px; color:var(--muted);">${item.details1 || 'No additional details.'}</p>
+                    ${item.eventlink1 ? `<a href="${item.eventlink1}" target="_blank" style="font-size:12px; font-weight:700; color:var(--accent); text-decoration:underline;">View Event Details &rarr;</a>` : ''}
+                </div>
+            `;
         }
 
         document.getElementById('detailPane').innerHTML = `
-            <div class="detail-header">
-                <span class="region-badge">${item.region || 'Region'}</span>
-                <h2>${item.country}</h2>
-            </div>
+            <span style="background:#eee; padding:4px 8px; font-size:10px; border-radius:4px; font-weight:700;">${item.region || 'GLOBAL'}</span>
+            <h2 style="font-size:32px; font-weight:800; margin:5px 0 20px;">${item.country}</h2>
             
-            <div class="detail-section">
-                <h3>Office Information</h3>
-                ${agenciesHTML || '<p style="color:var(--muted);">No detailed agency data available.</p>'}
+            <div class="info-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <div class="info-box" style="grid-column: span 2;"><label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">Main Address</label><div style="font-size:14px;">${item.address || 'N/A'}</div></div>
+                <div class="info-box"><label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">Contact</label><div style="font-size:14px;">${item.contact || 'N/A'}</div></div>
+                <div class="info-box"><label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">Email</label><div style="font-size:14px;">${item.email || 'N/A'}</div></div>
+                <div class="info-box"><label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">Important Day</label><div style="font-size:14px;">${item['important days'] || 'N/A'}</div></div>
             </div>
 
-            <div class="detail-section">
-                <h3>Calendar & Events</h3>
-                ${timelineHTML}
-            </div>
+            ${eventSection}
         `;
     }
 
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const title = document.getElementById('calendarTitle');
+        if(!grid || !title) return;
+        grid.innerHTML = '';
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        title.innerText = currentCalDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+        document.querySelectorAll('.calendar-nav .nav-btn').forEach(b => {
+            if(b.id === 'btn-' + currentFilter) b.classList.add('active');
+            else b.classList.remove('active');
+        });
+
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => {
+            const el = document.createElement('div'); el.className = 'day-label'; el.innerText = d; grid.appendChild(el);
+        });
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+        const prevLastDate = new Date(year, month, 0).getDate();
+
+        for (let i = firstDay; i > 0; i--) createDayCell(prevLastDate - i + 1, true);
+        for (let i = 1; i <= lastDate; i++) createDayCell(i, false);
+        const remaining = 42 - (grid.children.length - 7);
+        for (let i = 1; i <= remaining; i++) createDayCell(i, true);
+    }
+
+    function createDayCell(num, isOther) {
+        const grid = document.getElementById('calendarGrid');
+        const cell = document.createElement('div');
+        cell.className = 'day-cell' + (isOther ? ' other-month' : '');
+        const today = new Date();
+        if (!isOther && num === today.getDate() && currentCalDate.getMonth() === today.getMonth()) cell.classList.add('today');
+        cell.innerHTML = `<span class="day-number">${num}</span>`;
+
+        if (!isOther) {
+            const mIdx = currentCalDate.getMonth();
+            
+            // 1. Mission Days & Local Events (from Tab 0)
+            if (currentFilter === 'all' || currentFilter === 'mission') {
+                missionData.forEach(m => {
+                    // Mission National Days
+                    const dayStr = m['important days'];
+                    if (dayStr) {
+                        dayStr.split(',').forEach(part => {
+                            const p = parseAnyDate(part);
+                            if (p && p.month === mIdx && p.day === num) {
+                                addChip(cell, `${m.country}: ${part.replace(/[0-9\/]/g, '').trim() || 'National Day'}`, 'mission');
+                            }
+                        });
+                    }
+
+                    // Local Events (New eventdate1 logic)
+                    if (m.event1 && m.eventdate1) {
+                        const p = parseAnyDate(m.eventdate1); 
+                        if (p && p.month === mIdx && p.day === num) {
+                            addChip(cell, `${m.country}: ${m.event1}`, 'country-event');
+                        }
+                    } else if (m.event1) {
+                        // Fallback: Check if event1 title itself contains the date
+                        const p = parseAnyDate(m.event1);
+                        if (p && p.month === mIdx && p.day === num) {
+                            addChip(cell, `${m.country}: ${m.event1}`, 'country-event');
+                        }
+                    }
+                });
+            }
+
+            // 2. Events (from Tab 2)
+            if (currentFilter === 'all' || currentFilter === 'corporate') {
+                otherEventsData.forEach(ev => {
+                    let dateInfo = null; let eventTitle = "";
+                    for (const key in ev) {
+                        if (!dateInfo) dateInfo = parseAnyDate(ev[key]);
+                        if (key.includes('event') || key.includes('title') || key.includes('name')) {
+                            if (!eventTitle && isNaN(ev[key])) eventTitle = ev[key];
+                        }
+                    }
+                    if (dateInfo && dateInfo.month === mIdx && dateInfo.day === num) {
+                        addChip(cell, eventTitle || "Event", 'corporate');
+                    }
+                });
+            }
+        }
+        grid.appendChild(cell);
+    }
+
+    function addChip(container, text, type) {
+        const chip = document.createElement('div');
+        chip.className = `event-chip ${type}`;
+        chip.innerText = text;
+        container.appendChild(chip);
+    }
+
+    function setFilter(f) { currentFilter = f; renderCalendar(); }
+    function changeMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); }
+    function resetCalendar() { currentCalDate = new Date(); renderCalendar(); }
+    function openEmbassyModal() { document.getElementById('embassyModal').style.display = 'flex'; fetchDatabase(); }
+    function openCalendarModal() { document.getElementById('calendarModal').style.display = 'flex'; fetchDatabase().then(() => renderCalendar()); }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function filterSidebar() {
         const q = document.getElementById('countrySearch').value.toLowerCase();
         document.querySelectorAll('.country-item').forEach(i => {
             i.style.display = i.innerText.toLowerCase().includes(q) ? 'block' : 'none';
         });
     }
-
-    function openModal() {
-        document.getElementById('embassyModal').style.display = 'flex';
-        fetchDatabase();
-    }
-
-    function closeModal() {
-        document.getElementById('embassyModal').style.display = 'none';
-    }
 </script>
-
 </body>
 </html>
