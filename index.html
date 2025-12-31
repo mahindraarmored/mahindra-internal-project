@@ -259,6 +259,74 @@
         .close-btn { cursor: pointer; font-size: 30px; color: var(--muted); }
         .sync-status { padding: 10px 15px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
         .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: var(--muted); }
+    
+    
+    /* Important Days – Embassy Modal UX */
+.important-days-list {
+    margin-top: 8px;
+}
+
+.important-day-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+}
+
+.important-day-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.important-day-date {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 4px;
+}
+/* Embassy Addresses with Contact & Email – Modal UX */
+.address-list {
+    margin-top: 10px;
+}
+
+.address-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.address-type {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.address-text {
+    font-size: 14px;
+    color: #1e293b;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.address-meta {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.address-meta span {
+    display: block;
+    margin-top: 2px;
+}
+    
     </style>
 </head>
 <body>
@@ -487,11 +555,82 @@
             <h2 style="font-size:32px; font-weight:800; margin:5px 0 20px;">${item.country}</h2>
             
             <div class="info-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                <div class="info-box" style="grid-column: span 2;"><label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">Main Address</label><div style="font-size:14px;">${item.address || 'N/A'}</div></div>
-                <div class="info-box"><label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">Contact</label><div style="font-size:14px;">${item.contact || 'N/A'}</div></div>
-                <div class="info-box"><label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">Email</label><div style="font-size:14px;">${item.email || 'N/A'}</div></div>
-                <div class="info-box"><label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">Important Day</label><div style="font-size:14px;">${item['important days'] || 'N/A'}</div></div>
-            </div>
+                <div class="info-box" style="grid-column: span 2;">
+  <label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">
+    Addresses & Contacts
+  </label>
+
+  <div class="address-list">
+    ${
+      [
+        {
+          type: item.type,
+          address: item.address,
+          contact: item.contact,
+          email: item.email
+        },
+        {
+          type: item['type 2'],
+          address: item['address 2'],
+          contact: item['contact 2'],
+          email: item['email 2']
+        },
+        {
+          type: item['type 3'],
+          address: item['address 3'],
+          contact: item['contact 3'],
+          email: item['email 3']
+        }
+      ]
+        .filter(a => a.type || a.address)
+        .map(a => `
+          <div class="address-item">
+              <div class="address-type">${a.type || 'Office'}</div>
+
+              <div class="address-text">
+                  ${a.address || 'Address not available'}
+              </div>
+
+              <div class="address-meta">
+                  <span><strong>Contact:</strong> ${a.contact || 'Not available'}</span>
+                  <span><strong>Email:</strong> ${a.email || 'Not available'}</span>
+              </div>
+          </div>
+        `)
+        .join('')
+      || '<div style="font-size:14px;">No address data available</div>'
+    }
+  </div>
+</div>
+
+                <div class="info-box">
+  <label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">
+    Important Days
+  </label>
+
+  <div class="important-days-list">
+    ${
+      item['important days']
+        ? item['important days']
+            .split(',')
+            .map(d => {
+                const parts = d.split(':');
+                const title = parts[0]?.trim();
+                const date = parts[1]?.trim();
+                return `
+                  <div class="important-day-item">
+                      <div class="important-day-title">${title}</div>
+                      <div class="important-day-date">📅 ${date}</div>
+                  </div>
+                `;
+            })
+            .join('')
+        : '<div style="font-size:14px;">N/A</div>'
+    }
+  </div>
+</div>
+
+                </div>
 
             ${eventSection}
         `;
