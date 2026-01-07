@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Asset Library | Mahindra Emirates</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --mahindra-red: #dc2626;
+            --slate-primary: #0f172a;
+            --slate-secondary: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .sidebar { background-color: var(--slate-primary); color: white; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover { background-color: var(--slate-secondary); color: white; }
+        .nav-link.active { background-color: var(--mahindra-red); color: white; }
+
+        .vehicle-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-btn {
+            white-space: nowrap;
+            padding: 8px 16px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: var(--mahindra-red);
+            color: white;
+            border-color: var(--mahindra-red);
+        }
+
+        .icon-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #64748b;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .icon-action:hover {
+            background: #e2e8f0;
+            color: var(--mahindra-red);
+        }
+
+        .icon-action.disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .icon-action .tooltip {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .icon-action:hover .tooltip {
+            opacity: 1;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Shimmer loading effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="sidebar w-64 flex-shrink-0 flex flex-col">
+        <div class="p-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-600 p-1.5 rounded-lg">
+                    <i class="ri-shield-fill text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-sm tracking-tighter uppercase leading-none text-white">Mahindra</h1>
+                    <span class="text-slate-400 font-bold uppercase tracking-widest text-[8px]">Armored Division</span>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="#" class="nav-link">
+                <i class="ri-home-4-line"></i> Dashboard
+            </a>
+            <a href="#" class="nav-link active">
+                <i class="ri-folder-shield-2-line"></i> Asset Library
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white border-b flex items-center justify-between px-8 z-10">
+            <div class="flex items-center gap-4 w-1/2">
+                <i class="ri-search-line text-slate-400"></i>
+                <input type="text" id="assetSearch" placeholder="Search vehicle database..." class="w-full text-sm outline-none" onkeyup="filterAssets()">
+            </div>
+            <div id="assetCount" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Loading Data...
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 bg-slate-50">
+            <div class="max-w-7xl mx-auto space-y-6">
+                <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2" id="filterBar">
+                    <button onclick="filterType('All', this)" class="filter-btn active">All</button>
+                    <button onclick="filterType('CAV', this)" class="filter-btn">CAV</button>
+                    <button onclick="filterType('APC', this)" class="filter-btn">APC</button>
+                    <button onclick="filterType('Pickup', this)" class="filter-btn">Pickup</button>
+                    <button onclick="filterType('CITV', this)" class="filter-btn">CITV</button>
+                    <button onclick="filterType('Ambulance', this)" class="filter-btn">Ambulance</button>
+                </div>
+
+                <div id="assetGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Loading Skeletons -->
+                    <div class="vehicle-card shimmer h-40"></div>
+                    <div class="vehicle-card shimmer h-40"></div>
+                    <div class="vehicle-card shimmer h-40"></div>
+                    <div class="vehicle-card shimmer h-40"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Data Source from Google Sheets CSV Export
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-Hzbhsw1kmNd2_2-SjwUqQcAGtw6xG9h3tUS_uSpcDTfu2SxU5J4w0XA1A8Llg9cZ6eAIkwu/pub?output=csv'; 
+        
+        let allVehicles = [];
+        let currentFilter = 'All';
+
+        async function fetchSheetData() {
+    try {
+        const response = await fetch(SHEET_CSV_URL);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const csvText = await response.text();
+        allVehicles = parseCSV(csvText);
+
+        // 👇 PASTE THIS LINE HERE
+        console.log(allVehicles);
+
+        renderAssets();
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        document.getElementById('assetCount').innerText = "Error Loading Database";
+        document.getElementById('assetGrid').innerHTML = `
+            <div class="col-span-full py-20 text-center">
+                <i class="ri-error-warning-line text-4xl text-slate-300 mb-4 block"></i>
+                <p class="text-slate-500 font-medium">Unable to connect to vehicle database.</p>
+            </div>
+        `;
+    }
+}
+
+
+        function parseCSV(csv) {
+    const lines = csv.trim().split('\n');
+    if (lines.length < 2) return [];
+
+    // Read headers exactly as they exist
+    const headers = lines[0]
+        .split(',')
+        .map(h => h.replace(/"/g, '').trim().toLowerCase());
+
+    return lines.slice(1).map(line => {
+        const values = line
+            .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+            .map(v => v.replace(/"/g, '').trim());
+
+        const row = {};
+        headers.forEach((h, i) => row[h] = values[i] || '');
+
+        return {
+            // ✅ Mapping YOUR column names
+            name: row['vehicle name'],
+            subtitle: row['sub heading'] || row['base vehicle / chassis'],
+            image: row['image status']?.startsWith('http') ? row['image status'] : null,
+            brochure: row['brochure link']?.startsWith('http')
+                ? row['brochure link']
+                : row['brochure link']
+                    ? `https://${row['brochure link']}`
+                    : null,
+            website: row['website']?.startsWith('http')
+                ? row['website']
+                : row['website']
+                    ? `https://${row['website']}`
+                    : null,
+            type: row['category'] || 'Other'
+        };
+    }).filter(v => v.name);
+}
+
+
+
+        function renderAssets() {
+            const grid = document.getElementById('assetGrid');
+            const searchQ = document.getElementById('assetSearch').value.toLowerCase();
+            
+            grid.innerHTML = '';
+            
+            const filtered = allVehicles.filter(v => {
+                const matchesType = currentFilter === 'All' || v.type.toUpperCase() === currentFilter.toUpperCase();
+                const matchesSearch = v.name.toLowerCase().includes(searchQ) || 
+                                     v.subtitle.toLowerCase().includes(searchQ) || 
+                                     v.type.toLowerCase().includes(searchQ);
+                return matchesType && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 font-medium italic">No assets matching your criteria.</div>`;
+            }
+
+            filtered.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'vehicle-card';
+                
+                const hasImg = v.image && v.image.startsWith('http');
+                const hasBro = v.brochure && v.brochure.startsWith('http');
+                const hasWeb = v.website && (v.website.startsWith('http') || v.website.length > 2);
+                const webLabel = v.website.startsWith('http') ? 'External' : v.website;
+
+                card.innerHTML = `
+                    <div class="p-5 flex-1">
+                        <span class="category-badge ${getCategoryColor(v.type)} mb-2 inline-block">${v.type}</span>
+                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-tight">${v.name}</h3>
+                        <p class="text-[10px] text-slate-400 font-medium">${v.subtitle}</p>
+                    </div>
+                    <div class="px-5 py-4 flex items-center justify-between border-t border-slate-50">
+                        <div class="flex gap-2">
+                            <a href="${hasImg ? v.image : '#'}" class="icon-action ${hasImg ? '' : 'disabled'}" target="_blank">
+                                <i class="ri-image-line"></i>
+                                <span class="tooltip">Images</span>
+                            </a>
+                            <a href="${hasBro ? v.brochure : '#'}" class="icon-action ${hasBro ? '' : 'disabled'}" target="_blank">
+                                <i class="ri-file-pdf-line"></i>
+                                <span class="tooltip">Brochure</span>
+                            </a>
+                        </div>
+                        <a href="${hasWeb && v.website.startsWith('http') ? v.website : '#'}" class="icon-action ${hasWeb ? '' : 'disabled'}" target="_blank">
+                            <i class="ri-global-line"></i>
+                            <span class="tooltip">${webLabel}</span>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            document.getElementById('assetCount').innerText = `${filtered.length} Vehicles Detected`;
+        }
+
+        function getCategoryColor(type) {
+            const t = type.toUpperCase();
+            if (t.includes('CAV')) return 'bg-blue-50 text-blue-600';
+            if (t.includes('APC')) return 'bg-red-50 text-red-600';
+            if (t.includes('PICKUP')) return 'bg-slate-100 text-slate-600';
+            if (t.includes('CITV')) return 'bg-yellow-50 text-yellow-600';
+            if (t.includes('AMBULANCE')) return 'bg-green-50 text-green-600';
+            return 'bg-slate-100 text-slate-600';
+        }
+
+        function filterAssets() {
+            renderAssets();
+        }
+
+        function filterType(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = type;
+            renderAssets();
+        }
+
+        // Initialize fetching on page load
+        window.addEventListener('DOMContentLoaded', fetchSheetData);
+    </script>
+</body>
+</html>
