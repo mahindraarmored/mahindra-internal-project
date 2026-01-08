@@ -14,13 +14,28 @@ body {
     background-color: #f8fafc;
     color: #1e293b;
     margin: 0;
+    display: flex;
+    min-height: 100dvh; /* Use dynamic viewport height for mobile safety */
+    margin: 0;
+    overflow-x: hidden;
 }
 
 /* --- SIDEBAR COMPONENTS --- */
+#sidebar-root {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh; /* Force sidebar root to be full height */
+    position: sticky;
+    top: 0;
+}
+
+
 .sidebar {
     background-color: var(--slate-primary);
     color: white;
     transition: all 0.3s ease;
+    height: 100%; /* Ensure the sidebar inside the root fills it */
+    min-height: 100dvh
 }
 
 .nav-link {
@@ -76,18 +91,62 @@ header {
     background-color: white;
     border-bottom: 1px solid var(--border-color);
 }
-
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100dvh;
+}
 
 
 /* --- GLOBAL MOBILE OPTIMIZATION --- */
+
+/* Fix for mobile height issues */
+body {
+    min-height: 100dvh;
+}
+
+/* Ensure the main container doesn't overflow horizontally */
+main {
+    width: 100%;
+    min-width: 0;
+}
+
 @media (max-width: 1024px) {
-    body { flex-direction: column !important; }
-    main { padding: 1rem !important; width: 100%; }
-    .grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
-    h2.text-3xl { font-size: 1.75rem !important; }
-    .portal-card { padding: 1.5rem !important; align-items: flex-start; text-align: left; }
+    /* Stack Dashboard Cards vertically on mobile */
+    .grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    /* Reduce spacing for mobile devices */
+    .p-8, .p-12 {
+        padding: 1.25rem !important;
+    }
+
+    /* Scale down large typography for smaller screens */
+    h2.text-3xl {
+        font-size: 1.75rem !important;
+    }
+
+    /* Portal Card adjustments for mobile */
+    .portal-card {
+        padding: 1.5rem !important;
+        text-align: left;
+        align-items: flex-start;
+    }
 }
+
+/* TOUCH OPTIMIZATION: Make buttons easier to tap */
 @media (pointer: coarse) {
-    .nav-link, button, .portal-card { min-height: 44px; }
+    .nav-link, button, .portal-card {
+        min-height: 48px;
+    }
 }
-img { max-width: 100%; height: auto; }
+
+/* Global Image Safety */
+img {
+    max-width: 100%;
+    height: auto;
+}
