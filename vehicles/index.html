@@ -3,144 +3,351 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vehicles Specifications</title>
-    <link rel="stylesheet" href="/assets/styles.css" />
-    
-    <script id="base-url-script">
-        const BASE_URL = "https://1drv.ms/x/c/f91e71cf4403fa00/IQQA-gNEz3EeIID5cRUAAAAAAR7fQiOle7HR3t1MOFjjYEE?em=2&wdAllowInteractivity=False&wdHideGridlines=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True";
-    </script>
-    
+    <title>Vehicle Assets | Mahindra Emirates</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
-        .default-message {
-            text-align: center;
-            padding: 100px 20px;
-            font-size: 1.2em;
-            color: var(--muted);
-            background-color: var(--card);
-            border: 1px dashed #ccc;
-            border-radius: 8px;
-            margin-top: 20px;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --mahindra-red: #dc2626;
+            --slate-primary: #0f172a;
+            --slate-secondary: #1e293b;
+            --border-color: #e2e8f0;
         }
-        /* Hides the default message once a tab has been clicked */
-        .iframe-active .default-message {
-            display: none;
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .sidebar { background-color: var(--slate-primary); color: white; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover { background-color: var(--slate-secondary); color: white; }
+        .nav-link.active { background-color: var(--mahindra-red); color: white; }
+
+        .vehicle-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-btn {
+            white-space: nowrap;
+            padding: 8px 16px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: var(--mahindra-red);
+            color: white;
+            border-color: var(--mahindra-red);
+        }
+
+        .icon-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #64748b;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .icon-action:hover {
+            background: #e2e8f0;
+            color: var(--mahindra-red);
+        }
+
+        .icon-action.disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .icon-action .tooltip {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .icon-action:hover .tooltip {
+            opacity: 1;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Shimmer loading effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
     </style>
 </head>
-<body>
-<div class="container" id="main-container">
-    
-    <div class="header-top">
-        <div class="logo">
-            <a href="/">
-                <strong style="color:var(--accent); font-size:1.4em;">MAHINDRA</strong> 
-                <span style="font-size:1.1em; color:var(--text);">Internal Portal</span>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="sidebar w-64 flex-shrink-0 flex flex-col">
+        <div class="p-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-600 p-1.5 rounded-lg">
+                    <i class="ri-shield-fill text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-sm tracking-tighter uppercase leading-none text-white">Mahindra</h1>
+                    <span class="text-slate-400 font-bold uppercase tracking-widest text-[8px]">Armored Division</span>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="#" class="nav-link">
+                <i class="ri-home-4-line"></i> Dashboard
             </a>
+            <a href="#" class="nav-link active">
+                <i class="ri-folder-shield-2-line"></i> Vehicle Library
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white border-b flex items-center justify-between px-8 z-10">
+            <div class="flex items-center gap-4 w-1/2">
+                <i class="ri-search-line text-slate-400"></i>
+                <input type="text" id="assetSearch" placeholder="Search vehicle database..." class="w-full text-sm outline-none" onkeyup="filterAssets()">
+            </div>
+            <div id="assetCount" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Loading Data...
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 bg-slate-50">
+            <div class="max-w-7xl mx-auto space-y-6">
+                <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2" id="filterBar">
+                    <button onclick="filterType('All', this)" class="filter-btn active">All</button>
+                    <button onclick="filterType('CAV', this)" class="filter-btn">CAV</button>
+                    <button onclick="filterType('APC', this)" class="filter-btn">APC</button>
+                    <button onclick="filterType('Pickup', this)" class="filter-btn">Pickup</button>
+                    <button onclick="filterType('CITV', this)" class="filter-btn">CITV</button>
+                    <button onclick="filterType('Ambulance', this)" class="filter-btn">Ambulance</button>
+                </div>
+
+                <div id="assetGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Loading Skeletons -->
+                    <div class="vehicle-card shimmer h-40"></div>
+                    <div class="vehicle-card shimmer h-40"></div>
+                    <div class="vehicle-card shimmer h-40"></div>
+                    <div class="vehicle-card shimmer h-40"></div>
+                </div>
+            </div>
         </div>
-        <div class="header-utilities">
-            <span style="color:var(--muted); font-size:14px;">Intended for employees</span>
-            <button class="cta-request">MEVA Connect</button>
-            <button class="cta-chat">MEVA Website</button>
-        </div>
-    </div>
-    <nav class="main-nav-bar">
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/vehicles/">Vehicles</a></li>
-            <li><a href="/events/">Events</a></li>
-            <li><a href="/templates/">Templates</a></li>
-        </ul>
-    </nav>
-    
-    <p class="breadcrumbs"><a href="/">Home</a> / <strong>Vehicles</strong></p>
-    <h1 class="section-title">Vehicle Specifications & Resources</h1>
-    
-    <div class="tab-menu" id="vehicle-tabs">
-        <button class="tab-button" data-category="CAV" data-item="'CAV'!A1%3AD18">CAV</button>
-        <button class="tab-button" data-category="APC" data-item="'APC'!A1%3AD24">APC</button>
-        <button class="tab-button" data-category="ALSV-MRAP" data-item="'ALSV-MRAP'!A1%3AD6">ALSV-MRAP</button>
-        <button class="tab-button" data-category="PICKUP" data-item="'Pickup'!A1%3AD12">PICKUPS</button>
-        <button class="tab-button" data-category="CITV" data-item="'CITV'!A1%3AD15">CITV</button>
-        <button class="tab-button" data-category="AMBULANCE" data-item="'Ambulance'!A1%3AD9">AMBULANCE</button>
-        <button class="tab-button" data-category="BUS-VAN-TRUCK" data-item="'Bus-Van-Truck'!A1%3AD9">BUS-VAN-TRUCK</button>
-        <button class="tab-button" data-category="INDUSTRIAL" data-item="'Industrial Vehicles'!A1%3AD10">INDUSTRIAL VEHICLES</button>
-    </div>
-    
-    <div class="iframe-wrap" id="iframe-container">
+    </main>
+
+    <script>
+        // Data Source from Google Sheets CSV Export
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-Hzbhsw1kmNd2_2-SjwUqQcAGtw6xG9h3tUS_uSpcDTfu2SxU5J4w0XA1A8Llg9cZ6eAIkwu/pub?output=csv'; 
         
-        <div class="spinner"></div>
-        
-        <div class="default-message">
-            <p><strong>Select a vehicle category </strong></p>
-        </div>
+        let allVehicles = [];
+        let currentFilter = 'All';
 
-        <iframe  
-            id="vehicle-iframe"
-            src="" 
-            frameborder="0"
-            scrolling="yes"
-            allowfullscreen
-            style="position:absolute;inset:0;width:100%;height:100%;border:0;"
-        ></iframe>
-    </div>
-    
-    <div class="footer">
-        © Mahindra Armored — Internal Use Only.<br>
-        Unauthorized sharing prohibited. Responsibility for violations rests with the originating user.
-    </div>
-</div>
+        async function fetchSheetData() {
+    try {
+        const response = await fetch(SHEET_CSV_URL);
+        if (!response.ok) throw new Error('Network response was not ok');
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Retrieve BASE_URL
-        const BASE_URL = document.getElementById('base-url-script').textContent.match(/BASE_URL\s*=\s*"(.*?)"/)[1];
+        const csvText = await response.text();
+        allVehicles = parseCSV(csvText);
 
-        const tabsContainer = document.getElementById('vehicle-tabs');
-        const iframe = document.getElementById('vehicle-iframe');
-        const iframeContainer = document.getElementById('iframe-container');
-        
-        if (!tabsContainer || !iframe || !iframeContainer || !BASE_URL) return; 
+        // 👇 PASTE THIS LINE HERE
+        console.log(allVehicles);
 
-        // Function to handle loading state and source change
-        function setIframeSource(itemParam, button) {
-            // 1. Hide the default message and show the iframe area
-            iframeContainer.classList.add('iframe-active');
+        renderAssets();
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        document.getElementById('assetCount').innerText = "Error Loading Database";
+        document.getElementById('assetGrid').innerHTML = `
+            <div class="col-span-full py-20 text-center">
+                <i class="ri-error-warning-line text-4xl text-slate-300 mb-4 block"></i>
+                <p class="text-slate-500 font-medium">Unable to connect to vehicle database.</p>
+            </div>
+        `;
+    }
+}
 
-            // 2. Show Spinner / Hide Iframe (This starts the spinner animation)
-            iframeContainer.classList.add('iframe-loading');
-            iframeContainer.classList.remove('iframe-loaded');
 
-            // 3. Construct the full URL
-            const newUrl = `${BASE_URL}&Item=${itemParam}`;
+        function parseCSV(csv) {
+    const lines = csv.trim().split('\n');
+    if (lines.length < 2) return [];
+
+    // Read headers exactly as they exist
+    const headers = lines[0]
+        .split(',')
+        .map(h => h.replace(/"/g, '').trim().toLowerCase());
+
+    return lines.slice(1).map(line => {
+        const values = line
+            .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+            .map(v => v.replace(/"/g, '').trim());
+
+        const row = {};
+        headers.forEach((h, i) => row[h] = values[i] || '');
+
+        return {
+            // ✅ Mapping YOUR column names
+            name: row['vehicle name'],
+            subtitle: row['sub heading'] || row['base vehicle / chassis'],
+            image: row['image status']?.startsWith('http') ? row['image status'] : null,
+            brochure: row['brochure link']?.startsWith('http')
+                ? row['brochure link']
+                : row['brochure link']
+                    ? `https://${row['brochure link']}`
+                    : null,
+            website: row['website']?.startsWith('http')
+                ? row['website']
+                : row['website']
+                    ? `https://${row['website']}`
+                    : null,
+            type: row['category'] || 'Other'
+        };
+    }).filter(v => v.name);
+}
+
+
+
+        function renderAssets() {
+            const grid = document.getElementById('assetGrid');
+            const searchQ = document.getElementById('assetSearch').value.toLowerCase();
             
-            // 4. Update the iframe's source URL (triggers the browser to reload)
-            iframe.src = newUrl;
+            grid.innerHTML = '';
+            
+            const filtered = allVehicles.filter(v => {
+                const matchesType = currentFilter === 'All' || v.type.toUpperCase() === currentFilter.toUpperCase();
+                const matchesSearch = v.name.toLowerCase().includes(searchQ) || 
+                                     v.subtitle.toLowerCase().includes(searchQ) || 
+                                     v.type.toLowerCase().includes(searchQ);
+                return matchesType && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 font-medium italic">No assets matching your criteria.</div>`;
+            }
+
+            filtered.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'vehicle-card';
+                
+                const hasImg = v.image && v.image.startsWith('http');
+                const hasBro = v.brochure && v.brochure.startsWith('http');
+                const hasWeb = v.website && (v.website.startsWith('http') || v.website.length > 2);
+                const webLabel = v.website.startsWith('http') ? 'External' : v.website;
+
+                card.innerHTML = `
+                    <div class="p-5 flex-1">
+                        <span class="category-badge ${getCategoryColor(v.type)} mb-2 inline-block">${v.type}</span>
+                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-tight">${v.name}</h3>
+                        <p class="text-[10px] text-slate-400 font-medium">${v.subtitle}</p>
+                    </div>
+                    <div class="px-5 py-4 flex items-center justify-between border-t border-slate-50">
+                        <div class="flex gap-2">
+                            <a href="${hasImg ? v.image : '#'}" class="icon-action ${hasImg ? '' : 'disabled'}" target="_blank">
+                                <i class="ri-image-line"></i>
+                                <span class="tooltip">Images</span>
+                            </a>
+                            <a href="${hasBro ? v.brochure : '#'}" class="icon-action ${hasBro ? '' : 'disabled'}" target="_blank">
+                                <i class="ri-file-pdf-line"></i>
+                                <span class="tooltip">Brochure</span>
+                            </a>
+                        </div>
+                        <a href="${hasWeb && v.website.startsWith('http') ? v.website : '#'}" class="icon-action ${hasWeb ? '' : 'disabled'}" target="_blank">
+                            <i class="ri-global-line"></i>
+                            <span class="tooltip">${webLabel}</span>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            document.getElementById('assetCount').innerText = `${filtered.length} Vehicles Detected`;
         }
 
-        // Event listener for tab clicks
-        tabsContainer.addEventListener('click', function(event) {
-            const button = event.target.closest('.tab-button');
-            if (!button || button.classList.contains('active')) return;
+        function getCategoryColor(type) {
+            const t = type.toUpperCase();
+            if (t.includes('CAV')) return 'bg-blue-50 text-blue-600';
+            if (t.includes('APC')) return 'bg-red-50 text-red-600';
+            if (t.includes('PICKUP')) return 'bg-slate-100 text-slate-600';
+            if (t.includes('CITV')) return 'bg-yellow-50 text-yellow-600';
+            if (t.includes('AMBULANCE')) return 'bg-green-50 text-green-600';
+            return 'bg-slate-100 text-slate-600';
+        }
 
-            const itemParam = button.getAttribute('data-item');
-            
-            // Trigger the loading state and source change
-            setIframeSource(itemParam, button);
+        function filterAssets() {
+            renderAssets();
+        }
 
-            // Update active state for styling
-            tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            button.classList.add('active');
-        });
+        function filterType(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = type;
+            renderAssets();
+        }
 
-        // Event listener for iframe LOAD COMPLETE
-        iframe.onload = function() {
-            // This stops the spinner and makes the iframe content visible
-            iframeContainer.classList.remove('iframe-loading');
-            iframeContainer.classList.add('iframe-loaded');
-        };
-    });
-</script>
+        // Initialize fetching on page load
+        window.addEventListener('DOMContentLoaded', fetchSheetData);
+    </script>
 </body>
 </html>
