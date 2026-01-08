@@ -1,265 +1,240 @@
-/* =========================
-   DATA SOURCES
-========================= */
-const EMBASSY_CSV =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-Hzbhsw1kmNd2_2-SjwUqQcAGtw6xG9h3tUS_uSpcDTfu2SxU5J4w0XA1A8Llg9cZ6eAIkwu/pub?output=csv';
+/* ===============================
+   EVENTS ENGINE – FINAL
+   =============================== */
 
-const CORPORATE_CSV =
+/* === CSV SOURCES === */
+const SHEET_MISSION =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vRN0N7BjlpK9kjL923oPBw3mpreD9ofgLMP5YX8_yTQXDwuzw_PPMsLZOKnyZnZzJVBS4KmTD07tyXx/pub?output=csv';
 
-/* =========================
-   STATE
-========================= */
+const SHEET_CORPORATE =
+  'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=258527421';
+
+/* === INTERNAL STATE === */
 let eventStore = [];
 let calDate = new Date();
-let viewMode = window.innerWidth <= 768 ? 'list' : 'grid';
+let viewMode = 'grid';
 
-const monthMap = {
-  jan:0,feb:1,mar:2,apr:3,may:4,jun:5,
-  jul:6,aug:7,sep:8,oct:9,nov:10,dec:11
+/* === CONSTANTS === */
+const MONTHS = {
+  jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+  jul: 6, aug: 7, sep: 8, sept: 8, oct: 9, nov: 10, dec: 11
 };
 
-/* =========================
+/* ===============================
    INIT
-========================= */
+   =============================== */
 window.addEventListener('load', initCalendar);
 
-async function initCalendar(){
-  try{
-    const [eRes, cRes] = await Promise.all([
-      fetch(EMBASSY_CSV),
-      fetch(CORPORATE_CSV)
+async function initCalendar() {
+  try {
+    const [mRes, cRes] = await Promise.all([
+      fetch(SHEET_MISSION),
+      fetch(SHEET_CORPORATE)
     ]);
 
-    const embassyRows = parseCSV(await eRes.text());
-    const corpRows = parseCSV(await cRes.text());
+    const missionRows = parseCSV(await mRes.text());
+    const corporateRows = parseCSV(await cRes.text());
 
     eventStore = [
-      ...mapEmbassyEvents(embassyRows),
-      ...mapCorporateEvents(corpRows)
+      ...missionRows.flatMap(expandMissionRow),
+      ...corporateRows.flatMap(expandCorporateRow)
     ];
 
-    bindUI();
     updateNavLabel();
-    render();
-  }catch(err){
-    console.error('Events load failed:', err);
+    renderCalendar();
+
+  } catch (err) {
+    console.error('Calendar init failed:', err);
   }
 }
 
-/* =========================
+/* ===============================
    CSV PARSER
-========================= */
-function parseCSV(text){
-  const lines = text.split(/\r?\n/).filter(l => l.trim());
-  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim().toLowerCase());
+   =============================== */
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(Boolean);
+  const headers = lines[0]
+    .split(',')
+    .map(h => h.replace(/"/g, '').trim().toLowerCase());
 
-  return lines.slice(1).map(line => {
-    const cells = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+  return lines.slice(1).map(row => {
+    const cells = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
     const obj = {};
-    headers.forEach((h,i)=> obj[h]=(cells[i]||'').replace(/"/g,'').trim());
+    headers.forEach((h, i) => {
+      obj[h] = (cells[i] || '').replace(/"/g, '').trim();
+    });
     return obj;
   });
 }
 
-/* =========================
-   DATA MAPPING
-========================= */
-function mapEmbassyEvents(rows){
-  return rows
-    .filter(r => r['important days'])
-    .map(r => ({
-      label: r.country,
-      date: r['important days'],
+/* ===============================
+   DATA EXPANSION
+   =============================== */
+
+/* --- Sheet 1: Mission / Embassy --- */
+function expandMissionRow(row) {
+  const src = row['important days'];
+  if (!src) return [];
+
+  return src.split(',').map(chunk => {
+    const parts = chunk.split(':');
+    if (parts.length < 2) return null;
+
+    const label = parts[0].trim();
+    const dateParts = parts[1].trim().split(' ');
+    const day = parseInt(dateParts[0]);
+    const month = MONTHS[dateParts[1]?.toLowerCase()];
+
+    if (isNaN(day) || month === undefined) return null;
+
+    return {
+      label,
+      day,
+      month,
       type: 'mission',
-      raw: r
-    }));
+      raw: row
+    };
+  }).filter(Boolean);
 }
 
-function mapCorporateEvents(rows){
-  return rows
-    .filter(r => r.event1 && r.eventdate1)
-    .map(r => ({
-      label: r.event1,
-      date: r.eventdate1,
+/* --- Sheet 2: Corporate --- */
+function expandCorporateRow(row) {
+  const src = row.eventdate1;
+  if (!src) return [];
+
+  return src.split(',').map(d => {
+    const parts = d.trim().split(' ');
+    const month = MONTHS[parts[0]?.toLowerCase()];
+    const day = parseInt(parts[1]);
+
+    if (month === undefined || isNaN(day)) return null;
+
+    return {
+      label: row.event1 || 'Corporate Event',
+      day,
+      month,
       type: 'corporate',
-      raw: r
-    }));
+      raw: row
+    };
+  }).filter(Boolean);
 }
 
-/* =========================
-   DATE MATCHING
-========================= */
-function matchesDate(dateString, day, monthIdx){
-  if(!dateString) return false;
-  const s = dateString.toLowerCase();
+/* ===============================
+   CALENDAR RENDERING
+   =============================== */
 
-  const entries = s.split(/[,;&]+/).map(e=>e.trim());
-  return entries.some(e=>{
-    const m =
-      e.includes(Object.keys(monthMap)[monthIdx]) ||
-      e.includes(`/${monthIdx+1}`);
-    if(!m) return false;
-    const nums = e.match(/\b\d{1,2}\b/g);
-    return nums && nums.some(n=>parseInt(n)===day);
-  });
-}
-
-/* =========================
-   RENDER CONTROLLER
-========================= */
-function render(){
+function renderCalendar() {
   viewMode === 'grid' ? renderGrid() : renderList();
-  document.getElementById('eventsCount').innerText =
-    `${eventStore.length} Events Loaded`;
 }
 
-/* =========================
-   GRID VIEW
-========================= */
-function renderGrid(){
+function renderGrid() {
   const grid = document.getElementById('calGridContainer');
-  const list = document.getElementById('calListView');
-  grid.style.display = 'grid';
-  list.style.display = 'none';
+  if (!grid) return;
   grid.innerHTML = '';
 
-  const m = calDate.getMonth(), y = calDate.getFullYear();
+  const m = calDate.getMonth();
+  const y = calDate.getFullYear();
   const today = new Date();
 
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-    .forEach(d => grid.insertAdjacentHTML('beforeend',
-      `<div class="cal-day-label">${d}</div>`));
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d =>
+    grid.insertAdjacentHTML('beforeend', `<div class="cal-day-label">${d}</div>`)
+  );
 
-  const start = new Date(y,m,1).getDay();
-  const days = new Date(y,m+1,0).getDate();
+  const start = new Date(y, m, 1).getDay();
+  const days = new Date(y, m + 1, 0).getDate();
 
-  for(let i=0;i<start;i++)
-    grid.insertAdjacentHTML('beforeend','<div class="cal-day-cell empty"></div>');
+  for (let i = 0; i < start; i++) {
+    grid.insertAdjacentHTML('beforeend', `<div class="cal-day-cell empty"></div>`);
+  }
 
-  for(let d=1; d<=days; d++){
+  for (let day = 1; day <= days; day++) {
     const isToday =
-      d===today.getDate() && m===today.getMonth() && y===today.getFullYear();
-    let cell = `<div class="cal-day-cell ${isToday?'is-today':''}">
-      <span class="cal-day-num">${d}</span>`;
+      day === today.getDate() &&
+      m === today.getMonth() &&
+      y === today.getFullYear();
 
-    eventStore.forEach((ev,idx)=>{
-      if(matchesDate(ev.date,d,m)){
-        cell += `<button class="cal-event-chip ${ev.type}"
-          onclick="openModal(${idx})">${ev.label}</button>`;
-      }
+    let cell = `<div class="cal-day-cell ${isToday ? 'is-today' : ''}">
+                  <span class="cal-day-num">${day}</span>`;
+
+    eventsForDay(day, m).forEach(ev => {
+      const idx = eventStore.indexOf(ev);
+      cell += `<button class="cal-event-chip ${ev.type}"
+                 onclick="openEnterpriseModal(${idx})">
+                 ${ev.label}
+               </button>`;
     });
 
-    grid.insertAdjacentHTML('beforeend', cell+'</div>');
+    grid.insertAdjacentHTML('beforeend', cell + '</div>');
   }
 }
 
-/* =========================
-   LIST VIEW
-========================= */
-function renderList(){
-  const grid = document.getElementById('calGridContainer');
+function renderList() {
   const list = document.getElementById('calListView');
-  grid.style.display = 'none';
-  list.style.display = 'block';
+  if (!list) return;
   list.innerHTML = '';
 
   const m = calDate.getMonth();
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthName = calDate.toLocaleString('default', { month: 'short' });
 
-  for(let d=1; d<=31; d++){
-    const items = eventStore.filter(e=>matchesDate(e.date,d,m));
-    if(!items.length) continue;
+  for (let day = 1; day <= 31; day++) {
+    const events = eventsForDay(day, m);
+    if (!events.length) continue;
 
-    let html = `
+    let block = `
       <div class="list-date-group">
         <div class="list-date-header">
-          <span class="date-badge">${months[m]} ${d}</span>
+          <span class="date-badge">${monthName} ${day}</span>
         </div>
-        <div>`;
+    `;
 
-    items.forEach(ev=>{
+    events.forEach(ev => {
       const idx = eventStore.indexOf(ev);
-      html += `
-        <div class="list-event-item" onclick="openModal(${idx})">
-          <div class="list-country-title">${ev.label}</div>
-          <span class="ent-badge ${ev.type==='corporate'?'badge-corporate':'badge-mission'}">
-            ${ev.type}
-          </span>
-        </div>`;
+      block += `
+        <div class="list-event-item" onclick="openEnterpriseModal(${idx})">
+          <div class="list-master-row">
+            <div class="list-country-title">${ev.label}</div>
+            <span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'}">
+              ${ev.type.toUpperCase()}
+            </span>
+          </div>
+        </div>
+      `;
     });
 
-    list.insertAdjacentHTML('beforeend', html+'</div></div>');
+    list.insertAdjacentHTML('beforeend', block + '</div>');
   }
 }
 
-/* =========================
-   MODAL
-========================= */
-function openModal(idx){
-  const ev = eventStore[idx];
-  const m = document.getElementById('enterpriseModal');
-  if(!m) return;
+/* ===============================
+   HELPERS
+   =============================== */
 
-  m.setAttribute('data-ent-type', ev.type);
-  document.getElementById('mTitle').innerText = ev.label;
-
-  const dates = document.getElementById('mDateContainer');
-  dates.innerHTML = '';
-
-  if(ev.type==='mission' && ev.date.includes(':')){
-    ev.date.split(',').forEach(p=>{
-      const [name,date] = p.split(':').map(x=>x.trim());
-      dates.insertAdjacentHTML('beforeend',
-        `<div class="event-item-date-bubble">${date}</div>
-         <div class="event-item-name">${name}</div>`);
-    });
-  }else{
-    dates.innerHTML =
-      `<div class="event-item-date-bubble">${ev.date}</div>`;
-  }
-
-  m.style.display = 'flex';
+function eventsForDay(day, month) {
+  return eventStore.filter(e => e.day === day && e.month === month);
 }
 
-/* =========================
-   UI BINDINGS
-========================= */
-function bindUI(){
-  document.getElementById('btnPrev').onclick = ()=>changeMonth(-1);
-  document.getElementById('btnNext').onclick = ()=>changeMonth(1);
-  document.getElementById('btnToday').onclick = goToday;
-
-  document.getElementById('btnGrid').onclick = ()=>{
-    viewMode='grid'; render();
-    toggleBtns('grid');
-  };
-  document.getElementById('btnList').onclick = ()=>{
-    viewMode='list'; render();
-    toggleBtns('list');
-  };
-
-  document.getElementById('btnCloseModal').onclick =
-    ()=> document.getElementById('enterpriseModal').style.display='none';
+function changeMonth(d) {
+  calDate.setMonth(calDate.getMonth() + d);
+  updateNavLabel();
+  renderCalendar();
 }
 
-function toggleBtns(v){
-  document.getElementById('btnGrid').classList.toggle('active',v==='grid');
-  document.getElementById('btnList').classList.toggle('active',v==='list');
-}
-
-/* =========================
-   NAV
-========================= */
-function changeMonth(d){
-  calDate.setMonth(calDate.getMonth()+d);
-  updateNavLabel(); render();
-}
-function goToday(){
+function goToToday() {
   calDate = new Date();
-  updateNavLabel(); render();
+  updateNavLabel();
+  renderCalendar();
 }
-function updateNavLabel(){
+
+function toggleCalView(v) {
+  viewMode = v;
+  document.getElementById('calGridContainer').style.display = v === 'grid' ? 'grid' : 'none';
+  document.getElementById('calListView').style.display = v === 'list' ? 'block' : 'none';
+  document.getElementById('btnGrid')?.classList.toggle('active', v === 'grid');
+  document.getElementById('btnList')?.classList.toggle('active', v === 'list');
+  renderCalendar();
+}
+
+function updateNavLabel() {
   const months = [
     'January','February','March','April','May','June',
     'July','August','September','October','November','December'
