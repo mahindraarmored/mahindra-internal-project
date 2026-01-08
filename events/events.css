@@ -267,11 +267,19 @@
 /* =========================
    RESPONSIVE
 ========================= */
+/* Mobile: make modal comfortable */
 @media (max-width:768px){
-  .cal-grid-container{
-    display:none;
+  .ent-modal{
+    width: calc(100% - 24px);
+    border-radius: 16px;
   }
-  .cal-list-view{
-    display:block;
+  .calendar-header-styled{
+    flex-direction: column;
+    align-items: flex-start;
   }
+}
+
+/* Modal: prevent background scroll + improve touch */
+.ent-modal-overlay{
+  padding: 12px;
 }
