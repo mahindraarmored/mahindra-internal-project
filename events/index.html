@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Global Events | Mahindra Emirates</title>
+  <title>Global Events | Mahindra Emirates Portal</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
@@ -15,7 +15,7 @@
   <script src="./events.js" defer></script>
 </head>
 
-<body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
+<body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc] text-slate-900">
 
   <div id="sidebar-root"></div>
 
@@ -25,86 +25,92 @@
 
     <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
       
-      <aside class="w-full lg:w-80 p-6 md:p-10 space-y-6 overflow-y-auto border-r border-slate-100 bg-white/50">
-        <div>
-          <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">Global Events</h2>
-          <p id="eventsCount" class="text-slate-500 font-medium text-xs mt-1">Initializing Database...</p>
-        </div>
+      <aside class="w-full lg:w-80 p-6 md:p-10 space-y-8 overflow-y-auto border-r border-slate-100 bg-white/60 backdrop-blur-sm flex-shrink-0">
+        <header>
+          <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight leading-none">Global Events</h2>
+          <p id="eventsCount" class="text-slate-500 font-bold text-[10px] mt-2 uppercase tracking-widest opacity-70">Synchronizing database...</p>
+        </header>
 
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Find Event</label>
-          <div class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-transparent focus-within:border-red-200 transition-all">
+          <div class="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-xl border border-transparent focus-within:border-red-200 focus-within:bg-white transition-all duration-300">
             <i class="ri-calendar-search-line text-slate-400"></i>
             <input type="text" id="eventSearchInput" placeholder="Exhibition, Country..." 
-                   class="bg-transparent border-none outline-none text-xs font-bold w-full text-slate-700">
+                   class="bg-transparent border-none outline-none text-xs font-bold w-full text-slate-700 placeholder:text-slate-300">
           </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div class="p-4 border-b border-slate-50">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Event Type</label>
+          <div class="p-4 bg-slate-50/50 border-b border-slate-100">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Event Category</label>
           </div>
-          <div class="p-2 space-y-1" id="eventSidebarFilters">
-            <div class="p-4 text-center text-slate-300 text-[10px] font-bold italic">Loading Types...</div>
-          </div>
+          <nav class="p-2 space-y-1" id="eventSidebarFilters">
+            <div class="p-8 text-center">
+              <div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-slate-200 border-t-red-500"></div>
+            </div>
+          </nav>
         </div>
 
-        <div class="space-y-3">
-          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Layout View</label>
-          <div class="ent-seg w-full">
-            <button id="btnGrid" class="ent-seg-btn active flex-1">
-              <i class="ri-calendar-2-line"></i> Grid
+        <div class="space-y-4 pt-4">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Layout Configuration</label>
+          <div class="ent-seg w-full bg-slate-100 p-1.5 rounded-2xl flex gap-1">
+            <button id="btnGrid" class="ent-seg-btn active flex-1 py-2.5 rounded-xl text-xs font-black transition-all">
+              <i class="ri-calendar-2-line mr-1"></i> Grid
             </button>
-            <button id="btnList" class="ent-seg-btn flex-1">
-              <i class="ri-list-check-2"></i> List
+            <button id="btnList" class="ent-seg-btn flex-1 py-2.5 rounded-xl text-xs font-black transition-all">
+              <i class="ri-list-check-2 mr-1"></i> List
             </button>
           </div>
-          <button id="btnToday" class="ent-btn w-full justify-center py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl font-bold text-xs transition-all">
-            <i class="ri-time-line mr-2"></i> Reset to Today
+          <button id="btnToday" class="w-full flex items-center justify-center gap-2 py-4 bg-white border border-slate-200 text-slate-700 hover:text-red-600 hover:border-red-100 hover:bg-red-50/30 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">
+            <i class="ri-history-line"></i> Reset to Current
           </button>
         </div>
       </aside>
 
-      <section class="flex-1 overflow-y-auto p-6 md:p-10 hide-scrollbar bg-[#f8fafc]">
-        <div class="max-w-5xl mx-auto space-y-6">
+      <section class="flex-1 overflow-y-auto p-6 md:p-10 hide-scrollbar bg-[#f8fafc] flex flex-col items-center">
+        
+        <section class="calendar-card w-full max-w-[1600px] flex flex-col">
           
-          <section class="calendar-card">
-            <div class="calendar-header-styled">
-              <div class="flex items-center gap-3">
-                <button id="btnPrev" class="icon-pill"><i class="ri-arrow-left-s-line"></i></button>
-                <div id="curDateLabel" class="cal-month text-lg font-black">—</div>
-                <button id="btnNext" class="icon-pill"><i class="ri-arrow-right-s-line"></i></button>
-              </div>
-
-              <div class="flex items-center gap-4">
-                <span class="legend-pill"><span class="dot mission"></span> Mission</span>
-                <span class="legend-pill"><span class="dot corporate"></span> Corporate</span>
+          <div class="calendar-header-styled flex flex-col sm:flex-row items-center justify-between p-6 gap-6">
+            <div class="flex items-center gap-6">
+              <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                <button id="btnPrev" class="icon-pill h-10 w-10 hover:bg-white hover:shadow-sm"><i class="ri-arrow-left-s-line"></i></button>
+                <div id="curDateLabel" class="cal-month px-6 text-sm font-black uppercase tracking-widest min-w-[180px] text-center">Loading...</div>
+                <button id="btnNext" class="icon-pill h-10 w-10 hover:bg-white hover:shadow-sm"><i class="ri-arrow-right-s-line"></i></button>
               </div>
             </div>
 
-            <div id="calGridContainer" class="cal-grid-container"></div>
-            <div id="calListView" class="cal-list-view" style="display:none;"></div>
-          </section>
+            <div class="flex items-center gap-6 bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
+              <span class="legend-pill flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter text-slate-500">
+                <span class="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span> Mission
+              </span>
+              <span class="h-4 w-px bg-slate-200"></span>
+              <span class="legend-pill flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter text-slate-500">
+                <span class="h-2.5 w-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]"></span> Corporate
+              </span>
+            </div>
+          </div>
 
-        </div>
+          <div id="calGridContainer" class="cal-grid-container flex-1"></div>
+          <div id="calListView" class="cal-list-view hidden"></div>
+
+        </section>
       </section>
 
     </div>
   </main>
 
-  <div id="enterpriseModal" class="ent-modal-overlay" aria-hidden="true">
-    <div class="ent-modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" tabindex="-1">
-      <div class="flex items-center justify-between p-6 border-b">
-        <h3 id="mTitle" class="ent-modal-title text-xl font-black uppercase tracking-tight">Event</h3>
-        <button id="btnCloseModal" class="icon-pill">
-          <i class="ri-close-line"></i>
+  <div id="enterpriseModal" class="ent-modal-overlay backdrop-blur-md transition-all duration-300" aria-hidden="true">
+    <div class="ent-modal transform scale-95 opacity-0 transition-all duration-300" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <div class="flex items-center justify-between p-8 border-b border-slate-100 bg-slate-50/50">
+        <h3 id="mTitle" class="text-xl font-black uppercase tracking-tight text-slate-900">Activity Details</h3>
+        <button id="btnCloseModal" class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-red-50 hover:text-red-600 transition-all">
+          <i class="ri-close-line ri-xl"></i>
         </button>
       </div>
 
-      <div class="p-6">
-        <div id="mDateContainer" class="space-y-2">
-          </div>
-      </div>
+      <div class="p-8" id="mDateContainer">
+        </div>
     </div>
   </div>
 
