@@ -4,168 +4,73 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Internal Portal | Mahindra Emirates</title>
+    
     <!-- Tailwind for Layout & Utility -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <style>
-        /* --- Refined Design Language (Asset Hub Style) --- */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-        :root {
-            --mahindra-red: #dc2626;
-            --mahindra-red-dark: #b91c1c;
-            --slate-primary: #0f172a;
-            --slate-secondary: #1e293b;
-            --border-color: #e2e8f0;
-        }
-
-        body {
-            font-family: 'Inter', "Segoe UI", sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-        }
-
-        /* Sidebar Styling */
-        .sidebar {
-            background-color: var(--slate-primary);
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            color: #94a3b8;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover {
-            background-color: var(--slate-secondary);
-            color: white;
-        }
-
-        .nav-link.active {
-            background-color: var(--mahindra-red);
-            color: white;
-        }
-
-        /* Card Styling */
-        .portal-card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .portal-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            border-color: var(--mahindra-red);
-        }
-
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
+    
+    <!-- External Centralized Styles -->
+    <link rel="stylesheet" href="components/style.css">
+    
+    <!-- Component Logic (Injects Sidebar and Header) -->
+    <script src="components/navbar.js" defer></script>
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <!-- Main Sidebar Navigation -->
-    <aside class="sidebar w-64 flex-shrink-0 flex flex-col">
-        <div class="p-6 border-b border-slate-800">
-            <div class="flex items-center gap-3">
-                <div class="bg-red-600 p-1.5 rounded-lg">
-                    <i class="ri-shield-fill text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-extrabold text-sm tracking-tighter uppercase leading-none">Mahindra</h1>
-                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Emirates Portal</span>
-                </div>
-            </div>
-        </div>
+    <!-- Sidebar placeholder: Injected by navbar.js -->
+    <div id="sidebar-container" class="flex flex-col"></div>
 
-        <nav class="flex-1 p-4 space-y-1">
-            <a href="index.html" class="nav-link active">
-                <i class="ri-dashboard-line"></i> Dashboard
-            </a>
-            <a href="vehicles/index.html" class="nav-link">
-                <i class="ri-truck-line"></i> Vehicle Library
-            </a>
-            <a href="events/index.html" class="nav-link">
-                <i class="ri-calendar-event-line"></i> Global Events
-            </a>
-            <a href="mission/index.html" class="nav-link">
-                <i class="ri-government-line"></i> Mission Database
-            </a>
-            <a href="support/index.html" class="nav-link">
-                <i class="ri-information-line"></i> Support Info
-            </a>
-        </nav>
-
-        <div class="p-4 mt-auto border-t border-slate-800">
-            <div class="bg-slate-800/50 p-3 rounded-xl flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center font-bold text-xs">M</div>
-                <div class="text-[10px] font-bold uppercase tracking-widest text-slate-400">System Ready</div>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Content Area -->
+    <!-- Main Workspace -->
     <main class="flex-1 flex flex-col overflow-hidden">
-        <!-- Header -->
-        <header class="h-16 bg-white border-b flex items-center justify-between px-8 z-10">
-            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">INTERNAL PORTAL</h2>
-            <div class="flex items-center gap-4">
-                <span class="text-[11px] font-bold text-slate-500 uppercase">Version 2.5</span>
-            </div>
-        </header>
+        
+        <!-- Header placeholder: Injected by navbar.js -->
+        <div id="header-container"></div>
 
         <!-- Dashboard Content -->
-        <div class="flex-1 overflow-y-auto p-8 md:p-12">
+        <div class="flex-1 overflow-y-auto p-8 md:p-12 hide-scrollbar">
             <div class="max-w-6xl mx-auto space-y-10">
+                
+                <!-- Page Branding -->
                 <div>
-                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">CENTRAL ASSETS</h2>
-                    <p class="text-slate-500 mt-1">Operational hubs and strategic data resources</p>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Central Assets</h2>
+                    <p class="text-slate-500 mt-1 font-medium">Operational hubs and strategic data resources for Mahindra Emirates.</p>
                 </div>
 
+                <!-- Grid of Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
                     <!-- Event Tracker Card -->
-                    <a href="events/index.html" class="portal-card p-8 space-y-4">
-                        <div class="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mb-2">
+                    <a href="events/index.html" class="portal-card p-8 group">
+                        <div class="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-600 group-hover:text-white transition-all duration-300">
                             <i class="ri-calendar-todo-line text-3xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold">Event Tracker</h3>
-                        <p class="text-sm text-slate-500">Global mission holidays and corporate milestones.</p>
-                        <span class="mt-4 text-[10px] font-black uppercase tracking-widest text-red-600">Launch Module →</span>
+                        <h3 class="text-xl font-bold text-slate-900">Event Tracker</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">Global mission holidays and corporate milestones.</p>
+                        <span class="mt-8 text-[10px] font-black uppercase tracking-widest text-red-600">Launch Module →</span>
                     </a>
 
                     <!-- Mission DB Card -->
-                    <a href="mission/index.html" class="portal-card p-8 space-y-4">
-                        <div class="w-16 h-16 bg-slate-100 text-slate-900 rounded-2xl flex items-center justify-center mb-2">
+                    <a href="mission/index.html" class="portal-card p-8 group">
+                        <div class="w-16 h-16 bg-slate-100 text-slate-900 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
                             <i class="ri-database-2-line text-3xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold">Mission Database</h3>
-                        <p class="text-sm text-slate-500">Diplomatic contact intelligence and localized data.</p>
-                        <span class="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-900">Access Library →</span>
+                        <h3 class="text-xl font-bold text-slate-900">Mission Database</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">Diplomatic contact intelligence and localized data.</p>
+                        <span class="mt-8 text-[10px] font-black uppercase tracking-widest text-slate-900">Access Library →</span>
                     </a>
 
                     <!-- Website Link Card -->
-                    <a href="https://mahindraemirates.com" target="_blank" class="portal-card p-8 space-y-4">
-                        <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mb-2">
+                    <a href="https://mahindraemirates.com" target="_blank" class="portal-card p-8 group">
+                        <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-200 transition-all duration-300">
                             <i class="ri-global-line text-3xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold">Main Website</h3>
-                        <p class="text-sm text-slate-500">Official public-facing portal and news.</p>
-                        <span class="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-400 italic">External Link</span>
+                        <h3 class="text-xl font-bold text-slate-900">Main Website</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">Official public-facing portal and news.</p>
+                        <span class="mt-8 text-[10px] font-black uppercase tracking-widest text-slate-400 italic">External Link</span>
                     </a>
+
                 </div>
             </div>
         </div>
