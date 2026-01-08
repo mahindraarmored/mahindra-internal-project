@@ -2,141 +2,216 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vehicle Assets | Mahindra Emirates</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vehicle Library | Mahindra Emirates Vehicle Armouring</title>
 
-    <!-- Tailwind -->
+    <!-- Frameworks -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
-    <!-- Centralized styles -->
+    <!-- Global + Page Styles -->
     <link rel="stylesheet" href="/components/style.css">
-
-    <!-- Page-specific styles -->
     <link rel="stylesheet" href="/vehicles/vehicles.css">
 
-    <!-- Centralized navigation -->
+    <!-- Global Navigation -->
     <script src="/components/navbar.js" defer></script>
 </head>
 
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
 
-    <!-- Injected sidebar -->
+    <!-- Sidebar -->
     <div id="sidebar-root"></div>
 
     <!-- Main -->
     <main class="flex-1 flex flex-col overflow-hidden">
 
-        <!-- Injected header -->
+        <!-- Header -->
         <div id="header-root"></div>
 
-        <!-- Page Content -->
-        <div class="flex-1 overflow-y-auto p-8 bg-slate-50">
-            <div class="max-w-7xl mx-auto space-y-6">
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-6 md:p-10 hide-scrollbar">
+            <div class="max-w-7xl mx-auto space-y-8">
+
+                <!-- Title + Search -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">
+                            Vehicle Library
+                        </h2>
+                        <p id="assetCount" class="text-slate-500 mt-1 font-medium">
+                            Loading database...
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3 bg-white p-2 rounded-xl border shadow-sm w-full md:w-96">
+                        <i class="ri-search-line text-slate-400 ml-2"></i>
+                        <input
+                            id="searchInput"
+                            type="text"
+                            onkeyup="renderAssets()"
+                            placeholder="Search vehicles..."
+                            class="flex-1 outline-none text-sm font-medium"
+                        />
+                    </div>
+                </div>
 
                 <!-- Filters -->
-                <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2" id="filterBar">
-                    <button onclick="filterType('All', this)" class="filter-btn active">All</button>
-                    <button onclick="filterType('CAV', this)" class="filter-btn">CAV</button>
-                    <button onclick="filterType('APC', this)" class="filter-btn">APC</button>
-                    <button onclick="filterType('Pickup', this)" class="filter-btn">Pickup</button>
-                    <button onclick="filterType('CITV', this)" class="filter-btn">CITV</button>
-                    <button onclick="filterType('Ambulance', this)" class="filter-btn">Ambulance</button>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-btn active" onclick="filterType('ALL', this)">All</button>
+                    <button class="filter-btn" onclick="filterType('CAV', this)">CAV</button>
+                    <button class="filter-btn" onclick="filterType('APC', this)">APC</button>
+                    <button class="filter-btn" onclick="filterType('PICKUP', this)">Pickup</button>
+                    <button class="filter-btn" onclick="filterType('MEDICAL', this)">Medical</button>
                 </div>
 
                 <!-- Grid -->
-                <div id="assetGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="vehicle-card shimmer h-40"></div>
-                    <div class="vehicle-card shimmer h-40"></div>
-                    <div class="vehicle-card shimmer h-40"></div>
-                    <div class="vehicle-card shimmer h-40"></div>
+                <div id="assetGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10">
+                    <!-- Cards injected here -->
                 </div>
 
             </div>
         </div>
     </main>
 
-    <!-- Page JS (unchanged) -->
-    <script>
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-Hzbhsw1kmNd2_2-SjwUqQcAGtw6xG9h3tUS_uSpcDTfu2SxU5J4w0XA1A8Llg9cZ6eAIkwu/pub?output=csv'; 
-        
-        let allVehicles = [];
-        let currentFilter = 'All';
+<script>
+/* =========================
+   DATA SOURCE
+========================= */
+const SHEET_CSV_URL =
+'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-Hzbhsw1kmNd2_2-SjwUqQcAGtw6xG9h3tUS_uSpcDTfu2SxU5J4w0XA1A8Llg9cZ6eAIkwu/pub?output=csv';
 
-        async function fetchSheetData() {
-            try {
-                const response = await fetch(SHEET_CSV_URL);
-                if (!response.ok) throw new Error();
+let assets = [];
+let currentFilter = 'ALL';
 
-                const csvText = await response.text();
-                allVehicles = parseCSV(csvText);
-                renderAssets();
-            } catch {
-                document.getElementById('assetGrid').innerHTML =
-                    `<div class="col-span-full py-20 text-center text-slate-400">Error loading database</div>`;
-            }
-        }
+/* =========================
+   FETCH + MAP (DATA CONTRACT)
+========================= */
+async function fetchSheetData() {
+    const res = await fetch(SHEET_CSV_URL);
+    const csv = await res.text();
+    assets = parseCSV(csv);
+    renderAssets();
+}
 
-        function parseCSV(csv) {
-            const lines = csv.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.replace(/"/g,'').toLowerCase());
+function parseCSV(csv) {
+    const lines = csv.trim().split('\n');
+    const headers = lines[0]
+        .split(',')
+        .map(h => h.replace(/"/g, '').trim().toLowerCase());
 
-            return lines.slice(1).map(line => {
-                const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-                                   .map(v => v.replace(/"/g,'').trim());
-                const row = {};
-                headers.forEach((h,i)=>row[h]=values[i]||'');
-                return {
-                    name: row['vehicle name'],
-                    subtitle: row['sub heading'] || '',
-                    image: row['image status'],
-                    brochure: row['brochure link'],
-                    website: row['website'],
-                    type: row['category'] || 'Other'
-                };
-            }).filter(v => v.name);
-        }
+    return lines.slice(1).map(line => {
+        const values = line
+            .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+            .map(v => v.replace(/"/g, '').trim());
 
-        function renderAssets() {
-            const grid = document.getElementById('assetGrid');
-            grid.innerHTML = '';
+        const row = {};
+        headers.forEach((h, i) => row[h] = values[i] || '');
 
-            const filtered = allVehicles.filter(v =>
-                (currentFilter === 'All' || v.type.toUpperCase() === currentFilter) &&
-                v.name.toLowerCase().includes('')
-            );
+        return {
+            name: row['vehicle name'],
+            type: row['category'],
+            spec: row['specification'] || row['sub heading'],
+            status: row['status'] || 'Active',
+            website: row['website']?.startsWith('http')
+                ? row['website']
+                : row['website']
+                    ? `https://${row['website']}`
+                    : '#'
+        };
+    }).filter(v => v.name);
+}
 
-            filtered.forEach(v => {
-                grid.insertAdjacentHTML('beforeend', `
-                    <div class="vehicle-card">
-                        <div class="p-5">
-                            <span class="category-badge ${getCategoryColor(v.type)}">${v.type}</span>
-                            <h3 class="text-sm font-black mt-2">${v.name}</h3>
-                            <p class="text-[10px] text-slate-400">${v.subtitle}</p>
-                        </div>
-                    </div>
-                `);
-            });
-        }
+/* =========================
+   RENDER
+========================= */
+function renderAssets() {
+    const grid = document.getElementById('assetGrid');
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    grid.innerHTML = '';
 
-        function getCategoryColor(t) {
-            t = t.toUpperCase();
-            if (t.includes('CAV')) return 'bg-blue-50 text-blue-600';
-            if (t.includes('APC')) return 'bg-red-50 text-red-600';
-            return 'bg-slate-100 text-slate-600';
-        }
+    const filtered = assets.filter(v => {
+        const matchesSearch =
+            v.name.toLowerCase().includes(search) ||
+            v.type.toLowerCase().includes(search);
 
-        function filterType(type, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = type;
-            renderAssets();
-        }
+        const matchesType =
+            currentFilter === 'ALL' ||
+            v.type.toUpperCase().includes(currentFilter);
 
-        window.addEventListener('DOMContentLoaded', fetchSheetData);
-    </script>
+        return matchesSearch && matchesType;
+    });
+
+    filtered.forEach(v => {
+        const hasWeb = v.website.startsWith('http');
+
+        const card = document.createElement('div');
+        card.className = 'vehicle-card p-5 space-y-4 flex flex-col';
+
+        card.innerHTML = `
+            <div class="flex justify-between items-start">
+                <span class="text-[10px] font-black px-2 py-1 rounded ${getCategoryColor(v.type)} uppercase tracking-widest">
+                    ${v.type}
+                </span>
+                <span class="text-[10px] font-bold ${v.status === 'Active' ? 'text-green-500' : 'text-amber-500'} uppercase tracking-widest">
+                    ${v.status}
+                </span>
+            </div>
+
+            <div>
+                <h4 class="text-lg font-bold text-slate-900">${v.name}</h4>
+                <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">${v.spec}</p>
+            </div>
+
+            <div class="pt-4 mt-auto border-t flex items-center justify-between">
+                <div class="flex gap-2">
+                    <button class="icon-action">
+                        <i class="ri-file-list-3-line"></i>
+                        <span class="tooltip">Datasheet</span>
+                    </button>
+                    <button class="icon-action">
+                        <i class="ri-gallery-line"></i>
+                        <span class="tooltip">Gallery</span>
+                    </button>
+                </div>
+                <a href="${hasWeb ? v.website : '#'}"
+                   class="icon-action ${hasWeb ? '' : 'disabled'}"
+                   target="_blank">
+                    <i class="ri-global-line"></i>
+                    <span class="tooltip">${hasWeb ? 'View Online' : 'No Link'}</span>
+                </a>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+
+    document.getElementById('assetCount').innerText =
+        `${filtered.length} Vehicles Detected`;
+}
+
+/* =========================
+   HELPERS
+========================= */
+function getCategoryColor(type) {
+    const t = type.toUpperCase();
+    if (t.includes('CAV')) return 'bg-blue-50 text-blue-600';
+    if (t.includes('APC')) return 'bg-red-50 text-red-600';
+    if (t.includes('PICKUP')) return 'bg-slate-100 text-slate-600';
+    if (t.includes('MEDICAL')) return 'bg-green-50 text-green-600';
+    return 'bg-slate-100 text-slate-600';
+}
+
+function filterType(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = type;
+    renderAssets();
+}
+
+/* =========================
+   INIT
+========================= */
+window.onload = fetchSheetData;
+</script>
 
 </body>
 </html>
