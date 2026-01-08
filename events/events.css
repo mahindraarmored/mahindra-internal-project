@@ -1,54 +1,60 @@
 /* =========================================
-   1. VARIABLES & RESET
+   1. BRAND VARIABLES & RESET
    ========================================= */
 :root {
-    --m-red: #ed1c24; /* Mahindra Red */
+    --m-red: #ed1c24;
+    --m-red-soft: #fef2f2;
     --m-blue: #2563eb;
-    --m-bg: #f8fafc;
-    --m-border: #e2e8f0;
+    --m-blue-soft: #eff6ff;
     --m-text-dark: #0f172a;
     --m-text-muted: #64748b;
-    --m-shadow: 0 10px 25px rgba(0,0,0,.08);
+    --m-border: #e2e8f0;
+    --m-bg: #f8fafc;
+    --m-shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+    --m-shadow-lg: 0 10px 25px rgba(0,0,0,0.04);
 }
 
-/* Layout Utilities */
+/* Smooth Scroll & Layout */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* =========================================
-   2. NEW SIDEBAR & SEARCH UI
+   2. SIDEBAR COMPONENTS
    ========================================= */
 .side-filter-btn {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-radius: 12px;
     font-size: 11px;
     font-weight: 800;
-    color: #64748b;
+    color: var(--m-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    border: 1px solid transparent;
 }
 
 .side-filter-btn:hover {
-    background: #f1f5f9;
+    background: white;
     color: var(--m-red);
+    border-color: var(--m-border);
 }
 
 .side-filter-btn.active {
-    background: #fef2f2;
+    background: var(--m-red-soft);
     color: var(--m-red);
+    box-shadow: var(--m-shadow-sm);
 }
 
 .count-pill {
     font-size: 9px;
     background: #f1f5f9;
     color: #94a3b8;
-    padding: 2px 6px;
-    border-radius: 6px;
+    padding: 2px 8px;
+    border-radius: 20px;
 }
 
 .side-filter-btn.active .count-pill {
@@ -57,172 +63,144 @@
 }
 
 /* Segmented Control */
-.ent-seg {
-    display: flex;
-    background: #f1f5f9;
-    padding: 4px;
-    border-radius: 12px;
-    gap: 4px;
-}
-
 .ent-seg-btn {
-    padding: 8px;
+    padding: 10px;
     font-size: 11px;
     font-weight: 800;
-    border-radius: 8px;
+    border-radius: 10px;
     transition: all 0.2s;
-    color: #64748b;
+    color: var(--m-text-muted);
     text-transform: uppercase;
 }
 
 .ent-seg-btn.active {
     background: white;
     color: var(--m-red);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* =========================================
-   3. CALENDAR CARD & GRID
+   3. CALENDAR ARCHITECTURE
    ========================================= */
 .calendar-card {
     background: #fff;
-    border-radius: 20px;
-    box-shadow: var(--m-shadow);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    border-radius: 24px;
+    box-shadow: var(--m-shadow-lg);
     border: 1px solid var(--m-border);
+    overflow: hidden;
 }
 
 .calendar-header-styled {
-    padding: 1.5rem;
     border-bottom: 1px solid var(--m-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     background: white;
-}
-
-.cal-month {
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    color: var(--m-text-dark);
 }
 
 .cal-grid-container {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background: #e2e8f0; /* The border color between cells */
+    background: var(--m-border); /* Grid line color */
     gap: 1px;
-    border: 1px solid #e2e8f0;
     width: 100%;
 }
 
 .cal-day-label {
     background: #fcfcfc;
-    padding: 12px;
+    padding: 14px;
     font-size: 10px;
     font-weight: 900;
     text-align: center;
     text-transform: uppercase;
+    letter-spacing: 0.1em;
     color: var(--m-text-muted);
 }
 
 .cal-day-cell {
     background: #fff;
-    min-height: 120px; /* Adjust based on your screenshot preference */
-    padding: 10px;
+    min-height: 150px; /* High-density grid */
+    padding: 12px;
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
 .cal-day-cell.empty { background: #f9fafb; }
 
 .cal-day-cell.is-today {
     background-color: #fffaf0 !important;
-    border: 2px solid #fdba74 !important;
 }
 
 .cal-day-num {
-    font-size: 13px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 900;
     margin-bottom: 8px;
-    display: inline-block;
+    color: var(--m-text-dark);
 }
 
 .cal-day-cell.is-today .cal-day-num {
     background: var(--m-red);
     color: #fff;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 10px rgba(237, 28, 36, 0.3);
 }
 
 /* =========================================
-   4. EVENT CHIPS (PILLS)
+   4. EVENT PILLS (THE "PIXEL PERFECT" PART)
    ========================================= */
 .cal-event-chip {
     display: block;
     width: 100%;
     text-align: left;
     padding: 6px 10px;
-    margin-bottom: 4px;
     border-radius: 8px;
     font-size: 10px;
     font-weight: 800;
-    border: 1px solid transparent;
     transition: all 0.2s ease;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.cal-event-chip:hover {
+    transform: translateX(2px);
+    filter: brightness(0.95);
 }
 
 .cal-event-chip.mission {
-    background: #fee2e2;
+    background: var(--m-red-soft);
     color: #991b1b;
     border-left: 3px solid var(--m-red);
 }
 
 .cal-event-chip.corporate {
-    background: #eff6ff;
+    background: var(--m-blue-soft);
     color: #1e40af;
     border-left: 3px solid var(--m-blue);
 }
 
-.legend-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
+.icon-pill {
+    transition: all 0.2s ease;
     color: var(--m-text-muted);
 }
 
-.dot { width: 8px; height: 8px; border-radius: 50%; }
-.dot.mission { background: var(--m-red); }
-.dot.corporate { background: var(--m-blue); }
+.icon-pill:hover {
+    color: var(--m-red);
+    background: var(--m-red-soft);
+}
 
 /* =========================================
-   5. LIST VIEW & MODAL
+   5. MODAL ANIMATION
    ========================================= */
-.cal-list-view { background: #fff; }
-.list-date-group { border-bottom: 1px solid var(--m-border); }
-.list-date-header { background: var(--m-bg); padding: 12px 20px; }
-.date-badge { background: var(--m-text-dark); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; }
-.list-event-item { padding: 16px 20px; cursor: pointer; transition: background 0.2s; }
-.list-event-item:hover { background: #f8fafc; }
-.list-country-title { font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--m-text-dark); }
-
 .ent-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.7);
+    background: rgba(15, 23, 42, 0.6);
     display: none;
     align-items: center;
     justify-content: center;
@@ -231,60 +209,8 @@
 
 .ent-modal {
     background: #fff;
-    border-radius: 24px;
-    width: min(550px, 95%);
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-}
-
-.modal-cta-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 16px;
-    background: var(--m-text-dark);
-    color: white !important;
-    border-radius: 14px;
-    font-weight: 800;
-    font-size: 12px;
-    text-transform: uppercase;
-    margin-top: 24px;
-}
-
-.modal-cta-btn:hover { background: var(--m-red); }
-/* 1. Force the Main Content Area to show the Grid */
-section.flex-1 {
-    display: flex;
-    flex-direction: column;
-    min-width: 0; /* Prevents flex-item from overflowing */
-}
-
-/* 2. Fix the "Lost" Grid container */
-.cal-grid-container {
-    display: grid !important; /* Ensure no JS toggle overrides this accidentally */
-    grid-template-columns: repeat(7, 1fr);
-    min-height: 600px; /* Ensures the grid has physical height even if empty */
-    width: 100%;
-}
-
-/* 3. Ensure cells are visible */
-.cal-day-cell {
-    border: 0.5px solid #e2e8f0;
-    position: relative;
-}
-
-/* 4. Fix the Sidebar width so the Grid has room */
-aside {
-    flex-shrink: 0;
-    width: 320px !important;
-}
-/* =========================================
-   6. RESPONSIVE
-   ========================================= */
-@media (max-width: 1024px) {
-    aside { border-right: none; border-bottom: 1px solid var(--m-border); width: 100% !important; height: auto !important; }
-    .flex-row { flex-direction: column !important; }
+    border-radius: 32px;
+    width: min(600px, 95%);
+    max-height: 85vh;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
 }
