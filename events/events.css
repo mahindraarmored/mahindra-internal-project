@@ -255,7 +255,32 @@
 }
 
 .modal-cta-btn:hover { background: var(--m-red); }
+/* 1. Force the Main Content Area to show the Grid */
+section.flex-1 {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Prevents flex-item from overflowing */
+}
 
+/* 2. Fix the "Lost" Grid container */
+.cal-grid-container {
+    display: grid !important; /* Ensure no JS toggle overrides this accidentally */
+    grid-template-columns: repeat(7, 1fr);
+    min-height: 600px; /* Ensures the grid has physical height even if empty */
+    width: 100%;
+}
+
+/* 3. Ensure cells are visible */
+.cal-day-cell {
+    border: 0.5px solid #e2e8f0;
+    position: relative;
+}
+
+/* 4. Fix the Sidebar width so the Grid has room */
+aside {
+    flex-shrink: 0;
+    width: 320px !important;
+}
 /* =========================================
    6. RESPONSIVE
    ========================================= */
