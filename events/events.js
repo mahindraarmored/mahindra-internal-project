@@ -1,5 +1,5 @@
 /* ===============================
-   EVENTS ENGINE – FIXED
+   EVENTS ENGINE – FINAL (PRODUCTION)
 =============================== */
 
 /* === CSV SOURCES === */
@@ -51,16 +51,18 @@ async function initCalendar() {
 }
 
 /* ===============================
-   CSV PARSER (FIXED)
+   CSV PARSER (HEADER NORMALIZED)
 =============================== */
 function parseCSV(text) {
   const lines = text.split(/\r?\n/).filter(Boolean);
+  if (!lines.length) return [];
+
   const headers = lines[0]
     .split(',')
     .map(h =>
       h.replace(/"/g, '')
-       .replace(/\s+/g, '')
-       .toLowerCase()
+        .replace(/\s+/g, '')
+        .toLowerCase()
     );
 
   return lines.slice(1).map(row => {
@@ -76,6 +78,8 @@ function parseCSV(text) {
 /* ===============================
    DATA EXPANSION
 =============================== */
+
+/* --- Sheet 1: Mission / Embassy --- */
 function expandMissionRow(row) {
   const src = row.importantdays;
   if (!src) return [];
@@ -85,7 +89,7 @@ function expandMissionRow(row) {
     if (!label || !dateStr) return null;
 
     const [dayStr, monthStr] = dateStr.trim().split(' ');
-    const day = parseInt(dayStr);
+    const day = parseInt(dayStr, 10);
     const month = MONTHS[monthStr?.toLowerCase()];
 
     if (isNaN(day) || month === undefined) return null;
@@ -94,6 +98,7 @@ function expandMissionRow(row) {
   }).filter(Boolean);
 }
 
+/* --- Sheet 2: Corporate --- */
 function expandCorporateRow(row) {
   const src = row.eventdate1;
   if (!src) return [];
@@ -101,7 +106,7 @@ function expandCorporateRow(row) {
   return src.split(',').map(d => {
     const [monthStr, dayStr] = d.trim().split(' ');
     const month = MONTHS[monthStr?.toLowerCase()];
-    const day = parseInt(dayStr);
+    const day = parseInt(dayStr, 10);
 
     if (month === undefined || isNaN(day)) return null;
 
@@ -116,7 +121,7 @@ function expandCorporateRow(row) {
 }
 
 /* ===============================
-   UI BINDINGS (FIXED)
+   UI BINDINGS
 =============================== */
 function bindUI() {
   document.getElementById('btnPrev')?.addEventListener('click', () => changeMonth(-1));
@@ -124,6 +129,19 @@ function bindUI() {
   document.getElementById('btnToday')?.addEventListener('click', goToToday);
   document.getElementById('btnGrid')?.addEventListener('click', () => toggleCalView('grid'));
   document.getElementById('btnList')?.addEventListener('click', () => toggleCalView('list'));
+
+  // Modal close actions
+  document.getElementById('btnCloseModal')
+    ?.addEventListener('click', closeEnterpriseModal);
+
+  document.getElementById('enterpriseModal')
+    ?.addEventListener('click', e => {
+      if (e.target?.id === 'enterpriseModal') closeEnterpriseModal();
+    });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeEnterpriseModal();
+  });
 }
 
 /* ===============================
@@ -145,10 +163,7 @@ function renderGrid() {
 
   // Day headers
   ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
-    grid.insertAdjacentHTML(
-      'beforeend',
-      `<div class="cal-day-label">${d}</div>`
-    );
+    grid.insertAdjacentHTML('beforeend', `<div class="cal-day-label">${d}</div>`);
   });
 
   const start = new Date(y, m, 1).getDay();
@@ -156,10 +171,7 @@ function renderGrid() {
 
   // Empty cells before first day
   for (let i = 0; i < start; i++) {
-    grid.insertAdjacentHTML(
-      'beforeend',
-      `<div class="cal-day-cell empty"></div>`
-    );
+    grid.insertAdjacentHTML('beforeend', `<div class="cal-day-cell empty"></div>`);
   }
 
   // Actual days
@@ -176,34 +188,33 @@ function renderGrid() {
 
     eventsForDay(day, m).forEach(ev => {
       const idx = eventStore.indexOf(ev);
-
       cellHTML += `
         <button
           class="cal-event-chip ${ev.type}"
           onclick="openEnterpriseModal(${idx})"
           aria-haspopup="dialog"
-          title="${ev.label}">
-          ${ev.label}
+          title="${escapeAttr(ev.label)}">
+          ${escapeHtml(ev.label)}
         </button>
       `;
     });
 
     cellHTML += `</div>`;
-
     grid.insertAdjacentHTML('beforeend', cellHTML);
   }
 }
 
-
 function renderList() {
   const list = document.getElementById('calListView');
   if (!list) return;
+
   list.innerHTML = '';
 
   const m = calDate.getMonth();
   const monthName = calDate.toLocaleString('default', { month: 'short' });
+  const daysInMonth = new Date(calDate.getFullYear(), m + 1, 0).getDate();
 
-  for (let day = 1; day <= 31; day++) {
+  for (let day = 1; day <= daysInMonth; day++) {
     const events = eventsForDay(day, m);
     if (!events.length) continue;
 
@@ -211,22 +222,22 @@ function renderList() {
       <div class="list-date-group">
         <div class="list-date-header">
           <span class="date-badge">${monthName} ${day}</span>
-        </div>`;
+        </div>
+    `;
 
     events.forEach(ev => {
-  const idx = eventStore.indexOf(ev);
-  block += `
-    <div class="list-event-item"
-         role="button"
-         tabindex="0"
-         onclick="openEnterpriseModal(${idx})">
-      <div class="list-country-title">${ev.label}</div>
-    </div>
-  `;
-});
+      const idx = eventStore.indexOf(ev);
+      block += `
+        <div class="list-event-item"
+             role="button"
+             tabindex="0"
+             onclick="openEnterpriseModal(${idx})">
+          <div class="list-country-title">${escapeHtml(ev.label)}</div>
+        </div>
+      `;
+    });
 
-
-    list.insertAdjacentHTML('beforeend', block + '</div>');
+    list.insertAdjacentHTML('beforeend', block + `</div>`);
   }
 }
 
@@ -237,8 +248,8 @@ function eventsForDay(day, month) {
   return eventStore.filter(e => e.day === day && e.month === month);
 }
 
-function changeMonth(d) {
-  calDate.setMonth(calDate.getMonth() + d);
+function changeMonth(delta) {
+  calDate.setMonth(calDate.getMonth() + delta);
   updateNavLabel();
   renderCalendar();
 }
@@ -270,10 +281,9 @@ function updateEventCount() {
   if (el) el.innerText = `${eventStore.length} events`;
 }
 
-
-
-
-
+/* ===============================
+   MODAL (ENTERPRISE)
+=============================== */
 function openEnterpriseModal(idx) {
   const ev = eventStore[idx];
   if (!ev) return;
@@ -292,50 +302,44 @@ function openEnterpriseModal(idx) {
       ${monthName} ${ev.day}
     </div>
 
-    <span class="ent-badge ${
-      ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'
-    } mt-3 inline-block">
+    <span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'} mt-3 inline-block">
       ${ev.type.toUpperCase()}
     </span>
   `;
 
-  /* ===== MISSION (Sheet 1) ===== */
   if (ev.type === 'mission') {
     if (ev.raw?.country) {
-      html += `<div class="text-sm font-bold mt-4">${ev.raw.country}</div>`;
+      html += `<div class="text-sm font-bold mt-4">${escapeHtml(ev.raw.country)}</div>`;
     }
 
     const address =
-      ev.raw.address ||
-      ev.raw.address2 ||
-      ev.raw.address3 ||
-      ev.raw.address4;
+      ev.raw?.address ||
+      ev.raw?.address2 ||
+      ev.raw?.address3 ||
+      ev.raw?.address4;
 
     if (address) {
-      html += `
-        <div class="text-sm text-slate-600 mt-2">
-          ${address}
-        </div>`;
+      html += `<div class="text-sm text-slate-600 mt-2">${escapeHtml(address)}</div>`;
     }
   }
 
-  /* ===== CORPORATE (Sheet 2) ===== */
   if (ev.type === 'corporate') {
     if (ev.raw?.details1) {
-      html += `
-        <div class="text-sm text-slate-700 mt-4">
-          ${ev.raw.details1}
-        </div>`;
+      html += `<div class="text-sm text-slate-700 mt-4">${escapeHtml(ev.raw.details1)}</div>`;
     }
 
     if (ev.raw?.eventlink1) {
-      html += `
-        <a href="${ev.raw.eventlink1}"
-           target="_blank"
-           rel="noopener"
-           class="text-sm text-blue-600 font-bold mt-4 inline-block">
-          View more →
-        </a>`;
+      const safeHref = sanitizeUrl(ev.raw.eventlink1);
+      if (safeHref) {
+        html += `
+          <a href="${safeHref}"
+             target="_blank"
+             rel="noopener"
+             class="text-sm text-blue-600 font-bold mt-4 inline-block">
+            View more →
+          </a>
+        `;
+      }
     }
   }
 
@@ -348,7 +352,35 @@ function openEnterpriseModal(idx) {
 
 function closeEnterpriseModal() {
   const modal = document.getElementById('enterpriseModal');
+  if (!modal) return;
   modal.style.display = 'none';
   modal.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+}
+
+/* ===============================
+   SECURITY HELPERS (XSS SAFE)
+=============================== */
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttr(str) {
+  // For attribute contexts like title=""
+  return escapeHtml(str).replace(/`/g, '&#96;');
+}
+
+function sanitizeUrl(url) {
+  try {
+    const u = new URL(String(url), window.location.href);
+    if (u.protocol === 'http:' || u.protocol === 'https:') return u.href;
+    return '';
+  } catch {
+    return '';
+  }
 }
