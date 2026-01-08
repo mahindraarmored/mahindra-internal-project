@@ -10,32 +10,20 @@
 }
 
 body {
-    font-family: 'Inter', "Segoe UI", sans-serif;
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
     background-color: #f8fafc;
     color: #1e293b;
-    margin: 0;
-    display: flex;
-    min-height: 100dvh; /* Use dynamic viewport height for mobile safety */
-    margin: 0;
-    overflow-x: hidden;
 }
 
-/* --- SIDEBAR COMPONENTS --- */
-#sidebar-root {
-    display: flex;
-    flex-direction: column;
-    height: 100dvh; /* Force sidebar root to be full height */
-    position: sticky;
-    top: 0;
-}
-
-
+/* --- SIDEBAR & NAV LOGIC --- */
 .sidebar {
     background-color: var(--slate-primary);
     color: white;
-    transition: all 0.3s ease;
-    height: 100%; /* Ensure the sidebar inside the root fills it */
-    min-height: 100dvh
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .nav-link {
@@ -46,8 +34,9 @@ body {
     border-radius: 8px;
     color: #94a3b8;
     font-weight: 500;
-    transition: all 0.2s;
-    text-decoration: none; /* Reset link style */
+    transition: all 0.2s ease;
+    text-decoration: none;
+    margin-bottom: 4px;
 }
 
 .nav-link:hover {
@@ -60,93 +49,53 @@ body {
     color: white;
 }
 
-/* --- DASHBOARD CARDS --- */
+/* --- PORTAL CARD STYLING --- */
 .portal-card {
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    text-decoration: none; /* For <a> tags */
+    text-decoration: none;
     color: inherit;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .portal-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
     border-color: var(--mahindra-red);
 }
 
-/* --- UTILITIES --- */
-.hide-scrollbar::-webkit-scrollbar { 
-    display: none; 
+/* --- SCROLLBAR UTILITY --- */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-/* Shared Header styles */
-header {
-    background-color: white;
-    border-bottom: 1px solid var(--border-color);
-}
-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    height: 100dvh;
-}
-
-
-/* --- GLOBAL MOBILE OPTIMIZATION --- */
-
-/* Fix for mobile height issues */
-body {
-    min-height: 100dvh;
-}
-
-/* Ensure the main container doesn't overflow horizontally */
-main {
-    width: 100%;
-    min-width: 0;
-}
-
+/* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 1024px) {
-    /* Stack Dashboard Cards vertically on mobile */
+    #mainSidebar {
+        box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+    }
+    
+    /* Ensure cards stack on mobile */
     .grid {
         grid-template-columns: 1fr !important;
-        gap: 1rem !important;
     }
-
-    /* Reduce spacing for mobile devices */
+    
     .p-8, .p-12 {
-        padding: 1.25rem !important;
-    }
-
-    /* Scale down large typography for smaller screens */
-    h2.text-3xl {
-        font-size: 1.75rem !important;
-    }
-
-    /* Portal Card adjustments for mobile */
-    .portal-card {
         padding: 1.5rem !important;
-        text-align: left;
-        align-items: flex-start;
     }
 }
 
-/* TOUCH OPTIMIZATION: Make buttons easier to tap */
+/* Touch targets for mobile */
 @media (pointer: coarse) {
-    .nav-link, button, .portal-card {
-        min-height: 48px;
+    .nav-link, .portal-card, button {
+        min-height: 44px;
     }
-}
-
-/* Global Image Safety */
-img {
-    max-width: 100%;
-    height: auto;
 }
