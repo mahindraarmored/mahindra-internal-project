@@ -4,7 +4,7 @@ const sidebarHTML = `
         <div class="p-6 border-b border-slate-800">
             <div class="flex items-center justify-center">
                 <div class="w-full py-2 flex items-center justify-center">
-                    <img src="MEVA LOGO.png" 
+                    <img src="../siteimages/logo.png" 
                          alt="Mahindra Logo" 
                          class="w-[180px] h-auto object-contain">
                 </div>
