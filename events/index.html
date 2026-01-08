@@ -3,21 +3,25 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Asset Library | Mahindra Emirates</title>
+    <title>Global Events | Mahindra Emirates</title>
+    <!-- Tailwind for Layout & Utility -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
+        /* --- Design Language (Asset Hub Style) --- */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
         :root {
             --mahindra-red: #dc2626;
+            --mahindra-red-dark: #b91c1c;
             --slate-primary: #0f172a;
             --slate-secondary: #1e293b;
             --border-color: #e2e8f0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', "Segoe UI", sans-serif;
             background-color: #f8fafc;
             color: #1e293b;
         }
@@ -38,111 +42,78 @@
         .nav-link:hover { background-color: var(--slate-secondary); color: white; }
         .nav-link.active { background-color: var(--mahindra-red); color: white; }
 
-        .vehicle-card {
+        /* Card Styling */
+        .portal-card {
             background: white;
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            overflow: hidden;
             transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+            cursor: pointer;
+        }
+        .portal-card:hover { border-color: var(--mahindra-red); transform: translateY(-2px); }
+
+        /* Calendar Grid */
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-top: 1px solid var(--border-color);
+            background: #f1f5f9;
+            gap: 1px;
         }
 
-        .vehicle-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        .cal-day {
+            min-height: 120px;
+            background: white;
+            padding: 8px;
+            font-size: 12px;
+            overflow-y: auto;
         }
 
-        .category-badge {
-            font-size: 9px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .filter-btn {
-            white-space: nowrap;
-            padding: 8px 16px;
+        .event-chip {
             font-size: 10px;
             font-weight: 700;
-            text-transform: uppercase;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: white;
-            color: #64748b;
-            transition: all 0.2s;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
         }
+        .event-chip.mission { background: #fee2e2; color: #b91c1c; border-left: 2px solid #dc2626; }
+        .event-chip.corporate { background: #eff6ff; color: #1e40af; border-left: 2px solid #2563eb; }
 
-        .filter-btn.active {
-            background: var(--mahindra-red);
-            color: white;
-            border-color: var(--mahindra-red);
-        }
-
-        .icon-action {
-            display: flex;
+        /* Modal Overlays */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: #f1f5f9;
-            color: #64748b;
-            transition: all 0.2s;
-            position: relative;
+            z-index: 50;
+            padding: 20px;
         }
 
-        .icon-action:hover {
-            background: #e2e8f0;
-            color: var(--mahindra-red);
-        }
-
-        .icon-action.disabled {
-            opacity: 0.2;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .icon-action .tooltip {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #0f172a;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 9px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-            z-index: 10;
-        }
-
-        .icon-action:hover .tooltip {
-            opacity: 1;
+        .modal-container {
+            background: white;
+            width: 100%;
+            max-width: 1100px;
+            max-height: 90vh;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Shimmer loading effect */
-        .shimmer {
-            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
+    <!-- Sidebar Navigation -->
     <aside class="sidebar w-64 flex-shrink-0 flex flex-col">
         <div class="p-6 border-b border-slate-800">
             <div class="flex items-center gap-3">
@@ -150,204 +121,214 @@
                     <i class="ri-shield-fill text-white text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-sm tracking-tighter uppercase leading-none text-white">Mahindra</h1>
-                    <span class="text-slate-400 font-bold uppercase tracking-widest text-[8px]">Armored Division</span>
+                    <h1 class="font-extrabold text-sm tracking-tighter uppercase leading-none">Mahindra</h1>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-[8px]">Defence Systems</span>
                 </div>
             </div>
         </div>
+
         <nav class="flex-1 p-4 space-y-1">
-            <a href="#" class="nav-link">
-                <i class="ri-home-4-line"></i> Dashboard
+            <a href="../index.html" class="nav-link">
+                <i class="ri-dashboard-line"></i> Main Portal
             </a>
             <a href="#" class="nav-link active">
-                <i class="ri-folder-shield-2-line"></i> Asset Library
+                <i class="ri-calendar-event-line"></i> Global Events
             </a>
         </nav>
+        
+        <div class="p-4 mt-auto border-t border-slate-800 text-[10px] text-slate-500 font-bold uppercase text-center">
+            System V2.5.0
+        </div>
     </aside>
 
+    <!-- Main Content -->
     <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
         <header class="h-16 bg-white border-b flex items-center justify-between px-8 z-10">
-            <div class="flex items-center gap-4 w-1/2">
-                <i class="ri-search-line text-slate-400"></i>
-                <input type="text" id="assetSearch" placeholder="Search vehicle database..." class="w-full text-sm outline-none" onkeyup="filterAssets()">
-            </div>
-            <div id="assetCount" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Loading Data...
+            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Strategic Event Tracking</h2>
+            <div class="flex items-center gap-4">
+                <button onclick="openCalendarModal()" class="px-4 py-1.5 bg-red-600 text-white text-[10px] font-black uppercase rounded-lg shadow-sm hover:bg-red-700 transition-all">
+                    Expand View
+                </button>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 bg-slate-50">
-            <div class="max-w-7xl mx-auto space-y-6">
-                <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2" id="filterBar">
-                    <button onclick="filterType('All', this)" class="filter-btn active">All</button>
-                    <button onclick="filterType('CAV', this)" class="filter-btn">CAV</button>
-                    <button onclick="filterType('APC', this)" class="filter-btn">APC</button>
-                    <button onclick="filterType('Pickup', this)" class="filter-btn">Pickup</button>
-                    <button onclick="filterType('CITV', this)" class="filter-btn">CITV</button>
-                    <button onclick="filterType('Ambulance', this)" class="filter-btn">Ambulance</button>
+        <!-- Page Dashboard Content -->
+        <div class="flex-1 overflow-y-auto p-8 md:p-12">
+            <div class="max-w-6xl mx-auto space-y-10">
+                <div class="flex items-end justify-between">
+                    <div>
+                        <h2 class="text-4xl font-black text-slate-900 tracking-tight">GLOBAL EVENTS</h2>
+                        <p class="text-slate-500 mt-1">Real-time tracking of mission holidays and corporate schedules.</p>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button onclick="changeMonth(-1)" class="w-10 h-10 border rounded-xl hover:bg-white flex items-center justify-center transition-all"><i class="ri-arrow-left-s-line"></i></button>
+                        <div class="px-6 h-10 border rounded-xl bg-white flex items-center font-bold text-slate-900 min-w-[180px] justify-center" id="calDisplayLabel">Loading...</div>
+                        <button onclick="changeMonth(1)" class="w-10 h-10 border rounded-xl hover:bg-white flex items-center justify-center transition-all"><i class="ri-arrow-right-s-line"></i></button>
+                    </div>
                 </div>
 
-                <div id="assetGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Loading Skeletons -->
-                    <div class="vehicle-card shimmer h-40"></div>
-                    <div class="vehicle-card shimmer h-40"></div>
-                    <div class="vehicle-card shimmer h-40"></div>
-                    <div class="vehicle-card shimmer h-40"></div>
+                <!-- Embedded Calendar View -->
+                <div class="portal-card overflow-hidden">
+                    <div class="bg-slate-50 px-6 py-3 grid grid-cols-7 text-center border-b">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<span class="text-[10px] font-black uppercase tracking-widest text-slate-400">${d}</span>`).join('')}
+                    </div>
+                    <div id="pageCalendarGrid" class="cal-grid">
+                        <!-- Calendar populated by JS -->
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <script>
-        // Data Source from Google Sheets CSV Export
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-Hzbhsw1kmNd2_2-SjwUqQcAGtw6xG9h3tUS_uSpcDTfu2SxU5J4w0XA1A8Llg9cZ6eAIkwu/pub?output=csv'; 
-        
-        let allVehicles = [];
-        let currentFilter = 'All';
-
-        async function fetchSheetData() {
-    try {
-        const response = await fetch(SHEET_CSV_URL);
-        if (!response.ok) throw new Error('Network response was not ok');
-
-        const csvText = await response.text();
-        allVehicles = parseCSV(csvText);
-
-        // 👇 PASTE THIS LINE HERE
-        console.log(allVehicles);
-
-        renderAssets();
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        document.getElementById('assetCount').innerText = "Error Loading Database";
-        document.getElementById('assetGrid').innerHTML = `
-            <div class="col-span-full py-20 text-center">
-                <i class="ri-error-warning-line text-4xl text-slate-300 mb-4 block"></i>
-                <p class="text-slate-500 font-medium">Unable to connect to vehicle database.</p>
+    <!-- Modal: Large Calendar View -->
+    <div id="calendarModal" class="modal-overlay" onclick="closeModal('calendarModal')">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="p-6 border-b bg-slate-50 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold">Event Intelligence Modal</h3>
+                    <div class="flex gap-4 mt-1">
+                        <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-600"></span><span class="text-[9px] font-black uppercase text-slate-500">Mission</span></div>
+                        <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-600"></span><span class="text-[9px] font-black uppercase text-slate-500">Corporate</span></div>
+                    </div>
+                </div>
+                <button onclick="closeModal('calendarModal')" class="w-10 h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors">
+                    <i class="ri-close-line text-xl"></i>
+                </button>
             </div>
-        `;
+            <div class="flex-1 overflow-y-auto p-4 bg-slate-100">
+                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                     <div id="modalCalendarGrid" class="cal-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    /* --- DATA & LOGIC (STRICTLY PRESERVED) --- */
+    const EMBASSY_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=0';
+    const CALENDAR_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=258527421';
+
+    let embassyData = [];
+    let calendarData = [];
+    let currentCalDate = new Date();
+
+    async function fetchDatabase() {
+        try {
+            const [embRes, calRes] = await Promise.all([
+                fetch(EMBASSY_SHEET_URL).then(r => r.text()),
+                fetch(CALENDAR_SHEET_URL).then(r => r.text())
+            ]);
+            embassyData = parseCSV(embRes);
+            calendarData = parseCSV(calRes);
+            renderCalendar();
+            return true;
+        } catch (e) {
+            console.error("Database sync error", e);
+            return false;
+        }
     }
-}
 
+    function parseCSV(text) {
+        const rows = text.split('\n').filter(r => r.trim());
+        const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+        return rows.slice(1).map(row => {
+            const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const obj = {};
+            headers.forEach((h, i) => {
+                obj[h] = values[i] ? values[i].replace(/"/g, '').trim() : "";
+            });
+            return obj;
+        });
+    }
 
-        function parseCSV(csv) {
-    const lines = csv.trim().split('\n');
-    if (lines.length < 2) return [];
+    function renderCalendar() {
+        const mIdx = currentCalDate.getMonth();
+        const y = currentCalDate.getFullYear();
+        const mNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        document.getElementById('calDisplayLabel').innerText = `${mNames[mIdx]} ${y}`;
 
-    // Read headers exactly as they exist
-    const headers = lines[0]
-        .split(',')
-        .map(h => h.replace(/"/g, '').trim().toLowerCase());
+        // Render both the page grid and modal grid
+        populateGrid('pageCalendarGrid', y, mIdx);
+        populateGrid('modalCalendarGrid', y, mIdx);
+    }
 
-    return lines.slice(1).map(line => {
-        const values = line
-            .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-            .map(v => v.replace(/"/g, '').trim());
+    function populateGrid(gridId, y, mIdx) {
+        const grid = document.getElementById(gridId);
+        if(!grid) return;
+        grid.innerHTML = '';
 
-        const row = {};
-        headers.forEach((h, i) => row[h] = values[i] || '');
+        const first = new Date(y, mIdx, 1).getDay();
+        const total = new Date(y, mIdx + 1, 0).getDate();
 
-        return {
-            // ✅ Mapping YOUR column names
-            name: row['vehicle name'],
-            subtitle: row['sub heading'] || row['base vehicle / chassis'],
-            image: row['image status']?.startsWith('http') ? row['image status'] : null,
-            brochure: row['brochure link']?.startsWith('http')
-                ? row['brochure link']
-                : row['brochure link']
-                    ? `https://${row['brochure link']}`
-                    : null,
-            website: row['website']?.startsWith('http')
-                ? row['website']
-                : row['website']
-                    ? `https://${row['website']}`
-                    : null,
-            type: row['category'] || 'Other'
-        };
-    }).filter(v => v.name);
-}
+        // Padding
+        for (let i = 0; i < first; i++) {
+            const p = document.createElement('div');
+            p.className = 'cal-day bg-slate-50/50';
+            grid.appendChild(p);
+        }
 
-
-
-        function renderAssets() {
-            const grid = document.getElementById('assetGrid');
-            const searchQ = document.getElementById('assetSearch').value.toLowerCase();
+        // Days
+        for (let num = 1; num <= total; num++) {
+            const cell = document.createElement('div');
+            cell.className = 'cal-day';
+            cell.innerHTML = `<span class="font-black text-slate-300 mb-1 block">${num}</span>`;
             
-            grid.innerHTML = '';
-            
-            const filtered = allVehicles.filter(v => {
-                const matchesType = currentFilter === 'All' || v.type.toUpperCase() === currentFilter.toUpperCase();
-                const matchesSearch = v.name.toLowerCase().includes(searchQ) || 
-                                     v.subtitle.toLowerCase().includes(searchQ) || 
-                                     v.type.toLowerCase().includes(searchQ);
-                return matchesType && matchesSearch;
+            // Mission Matching (Important Days column)
+            embassyData.forEach(m => {
+                if (isDateMatch(m['important days'], num, mIdx)) {
+                    addChip(cell, m.country, 'mission');
+                }
             });
 
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 font-medium italic">No assets matching your criteria.</div>`;
-            }
-
-            filtered.forEach(v => {
-                const card = document.createElement('div');
-                card.className = 'vehicle-card';
-                
-                const hasImg = v.image && v.image.startsWith('http');
-                const hasBro = v.brochure && v.brochure.startsWith('http');
-                const hasWeb = v.website && (v.website.startsWith('http') || v.website.length > 2);
-                const webLabel = v.website.startsWith('http') ? 'External' : v.website;
-
-                card.innerHTML = `
-                    <div class="p-5 flex-1">
-                        <span class="category-badge ${getCategoryColor(v.type)} mb-2 inline-block">${v.type}</span>
-                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-tight">${v.name}</h3>
-                        <p class="text-[10px] text-slate-400 font-medium">${v.subtitle}</p>
-                    </div>
-                    <div class="px-5 py-4 flex items-center justify-between border-t border-slate-50">
-                        <div class="flex gap-2">
-                            <a href="${hasImg ? v.image : '#'}" class="icon-action ${hasImg ? '' : 'disabled'}" target="_blank">
-                                <i class="ri-image-line"></i>
-                                <span class="tooltip">Images</span>
-                            </a>
-                            <a href="${hasBro ? v.brochure : '#'}" class="icon-action ${hasBro ? '' : 'disabled'}" target="_blank">
-                                <i class="ri-file-pdf-line"></i>
-                                <span class="tooltip">Brochure</span>
-                            </a>
-                        </div>
-                        <a href="${hasWeb && v.website.startsWith('http') ? v.website : '#'}" class="icon-action ${hasWeb ? '' : 'disabled'}" target="_blank">
-                            <i class="ri-global-line"></i>
-                            <span class="tooltip">${webLabel}</span>
-                        </a>
-                    </div>
-                `;
-                grid.appendChild(card);
+            // Corporate Matching
+            calendarData.forEach(ev => {
+                const dStr = ev.date || ev.eventdate1;
+                if (isDateMatch(dStr, num, mIdx)) {
+                    addChip(cell, ev.event1 || "Corporate Event", 'corporate');
+                }
             });
-            
-            document.getElementById('assetCount').innerText = `${filtered.length} Vehicles Detected`;
-        }
 
-        function getCategoryColor(type) {
-            const t = type.toUpperCase();
-            if (t.includes('CAV')) return 'bg-blue-50 text-blue-600';
-            if (t.includes('APC')) return 'bg-red-50 text-red-600';
-            if (t.includes('PICKUP')) return 'bg-slate-100 text-slate-600';
-            if (t.includes('CITV')) return 'bg-yellow-50 text-yellow-600';
-            if (t.includes('AMBULANCE')) return 'bg-green-50 text-green-600';
-            return 'bg-slate-100 text-slate-600';
+            grid.appendChild(cell);
         }
+    }
 
-        function filterAssets() {
-            renderAssets();
-        }
+    function isDateMatch(str, day, month) {
+        if (!str) return false;
+        const s = str.toLowerCase();
+        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+        const fullMonths = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+        
+        const mMatch = s.includes(months[month]) || s.includes(fullMonths[month]) || s.includes(`${month + 1}/`);
+        if (!mMatch) return false;
+        
+        const nums = s.match(/\b\d{1,2}\b/g);
+        return nums && nums.some(n => parseInt(n) === day);
+    }
 
-        function filterType(type, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = type;
-            renderAssets();
-        }
+    function addChip(container, text, type) {
+        const chip = document.createElement('div');
+        chip.className = `event-chip ${type}`;
+        chip.innerText = text;
+        container.appendChild(chip);
+    }
 
-        // Initialize fetching on page load
-        window.addEventListener('DOMContentLoaded', fetchSheetData);
-    </script>
+    function changeMonth(dir) { 
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir); 
+        renderCalendar(); 
+    }
+
+    function openCalendarModal() { 
+        document.getElementById('calendarModal').style.display = 'flex'; 
+    }
+
+    function closeModal(id) { 
+        document.getElementById(id).style.display = 'none'; 
+    }
+
+    window.onload = fetchDatabase;
+</script>
 </body>
 </html>
