@@ -113,8 +113,10 @@
 .cal-grid-container {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background: var(--m-border);
+    background: #e2e8f0; /* The border color between cells */
     gap: 1px;
+    border: 1px solid #e2e8f0;
+    width: 100%;
 }
 
 .cal-day-label {
@@ -129,9 +131,10 @@
 
 .cal-day-cell {
     background: #fff;
-    min-height: 120px;
-    padding: 8px;
-    transition: background 0.2s ease;
+    min-height: 120px; /* Adjust based on your screenshot preference */
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 .cal-day-cell.empty { background: #f9fafb; }
