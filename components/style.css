@@ -13,6 +13,7 @@ body {
     font-family: 'Inter', "Segoe UI", sans-serif;
     background-color: #f8fafc;
     color: #1e293b;
+    margin: 0;
 }
 
 /* --- SIDEBAR COMPONENTS --- */
