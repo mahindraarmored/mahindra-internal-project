@@ -3,15 +3,14 @@ const sidebarHTML = `
     <aside class="sidebar w-64 flex-shrink-0 flex flex-col">
         <div class="p-6 border-b border-slate-800">
             <div class="flex items-center justify-center">
-                <div class="w-full h-12 flex items-center">
-                    <img src="../assets/MEVA LOGO.png" alt="Mahindra Logo" class="h-full w-auto object-contain">
+                <div class="w-full py-2 flex items-center justify-center">
+                    <img src="../assets/MEVA LOGO.png" 
+                         alt="Mahindra Logo" 
+                         class="w-[180px] h-auto object-contain">
                 </div>
             </div>
         </div>
-    
-    
-    
-    
+
         <nav class="flex-1 p-4 space-y-1">
             <a href="/index.html" class="nav-link" id="nav-dashboard"><i class="ri-dashboard-line"></i> Dashboard</a>
             <a href="/vehicles/index.html" class="nav-link" id="nav-vehicles"><i class="ri-truck-line"></i> Vehicle Library</a>
@@ -19,6 +18,7 @@ const sidebarHTML = `
             <a href="/mission/index.html" class="nav-link" id="nav-mission"><i class="ri-government-line"></i> Mission Database</a>
             <a href="/support/index.html" class="nav-link" id="nav-support"><i class="ri-information-line"></i> Support Info</a>
         </nav>
+
         <div class="p-4 mt-auto border-t border-slate-800">
             <div class="bg-slate-800/50 p-3 rounded-xl flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center font-bold text-xs">M</div>
@@ -27,7 +27,6 @@ const sidebarHTML = `
         </div>
     </aside>
 `;
-
 const headerHTML = `
     <header class="h-16 bg-white border-b flex items-center justify-between px-8 z-10">
         <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">INTERNAL PORTAL</h2>
