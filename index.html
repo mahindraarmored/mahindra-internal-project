@@ -4,745 +4,172 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Internal Portal | Mahindra Emirates</title>
+    <!-- Tailwind for Layout & Utility -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
-        /* --- Global Variables & Theme --- */
+        /* --- Refined Design Language (Asset Hub Style) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
         :root {
-            --bg: #f2f2f2;
-            --card: #ffffff;
-            --text: #333333;
-            --muted: #666666;
-            --accent: #b31b1b;
-            --nav-bg: #333333;
-            --border: #e5e5e5;
-            --sidebar: #f9f9f9;
-            --cal-bg: #ffffff;
-            --cal-header: #f8f9fa;
-            /* Event Colors */
-            --color-mission: #b31b1b;
-            --color-corporate: #2563eb;
-            --color-event: #10b981; /* Green for country-specific events */
+            --mahindra-red: #dc2626;
+            --mahindra-red-dark: #b91c1c;
+            --slate-primary: #0f172a;
+            --slate-secondary: #1e293b;
+            --border-color: #e2e8f0;
         }
 
-        * { box-sizing: border-box; }
         body {
-            margin: 0;
-            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
+            font-family: 'Inter', "Segoe UI", sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
 
-        a { color: inherit; text-decoration: none; transition: 0.2s; }
-        a:hover { color: var(--accent); }
-
-        .container {
-            max-width: 1400px;
-            width: 90%;
-            margin: 0 auto;
-            padding: 24px;
-        }
-
-        /* --- Header --- */
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .header-utilities { display: flex; align-items: center; gap: 15px; }
-        .cta-request, .cta-chat {
-            padding: 8px 15px;
-            border: 1px solid var(--accent);
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        .cta-request { background: transparent; color: var(--accent); }
-        .cta-chat { background: var(--accent); color: white; }
-
-        /* --- Nav Bar --- */
-        .main-nav-bar {
-            background-color: var(--nav-bg);
-            margin: 20px -24px 30px -24px;
-            padding: 0 24px;
-        }
-        .main-nav-bar ul { list-style: none; display: flex; margin: 0; padding: 0; }
-        .main-nav-bar li a {
-            display: block;
+        /* Sidebar Styling */
+        .sidebar {
+            background-color: var(--slate-primary);
             color: white;
-            padding: 15px 20px;
-            font-size: 15px;
-        }
-        .main-nav-bar li a:hover { background-color: #555; }
-
-        /* --- Content --- */
-        .section-title { margin: 20px 0 12px; font-size: 2.2em; font-weight: 800; letter-spacing: -0.02em; }
-        .breadcrumbs { margin: 6px 0 32px; color: var(--muted); font-size: 16px; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            transition: all 0.3s ease;
         }
 
-        .card {
-            background: var(--card);
-            border-top: 3px solid #e41837;
-            
-            padding: 32px;
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: var(--slate-secondary);
+            color: white;
+        }
+
+        .nav-link.active {
+            background-color: var(--mahindra-red);
+            color: white;
+        }
+
+        /* Card Styling */
+        .portal-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             transition: all 0.3s ease;
             cursor: pointer;
-        }
-        .card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-        .card h2 { margin: 0 0 10px; font-size: 22px; }
-        .card p { margin: 0; color: var(--muted); font-size: 14px; }
-
-        /* --- Modal System --- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            justify-content: center; align-items: center;
-        }
-
-        .modal-container {
-            background: var(--card);
-            width: 95%;
-            max-width: 1200px;
-            height: 85vh;
-            border-radius: 12px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-        }
-
-        .modal-header {
-            padding: 15px 30px;
-            border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            background: #fff;
-        }
-
-        .modal-main { display: flex; flex: 1; overflow: hidden; }
-
-        .modal-sidebar {
-            width: 300px;
-            border-right: 1px solid var(--border);
-            background: var(--sidebar);
-            display: flex; flex-direction: column;
-        }
-
-        .sidebar-search { padding: 15px; background: white; border-bottom: 1px solid var(--border); }
-        .sidebar-search input {
-            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); outline: none;
-        }
-
-        .sidebar-list { overflow-y: auto; flex: 1; }
-        .region-group { padding: 15px 15px 5px; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
-        .country-item { padding: 10px 15px; cursor: pointer; font-size: 14px; color: #444; }
-        .country-item:hover { background: #eee; }
-        .country-item.active { background: white; color: var(--accent); font-weight: 700; border-right: 3px solid var(--accent); }
-
-        .modal-detail { flex: 1; padding: 40px; overflow-y: auto; background: white; }
-
-        /* --- Calendar System --- */
-        .calendar-view-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            background: white;
-        }
-
-        .calendar-controls {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 20px 30px;
-            background: #fff;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .calendar-nav { display: flex; gap: 10px; align-items: center; }
-        .nav-btn {
-            background: #f0f0f0; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 12px;
-        }
-        .nav-btn:hover { background: #e0e0e0; }
-        .nav-btn.active { background: var(--accent); color: white; }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            flex: 1;
-            overflow: hidden;
-            border-top: 1px solid var(--border);
-            border-left: 1px solid var(--border);
-        }
-
-        .day-label {
-            background: var(--cal-header);
             text-align: center;
-            padding: 10px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--muted);
-            border-right: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
         }
 
-        .day-cell {
-            min-height: 110px;
-            background: white;
-            border-right: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            padding: 6px;
-            position: relative;
-            overflow-y: auto;
+        .portal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--mahindra-red);
         }
 
-        .day-cell.other-month { background: #fafafa; color: #ccc; }
-        .day-cell.today { background: #fffcf0; }
-        .day-cell.today .day-number { background: var(--accent); color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; }
-
-        .day-number { font-size: 12px; font-weight: 600; margin-bottom: 5px; display: inline-block; }
-
-        .event-chip {
-            font-size: 10px;
-            padding: 3px 6px;
-            background: #f0f4f8;
-            border-left: 3px solid var(--color-mission);
-            margin-bottom: 4px;
-            border-radius: 3px;
-            white-space: normal;
-            word-break: break-word;
-            line-height: 1.2;
-            cursor: pointer;
-            color: #111;
-            font-weight: 600;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .event-chip.corporate { border-left-color: var(--color-corporate); background: #eff6ff; }
-        .event-chip.country-event { border-left-color: var(--color-event); background: #ecfdf5; }
-        .event-chip:hover { filter: brightness(0.95); }
-
-        .calendar-legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            padding: 10px 30px;
-            font-size: 11px;
-            background: #fafafa;
-            border-top: 1px solid var(--border);
-        }
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
-
-        .event-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .close-btn { cursor: pointer; font-size: 30px; color: var(--muted); }
-        .sync-status { padding: 10px 15px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
-        .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: var(--muted); }
-    
-    
-    /* Important Days – Embassy Modal UX */
-.important-days-list {
-    margin-top: 8px;
-}
-
-.important-day-item {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-left: 4px solid var(--accent);
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-bottom: 10px;
-}
-
-.important-day-title {
-    font-size: 14px;
-    font-weight: 800;
-    color: #1e293b;
-}
-
-.important-day-date {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--accent);
-    margin-top: 4px;
-}
-/* Embassy Addresses with Contact & Email – Modal UX */
-.address-list {
-    margin-top: 10px;
-}
-
-.address-item {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-left: 4px solid var(--accent);
-    border-radius: 6px;
-    padding: 14px;
-    margin-bottom: 14px;
-}
-
-.address-type {
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-}
-
-.address-text {
-    font-size: 14px;
-    color: #1e293b;
-    line-height: 1.4;
-    margin-bottom: 8px;
-}
-
-.address-meta {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.4;
-}
-
-.address-meta span {
-    display: block;
-    margin-top: 2px;
-}
-    
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body>
+<body class="flex h-screen overflow-hidden">
 
-<div class="container">
-    <header class="header-top">
-        <div class="logo">
-            <a href="/">
-                <strong style="color:var(--accent); font-size:1.4em;">MAHINDRA EMIRATES VEHICLE ARMOURING</strong>
+    <!-- Main Sidebar Navigation -->
+    <aside class="sidebar w-64 flex-shrink-0 flex flex-col">
+        <div class="p-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-600 p-1.5 rounded-lg">
+                    <i class="ri-shield-fill text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-sm tracking-tighter uppercase leading-none">Mahindra</h1>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Emirates Portal</span>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html" class="nav-link active">
+                <i class="ri-dashboard-line"></i> Dashboard
             </a>
-        </div>
-        <div class="header-utilities">
-            <span style="color:var(--muted); font-size:14px;">Internal Portal</span>
-            <a href="https://mevaconnect.com" class="cta-request" target="_blank">MEVA Connect</a>
-            <a href="https://www.mahindraarmored.com" class="cta-chat" target="_blank">MEVA Website</a>
-        </div>
-    </header>
-    
-    <nav class="main-nav-bar">
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/vehicles/">Vehicles</a></li>
-            <li><a href="#" onclick="openCalendarModal()">Events</a></li>
-            <li><a href="/templates/">Templates</a></li>
-        </ul>
-    </nav>
-    
-    <h1 class="section-title">RESOURCES PORTAL</h1>
-    <p class="breadcrumbs">Global Diplomatic Assets & Mission Database</p>
-    
-    <div class="grid">
-        <div class="card" onclick="window.location.href='/vehicles/'">
-            <h2>Vehicles</h2>
-            <p>Specs, brochures, and internal resources.</p>
-        </div>
-        <div class="card" onclick="openCalendarModal()">
-            <h2>Events</h2>
-            <p>Monthly events calendar and schedules.</p>
-        </div>
-        <div class="card" onclick="window.location.href='/templates/'">
-            <h2>Templates</h2>
-            <p>Approval Notes, templates, SOPs.</p>
-        </div>
-        <div class="card" onclick="openEmbassyModal()">
-            <h2>Embassy Data</h2>
-            <p>Live mission database synced from central Excel sheet.</p>
-        </div>
-    </div>
+            <a href="vehicles/index.html" class="nav-link">
+                <i class="ri-truck-line"></i> Vehicle Library
+            </a>
+            <a href="events/index.html" class="nav-link">
+                <i class="ri-calendar-event-line"></i> Global Events
+            </a>
+            <a href="mission/index.html" class="nav-link">
+                <i class="ri-government-line"></i> Mission Database
+            </a>
+            <a href="support/index.html" class="nav-link">
+                <i class="ri-information-line"></i> Support Info
+            </a>
+        </nav>
 
-    <div class="footer">© Mahindra Armored — Internal Portal — Ver 4.9</div>
-</div>
-
-<!-- Embassy Modal -->
-<div id="embassyModal" class="modal-overlay" onclick="if(event.target == this) closeModal('embassyModal')">
-    <div class="modal-container">
-        <div class="modal-header">
-            <div style="font-weight: 800; color: var(--accent); font-size: 12px; text-transform: uppercase;">Mission Database</div>
-            <div class="close-btn" onclick="closeModal('embassyModal')">&times;</div>
-        </div>
-        <div class="modal-main">
-            <aside class="modal-sidebar">
-                <div class="sidebar-search">
-                    <input type="text" id="countrySearch" placeholder="Search mission..." onkeyup="filterSidebar()">
-                </div>
-                <div class="sidebar-list" id="sidebarList">
-                    <div class="empty-state">Syncing...</div>
-                </div>
-                <div class="sync-status" id="syncStatus">Status: Offline</div>
-            </aside>
-            <main class="modal-detail" id="detailPane">
-                <div class="empty-state" style="margin-top: 100px;">
-                    <h2>Select a mission to view extended details</h2>
-                </div>
-            </main>
-        </div>
-    </div>
-</div>
-
-<!-- Calendar Modal -->
-<div id="calendarModal" class="modal-overlay" onclick="if(event.target == this) closeModal('calendarModal')">
-    <div class="modal-container">
-        <div class="modal-header">
-            <div style="font-weight: 800; color: var(--accent); font-size: 12px; text-transform: uppercase;">Global Events Calendar</div>
-            <div class="close-btn" onclick="closeModal('calendarModal')">&times;</div>
-        </div>
-        <div class="calendar-view-container">
-            <div class="calendar-controls">
-                <div style="display:flex; align-items:center; gap:20px;">
-                    <h2 id="calendarTitle" style="margin:0; font-weight:800;">Month Year</h2>
-                    <div class="calendar-nav" style="border-left: 1px solid #ddd; padding-left: 20px;">
-                        <button class="nav-btn" onclick="setFilter('all')" id="btn-all">Show All</button>
-                        <button class="nav-btn" onclick="setFilter('mission')" id="btn-mission">Diplomatic Entities in UAE - National Special Days</button>
-                        <button class="nav-btn" onclick="setFilter('corporate')" id="btn-corporate">Events</button>
-                    </div>
-                </div>
-                <div class="calendar-nav">
-                    <button class="nav-btn" onclick="changeMonth(-1)">Prev</button>
-                    <button class="nav-btn" onclick="resetCalendar()">Today</button>
-                    <button class="nav-btn" onclick="changeMonth(1)">Next</button>
-                </div>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
-            <div class="calendar-legend">
-                <div class="legend-item"><div class="dot" style="background:var(--color-mission)"></div> Special Day (National Day)</div>
-                <div class="legend-item"><div class="dot" style="background:var(--color-corporate)"></div> Scheduled Event</div>
-                <div class="legend-item"><div class="dot" style="background:var(--color-event)"></div> Local Country Event</div>
+        <div class="p-4 mt-auto border-t border-slate-800">
+            <div class="bg-slate-800/50 p-3 rounded-xl flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center font-bold text-xs">M</div>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-slate-400">System Ready</div>
             </div>
         </div>
-    </div>
-</div>
+    </aside>
 
-<script>
-    // Configuration
-    const EMBASSY_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=0';
-    const OTHER_EVENTS_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=258527421'; 
+    <!-- Content Area -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="h-16 bg-white border-b flex items-center justify-between px-8 z-10">
+            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Resource Management Intelligence</h2>
+            <div class="flex items-center gap-4">
+                <span class="text-[11px] font-bold text-slate-500 uppercase">Version 2.5</span>
+            </div>
+        </header>
 
-    let missionData = [];
-    let otherEventsData = [];
-    let currentCalDate = new Date();
-    let currentFilter = 'all';
-
-    async function fetchDatabase() {
-        if (missionData.length > 0 && otherEventsData.length > 0) return;
-        const statusEl = document.getElementById('syncStatus');
-        try {
-            statusEl.innerText = "Status: Syncing...";
-            const [resp1, resp2] = await Promise.all([
-                fetch(EMBASSY_URL),
-                fetch(OTHER_EVENTS_URL)
-            ]);
-
-            const csv1 = await resp1.text();
-            missionData = parseCSV(csv1).filter(d => d.country);
-
-            const csv2 = await resp2.text();
-            otherEventsData = parseCSV(csv2);
-            
-            renderSidebar();
-            statusEl.innerText = "Status: Synced " + new Date().toLocaleTimeString();
-        } catch (e) {
-            console.error("Fetch error:", e);
-            statusEl.innerText = "Status: Sync Error";
-        }
-    }
-
-    function parseCSV(text) {
-        const rows = text.split(/\r?\n/).filter(row => row.trim().length > 0);
-        if (rows.length === 0) return [];
-        const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
-        return rows.slice(1).map(row => {
-            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            const data = {};
-            headers.forEach((h, i) => { 
-                data[h] = cols[i]?.replace(/"/g, '').trim() || ""; 
-            });
-            return data;
-        });
-    }
-
-    // --- Enhanced Date Parser ---
-    function parseAnyDate(val) {
-        if (!val) return null;
-        const str = val.toString().trim().toLowerCase();
-        if (!str) return null;
-        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-        for (let i = 0; i < months.length; i++) {
-            if (str.includes(months[i])) {
-                const dayMatch = str.match(/\b\d{1,2}\b/);
-                if (dayMatch) return { day: parseInt(dayMatch[0]), month: i };
-            }
-        }
-        const parts = str.split(/[\/\-]/);
-        if (parts.length >= 2) {
-            const p1 = parseInt(parts[0]);
-            const p2 = parseInt(parts[1]);
-            if (p1 > 0 && p1 <= 31 && p2 > 0 && p2 <= 12) return { day: p1, month: p2 - 1 };
-        }
-        return null;
-    }
-
-    function renderSidebar() {
-        const list = document.getElementById('sidebarList');
-        if(!list) return;
-        list.innerHTML = '';
-        const grouped = missionData.reduce((acc, curr) => {
-            const reg = curr.region || "Global";
-            if (!acc[reg]) acc[reg] = [];
-            acc[reg].push(curr);
-            return acc;
-        }, {});
-
-        Object.keys(grouped).sort().forEach(region => {
-            const head = document.createElement('div');
-            head.className = 'region-group';
-            head.innerText = region;
-            list.appendChild(head);
-            grouped[region].sort((a,b) => a.country.localeCompare(b.country)).forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'country-item';
-                el.innerText = item.country;
-                el.onclick = (e) => showDetail(item, e.target);
-                list.appendChild(el);
-            });
-        });
-    }
-
-    function showDetail(item, target) {
-        document.querySelectorAll('.country-item').forEach(i => i.classList.remove('active'));
-        target.classList.add('active');
-
-        let eventSection = '';
-        if (item.event1) {
-            eventSection = `
-                <div class="event-box">
-                    <label style="color:var(--color-event); font-weight:800; font-size:10px; display:block; margin-bottom:10px; text-transform:uppercase;">Upcoming Local Event</label>
-                    <h4 style="margin:0 0 5px 0; color:#1e293b;">${item.event1}</h4>
-                    <p style="margin:0 0 5px 0; font-size:12px; color:var(--accent); font-weight:700;">${item.eventdate1 || ''}</p>
-                    <p style="margin:0 0 10px 0; font-size:13px; color:var(--muted);">${item.details1 || 'No additional details.'}</p>
-                    ${item.eventlink1 ? `<a href="${item.eventlink1}" target="_blank" style="font-size:12px; font-weight:700; color:var(--accent); text-decoration:underline;">View Event Details &rarr;</a>` : ''}
-                </div>
-            `;
-        }
-
-        document.getElementById('detailPane').innerHTML = `
-            <span style="background:#eee; padding:4px 8px; font-size:10px; border-radius:4px; font-weight:700;">${item.region || 'GLOBAL'}</span>
-            <h2 style="font-size:32px; font-weight:800; margin:5px 0 20px;">${item.country}</h2>
-            
-            <div class="info-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                <div class="info-box" style="grid-column: span 2;">
-  <label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">
-    Addresses & Contacts
-  </label>
-
-  <div class="address-list">
-    ${
-      [
-        {
-          type: item.type,
-          address: item.address,
-          contact: item.contact,
-          email: item.email
-        },
-        {
-          type: item['type 2'],
-          address: item['address 2'],
-          contact: item['contact 2'],
-          email: item['email 2']
-        },
-        {
-          type: item['type 3'],
-          address: item['address 3'],
-          contact: item['contact 3'],
-          email: item['email 3']
-        }
-      ]
-        .filter(a => a.type || a.address)
-        .map(a => `
-          <div class="address-item">
-              <div class="address-type">${a.type || 'Office'}</div>
-
-              <div class="address-text">
-                  ${a.address || 'Address not available'}
-              </div>
-
-              <div class="address-meta">
-                  <span><strong>Contact:</strong> ${a.contact || 'Not available'}</span>
-                  <span><strong>Email:</strong> ${a.email || 'Not available'}</span>
-              </div>
-          </div>
-        `)
-        .join('')
-      || '<div style="font-size:14px;">No address data available</div>'
-    }
-  </div>
-</div>
-
-                <div class="info-box">
-  <label style="font-size:10px; font-weight:800; color:var(--muted); text-transform:uppercase;">
-    Important Days
-  </label>
-
-  <div class="important-days-list">
-    ${
-      item['important days']
-        ? item['important days']
-            .split(',')
-            .map(d => {
-                const parts = d.split(':');
-                const title = parts[0]?.trim();
-                const date = parts[1]?.trim();
-                return `
-                  <div class="important-day-item">
-                      <div class="important-day-title">${title}</div>
-                      <div class="important-day-date">📅 ${date}</div>
-                  </div>
-                `;
-            })
-            .join('')
-        : '<div style="font-size:14px;">N/A</div>'
-    }
-  </div>
-</div>
-
+        <!-- Dashboard Content -->
+        <div class="flex-1 overflow-y-auto p-8 md:p-12">
+            <div class="max-w-6xl mx-auto space-y-10">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">CENTRAL ASSETS</h2>
+                    <p class="text-slate-500 mt-1">Operational hubs and strategic data resources</p>
                 </div>
 
-            ${eventSection}
-        `;
-    }
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Event Tracker Card -->
+                    <a href="events/index.html" class="portal-card p-8 space-y-4">
+                        <div class="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mb-2">
+                            <i class="ri-calendar-todo-line text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Event Tracker</h3>
+                        <p class="text-sm text-slate-500">Global mission holidays and corporate milestones.</p>
+                        <span class="mt-4 text-[10px] font-black uppercase tracking-widest text-red-600">Launch Module →</span>
+                    </a>
 
-    function renderCalendar() {
-        const grid = document.getElementById('calendarGrid');
-        const title = document.getElementById('calendarTitle');
-        if(!grid || !title) return;
-        grid.innerHTML = '';
-        const year = currentCalDate.getFullYear();
-        const month = currentCalDate.getMonth();
-        title.innerText = currentCalDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+                    <!-- Mission DB Card -->
+                    <a href="mission/index.html" class="portal-card p-8 space-y-4">
+                        <div class="w-16 h-16 bg-slate-100 text-slate-900 rounded-2xl flex items-center justify-center mb-2">
+                            <i class="ri-database-2-line text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Mission Database</h3>
+                        <p class="text-sm text-slate-500">Diplomatic contact intelligence and localized data.</p>
+                        <span class="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-900">Access Library →</span>
+                    </a>
 
-        document.querySelectorAll('.calendar-nav .nav-btn').forEach(b => {
-            if(b.id === 'btn-' + currentFilter) b.classList.add('active');
-            else b.classList.remove('active');
-        });
+                    <!-- Website Link Card -->
+                    <a href="https://mahindraemirates.com" target="_blank" class="portal-card p-8 space-y-4">
+                        <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mb-2">
+                            <i class="ri-global-line text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Main Website</h3>
+                        <p class="text-sm text-slate-500">Official public-facing portal and news.</p>
+                        <span class="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-400 italic">External Link</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
 
-        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => {
-            const el = document.createElement('div'); el.className = 'day-label'; el.innerText = d; grid.appendChild(el);
-        });
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const lastDate = new Date(year, month + 1, 0).getDate();
-        const prevLastDate = new Date(year, month, 0).getDate();
-
-        for (let i = firstDay; i > 0; i--) createDayCell(prevLastDate - i + 1, true);
-        for (let i = 1; i <= lastDate; i++) createDayCell(i, false);
-        const remaining = 42 - (grid.children.length - 7);
-        for (let i = 1; i <= remaining; i++) createDayCell(i, true);
-    }
-
-    function createDayCell(num, isOther) {
-        const grid = document.getElementById('calendarGrid');
-        const cell = document.createElement('div');
-        cell.className = 'day-cell' + (isOther ? ' other-month' : '');
-        const today = new Date();
-        if (!isOther && num === today.getDate() && currentCalDate.getMonth() === today.getMonth()) cell.classList.add('today');
-        cell.innerHTML = `<span class="day-number">${num}</span>`;
-
-        if (!isOther) {
-            const mIdx = currentCalDate.getMonth();
-            
-            // 1. Mission Days & Local Events (from Tab 0)
-            if (currentFilter === 'all' || currentFilter === 'mission') {
-                missionData.forEach(m => {
-                    // Mission National Days
-                    const dayStr = m['important days'];
-                    if (dayStr) {
-                        dayStr.split(',').forEach(part => {
-                            const p = parseAnyDate(part);
-                            if (p && p.month === mIdx && p.day === num) {
-                                addChip(cell, `${m.country}: ${part.replace(/[0-9\/]/g, '').trim() || 'National Day'}`, 'mission');
-                            }
-                        });
-                    }
-
-                    // Local Events (New eventdate1 logic)
-                    if (m.event1 && m.eventdate1) {
-                        const p = parseAnyDate(m.eventdate1); 
-                        if (p && p.month === mIdx && p.day === num) {
-                            addChip(cell, `${m.country}: ${m.event1}`, 'country-event');
-                        }
-                    } else if (m.event1) {
-                        // Fallback: Check if event1 title itself contains the date
-                        const p = parseAnyDate(m.event1);
-                        if (p && p.month === mIdx && p.day === num) {
-                            addChip(cell, `${m.country}: ${m.event1}`, 'country-event');
-                        }
-                    }
-                });
-            }
-
-            // 2. Events (from Tab 2)
-            if (currentFilter === 'all' || currentFilter === 'corporate') {
-                otherEventsData.forEach(ev => {
-                    let dateInfo = null; let eventTitle = "";
-                    for (const key in ev) {
-                        if (!dateInfo) dateInfo = parseAnyDate(ev[key]);
-                        if (key.includes('event') || key.includes('title') || key.includes('name')) {
-                            if (!eventTitle && isNaN(ev[key])) eventTitle = ev[key];
-                        }
-                    }
-                    if (dateInfo && dateInfo.month === mIdx && dateInfo.day === num) {
-                        addChip(cell, eventTitle || "Event", 'corporate');
-                    }
-                });
-            }
-        }
-        grid.appendChild(cell);
-    }
-
-    function addChip(container, text, type) {
-        const chip = document.createElement('div');
-        chip.className = `event-chip ${type}`;
-        chip.innerText = text;
-        container.appendChild(chip);
-    }
-
-    function setFilter(f) { currentFilter = f; renderCalendar(); }
-    function changeMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); }
-    function resetCalendar() { currentCalDate = new Date(); renderCalendar(); }
-    function openEmbassyModal() { document.getElementById('embassyModal').style.display = 'flex'; fetchDatabase(); }
-    function openCalendarModal() { document.getElementById('calendarModal').style.display = 'flex'; fetchDatabase().then(() => renderCalendar()); }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function filterSidebar() {
-        const q = document.getElementById('countrySearch').value.toLowerCase();
-        document.querySelectorAll('.country-item').forEach(i => {
-            i.style.display = i.innerText.toLowerCase().includes(q) ? 'block' : 'none';
-        });
-    }
-</script>
 </body>
 </html>
