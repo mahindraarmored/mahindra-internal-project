@@ -384,3 +384,112 @@ function sanitizeUrl(url) {
     return '';
   }
 }
+
+
+
+
+let lastActiveEl = null;
+
+function getFocusableElements(container) {
+  return Array.from(
+    container.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    )
+  ).filter(el => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
+}
+
+function openEnterpriseModal(idx) {
+  const ev = eventStore[idx];
+  if (!ev) return;
+
+  lastActiveEl = document.activeElement;
+
+  const overlay = document.getElementById('enterpriseModal');
+  const modal = overlay?.querySelector('.ent-modal');
+  const title = document.getElementById('mTitle');
+  const body = document.getElementById('mDateContainer');
+
+  if (!overlay || !modal || !title || !body) return;
+
+  // Populate content (keep your existing HTML build logic here)
+  const monthName = new Date(2024, ev.month, 1).toLocaleString('default', { month: 'long' });
+  title.textContent = ev.label;
+
+  let html = `
+    <div class="event-item-date-bubble">${monthName} ${ev.day}</div>
+    <span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'}">
+      ${ev.type.toUpperCase()}
+    </span>
+  `;
+
+  if (ev.type === 'mission') {
+    if (ev.raw?.country) html += `<div class="text-sm font-bold">${ev.raw.country}</div>`;
+    const address = ev.raw?.address || ev.raw?.address2 || ev.raw?.address3 || ev.raw?.address4;
+    if (address) html += `<div class="text-sm text-slate-600">${address}</div>`;
+  }
+
+  if (ev.type === 'corporate') {
+    if (ev.raw?.details1) html += `<div class="text-sm text-slate-700">${ev.raw.details1}</div>`;
+    if (ev.raw?.eventlink1) {
+      html += `<a href="${ev.raw.eventlink1}" target="_blank" rel="noopener"
+        class="text-sm text-blue-600 font-bold inline-block">View more →</a>`;
+    }
+  }
+
+  body.innerHTML = html;
+
+  // Show
+  overlay.style.display = 'flex';
+  overlay.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  // Focus management
+  modal.focus();
+
+  // Trap focus
+  overlay.addEventListener('keydown', trapFocus);
+}
+
+function closeEnterpriseModal() {
+  const overlay = document.getElementById('enterpriseModal');
+  const modal = overlay?.querySelector('.ent-modal');
+  if (!overlay || !modal) return;
+
+  overlay.style.display = 'none';
+  overlay.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+
+  overlay.removeEventListener('keydown', trapFocus);
+
+  if (lastActiveEl && typeof lastActiveEl.focus === 'function') {
+    lastActiveEl.focus();
+  }
+  lastActiveEl = null;
+}
+
+function trapFocus(e) {
+  if (e.key !== 'Tab') return;
+
+  const overlay = document.getElementById('enterpriseModal');
+  const modal = overlay?.querySelector('.ent-modal');
+  if (!overlay || !modal) return;
+
+  const focusables = getFocusableElements(modal);
+  if (focusables.length === 0) {
+    e.preventDefault();
+    modal.focus();
+    return;
+  }
+
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
