@@ -19,25 +19,28 @@ const MONTHS = {
 
 window.addEventListener('load', initCalendar);
 
+/* --- Update your init function to this exact sequence --- */
 async function initCalendar() {
   try {
     const [mRes, cRes] = await Promise.all([fetch(SHEET_MISSION), fetch(SHEET_CORPORATE)]);
     const missionRows = parseCSV(await mRes.text());
     const corporateRows = parseCSV(await cRes.text());
 
-    // RETAINED: Your original expansion logic
+    // 1. Process data
     eventStore = [
       ...missionRows.flatMap(expandMissionRow),
       ...corporateRows.flatMap(expandCorporateRow)
     ];
 
-    filteredStore = [...eventStore]; // Initial sync
+    // 2. IMPORTANT: Initialize filteredStore immediately
+    filteredStore = [...eventStore]; 
 
+    // 3. Bind UI and Render
     bindUI();
     renderSidebar(); 
     updateNavLabel();
     updateEventCount();
-    renderCalendar();
+    renderCalendar(); // Now this will have data to draw
   } catch (err) {
     console.error('Calendar init failed:', err);
   }
@@ -120,9 +123,12 @@ function renderGrid() {
   const grid = document.getElementById('calGridContainer');
   if (!grid) return;
   grid.innerHTML = '';
-  const m = calDate.getMonth(), y = calDate.getFullYear();
+
+  const m = calDate.getMonth();
+  const y = calDate.getFullYear();
   const today = new Date();
 
+  // Draw Day Labels
   ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
     grid.insertAdjacentHTML('beforeend', `<div class="cal-day-label">${d}</div>`);
   });
@@ -130,17 +136,24 @@ function renderGrid() {
   const start = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
 
-  for (let i = 0; i < start; i++) grid.insertAdjacentHTML('beforeend', `<div class="cal-day-cell empty"></div>`);
+  // Empty cells for previous month padding
+  for (let i = 0; i < start; i++) {
+    grid.insertAdjacentHTML('beforeend', `<div class="cal-day-cell empty"></div>`);
+  }
 
+  // Draw actual days
   for (let day = 1; day <= daysInMonth; day++) {
     const isToday = day === today.getDate() && m === today.getMonth() && y === today.getFullYear();
     let cellHTML = `<div class="cal-day-cell ${isToday ? 'is-today' : ''}"><span class="cal-day-num">${day}</span>`;
     
-    // Logic Fix: Look in filteredStore
-    filteredStore.filter(e => e.day === day && e.month === m).forEach(ev => {
+    // Check filteredStore for events on this specific day
+    const dayEvents = filteredStore.filter(e => e.day === day && e.month === m);
+    
+    dayEvents.forEach(ev => {
       const idx = eventStore.indexOf(ev);
       cellHTML += `<button class="cal-event-chip ${ev.type}" onclick="openEnterpriseModal(${idx})" title="${escapeAttr(ev.label)}">${escapeHtml(ev.label)}</button>`;
     });
+
     grid.insertAdjacentHTML('beforeend', cellHTML + `</div>`);
   }
 }
