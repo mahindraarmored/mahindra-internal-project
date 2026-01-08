@@ -11,37 +11,35 @@
     <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     
-    <!-- External Centralized Styles (Replaces the <style> block) -->
-    <link rel="stylesheet" href="components/style.css">
+    <!-- Linked external styles from your system path -->
+    <link rel="stylesheet" href="/components/style.css">
     
-    <!-- Component Logic (Injects the Sidebar and Header automatically) -->
-    <script src="components/navbar.js" defer></script>
+    <!-- Linked external logic from your system path -->
+    <script src="/components/navbar.js" defer></script>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
 
-    <!-- Navbar/Sidebar is injected here by navbar.js -->
-    <div id="sidebar-container" class="flex flex-col"></div>
+    <!-- Sidebar Container: Cleaned up as requested -->
+    <div id="sidebar-root"></div>
 
-    <!-- Main Workspace -->
-    <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
         
-        <!-- Header is injected here by navbar.js -->
-        <div id="header-container"></div>
+        <!-- Header Container: ID corrected for JS injection -->
+        <div id="header-root" class="w-full"></div>
 
-        <!-- Dashboard Content -->
+        <!-- Dashboard Content: Scrollable inner area -->
         <div class="flex-1 overflow-y-auto p-8 md:p-12 hide-scrollbar">
             <div class="max-w-6xl mx-auto space-y-10">
                 
-                <!-- Branding Header -->
                 <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <h2 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Central Assets</h2>
-                    <p class="text-slate-500 mt-1 font-medium">Operational hubs and strategic data resources for Mahindra Emirates.</p>
+                    <p class="text-slate-500 mt-1 font-medium italic">Operational hubs and strategic data resources</p>
                 </div>
 
-                <!-- Strategic Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
                     
-                    <!-- Event Tracker -->
+                    <!-- Event Tracker Card -->
                     <a href="events/index.html" class="portal-card p-8 group">
                         <div class="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-600 group-hover:text-white transition-all duration-300">
                             <i class="ri-calendar-todo-line text-3xl"></i>
@@ -51,7 +49,7 @@
                         <span class="mt-8 text-[10px] font-black uppercase tracking-widest text-red-600">Launch Module →</span>
                     </a>
 
-                    <!-- Mission Database -->
+                    <!-- Mission DB Card -->
                     <a href="mission/index.html" class="portal-card p-8 group">
                         <div class="w-16 h-16 bg-slate-100 text-slate-900 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
                             <i class="ri-database-2-line text-3xl"></i>
@@ -61,7 +59,7 @@
                         <span class="mt-8 text-[10px] font-black uppercase tracking-widest text-slate-900">Access Library →</span>
                     </a>
 
-                    <!-- External Website -->
+                    <!-- Website Link Card -->
                     <a href="https://mahindraemirates.com" target="_blank" class="portal-card p-8 group">
                         <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-slate-200 transition-all duration-300">
                             <i class="ri-global-line text-3xl"></i>
