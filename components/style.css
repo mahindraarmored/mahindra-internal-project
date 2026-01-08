@@ -76,3 +76,18 @@ header {
     background-color: white;
     border-bottom: 1px solid var(--border-color);
 }
+
+
+
+/* --- GLOBAL MOBILE OPTIMIZATION --- */
+@media (max-width: 1024px) {
+    body { flex-direction: column !important; }
+    main { padding: 1rem !important; width: 100%; }
+    .grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
+    h2.text-3xl { font-size: 1.75rem !important; }
+    .portal-card { padding: 1.5rem !important; align-items: flex-start; text-align: left; }
+}
+@media (pointer: coarse) {
+    .nav-link, button, .portal-card { min-height: 44px; }
+}
+img { max-width: 100%; height: auto; }
