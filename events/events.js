@@ -136,39 +136,64 @@ function renderCalendar() {
 function renderGrid() {
   const grid = document.getElementById('calGridContainer');
   if (!grid) return;
+
   grid.innerHTML = '';
 
   const m = calDate.getMonth();
   const y = calDate.getFullYear();
   const today = new Date();
 
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d =>
-    grid.insertAdjacentHTML('beforeend', `<div class="cal-day-label">${d}</div>`)
-  );
+  // Day headers
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    grid.insertAdjacentHTML(
+      'beforeend',
+      `<div class="cal-day-label">${d}</div>`
+    );
+  });
 
   const start = new Date(y, m, 1).getDay();
-  const days = new Date(y, m + 1, 0).getDate();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
 
+  // Empty cells before first day
   for (let i = 0; i < start; i++) {
-    grid.insertAdjacentHTML('beforeend', `<div class="cal-day-cell empty"></div>`);
+    grid.insertAdjacentHTML(
+      'beforeend',
+      `<div class="cal-day-cell empty"></div>`
+    );
   }
 
-  for (let day = 1; day <= days; day++) {
+  // Actual days
+  for (let day = 1; day <= daysInMonth; day++) {
     const isToday =
       day === today.getDate() &&
       m === today.getMonth() &&
       y === today.getFullYear();
 
-    let cell = `<div class="cal-day-cell ${isToday ? 'is-today' : ''}">
-      <span class="cal-day-num">${day}</span>`;
+    let cellHTML = `
+      <div class="cal-day-cell ${isToday ? 'is-today' : ''}">
+        <span class="cal-day-num">${day}</span>
+    `;
 
     eventsForDay(day, m).forEach(ev => {
-      cell += `<div class="cal-event-chip ${ev.type}">${ev.label}</div>`;
+      const idx = eventStore.indexOf(ev);
+
+      cellHTML += `
+        <button
+          class="cal-event-chip ${ev.type}"
+          onclick="openEnterpriseModal(${idx})"
+          aria-haspopup="dialog"
+          title="${ev.label}">
+          ${ev.label}
+        </button>
+      `;
     });
 
-    grid.insertAdjacentHTML('beforeend', cell + '</div>');
+    cellHTML += `</div>`;
+
+    grid.insertAdjacentHTML('beforeend', cellHTML);
   }
 }
+
 
 function renderList() {
   const list = document.getElementById('calListView');
@@ -189,10 +214,17 @@ function renderList() {
         </div>`;
 
     events.forEach(ev => {
-      block += `<div class="list-event-item">
-        <div class="list-country-title">${ev.label}</div>
-      </div>`;
-    });
+  const idx = eventStore.indexOf(ev);
+  block += `
+    <div class="list-event-item"
+         role="button"
+         tabindex="0"
+         onclick="openEnterpriseModal(${idx})">
+      <div class="list-country-title">${ev.label}</div>
+    </div>
+  `;
+});
+
 
     list.insertAdjacentHTML('beforeend', block + '</div>');
   }
@@ -236,4 +268,87 @@ function updateNavLabel() {
 function updateEventCount() {
   const el = document.getElementById('eventsCount');
   if (el) el.innerText = `${eventStore.length} events`;
+}
+
+
+
+
+
+function openEnterpriseModal(idx) {
+  const ev = eventStore[idx];
+  if (!ev) return;
+
+  const modal = document.getElementById('enterpriseModal');
+  const title = document.getElementById('mTitle');
+  const body = document.getElementById('mDateContainer');
+
+  const monthName = new Date(2024, ev.month, 1)
+    .toLocaleString('default', { month: 'long' });
+
+  title.textContent = ev.label;
+
+  let html = `
+    <div class="event-item-date-bubble">
+      ${monthName} ${ev.day}
+    </div>
+
+    <span class="ent-badge ${
+      ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'
+    } mt-3 inline-block">
+      ${ev.type.toUpperCase()}
+    </span>
+  `;
+
+  /* ===== MISSION (Sheet 1) ===== */
+  if (ev.type === 'mission') {
+    if (ev.raw?.country) {
+      html += `<div class="text-sm font-bold mt-4">${ev.raw.country}</div>`;
+    }
+
+    const address =
+      ev.raw.address ||
+      ev.raw.address2 ||
+      ev.raw.address3 ||
+      ev.raw.address4;
+
+    if (address) {
+      html += `
+        <div class="text-sm text-slate-600 mt-2">
+          ${address}
+        </div>`;
+    }
+  }
+
+  /* ===== CORPORATE (Sheet 2) ===== */
+  if (ev.type === 'corporate') {
+    if (ev.raw?.details1) {
+      html += `
+        <div class="text-sm text-slate-700 mt-4">
+          ${ev.raw.details1}
+        </div>`;
+    }
+
+    if (ev.raw?.eventlink1) {
+      html += `
+        <a href="${ev.raw.eventlink1}"
+           target="_blank"
+           rel="noopener"
+           class="text-sm text-blue-600 font-bold mt-4 inline-block">
+          View more →
+        </a>`;
+    }
+  }
+
+  body.innerHTML = html;
+
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEnterpriseModal() {
+  const modal = document.getElementById('enterpriseModal');
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
 }
