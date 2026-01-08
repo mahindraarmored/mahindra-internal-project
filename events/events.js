@@ -117,7 +117,14 @@ function expandCorporateRow(row) {
     return { label: row.event1 || 'Corporate Event', day, month, type: 'corporate', raw: row };
   }).filter(Boolean);
 }
-
+/* --- The missing Master Renderer --- */
+function renderCalendar() {
+  if (viewMode === 'grid') {
+    renderGrid();
+  } else {
+    renderList();
+  }
+}
 /* --- UPDATED: Renderers now use filteredStore --- */
 function renderGrid() {
   const grid = document.getElementById('calGridContainer');
