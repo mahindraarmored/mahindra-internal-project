@@ -1,37 +1,25 @@
 /* ===============================
-   EVENTS ENGINE – FINAL (PRODUCTION)
+   EVENTS ENGINE – FINAL REFINED
 =============================== */
 
-/* === CSV SOURCES === */
-const SHEET_MISSION =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRN0N7BjlpK9kjL923oPBw3mpreD9ofgLMP5YX8_yTQXDwuzw_PPMsLZOKnyZnZzJVBS4KmTD07tyXx/pub?output=csv';
+const SHEET_MISSION = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRN0N7BjlpK9kjL923oPBw3mpreD9ofgLMP5YX8_yTQXDwuzw_PPMsLZOKnyZnZzJVBS4KmTD07tyXx/pub?output=csv';
+const SHEET_CORPORATE = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=258527421';
 
-const SHEET_CORPORATE =
-  'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=258527421';
-
-/* === STATE === */
 let eventStore = [];
 let calDate = new Date();
 let viewMode = 'grid';
+let lastActiveEl = null;
 
-/* === CONSTANTS === */
 const MONTHS = {
   jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
   jul: 6, aug: 7, sep: 8, sept: 8, oct: 9, nov: 10, dec: 11
 };
 
-/* ===============================
-   INIT
-=============================== */
 window.addEventListener('load', initCalendar);
 
 async function initCalendar() {
   try {
-    const [mRes, cRes] = await Promise.all([
-      fetch(SHEET_MISSION),
-      fetch(SHEET_CORPORATE)
-    ]);
-
+    const [mRes, cRes] = await Promise.all([fetch(SHEET_MISSION), fetch(SHEET_CORPORATE)]);
     const missionRows = parseCSV(await mRes.text());
     const corporateRows = parseCSV(await cRes.text());
 
@@ -44,109 +32,62 @@ async function initCalendar() {
     updateNavLabel();
     updateEventCount();
     renderCalendar();
-
   } catch (err) {
     console.error('Calendar init failed:', err);
   }
 }
 
-/* ===============================
-   CSV PARSER (HEADER NORMALIZED)
-=============================== */
 function parseCSV(text) {
   const lines = text.split(/\r?\n/).filter(Boolean);
   if (!lines.length) return [];
-
-  const headers = lines[0]
-    .split(',')
-    .map(h =>
-      h.replace(/"/g, '')
-        .replace(/\s+/g, '')
-        .toLowerCase()
-    );
-
+  const headers = lines[0].split(',').map(h => h.replace(/"/g, '').replace(/\s+/g, '').toLowerCase());
   return lines.slice(1).map(row => {
     const cells = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
     const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = (cells[i] || '').replace(/"/g, '').trim();
-    });
+    headers.forEach((h, i) => { obj[h] = (cells[i] || '').replace(/"/g, '').trim(); });
     return obj;
   });
 }
 
-/* ===============================
-   DATA EXPANSION
-=============================== */
-
-/* --- Sheet 1: Mission / Embassy --- */
 function expandMissionRow(row) {
   const src = row.importantdays;
   if (!src) return [];
-
   return src.split(',').map(chunk => {
     const [label, dateStr] = chunk.split(':');
     if (!label || !dateStr) return null;
-
     const [dayStr, monthStr] = dateStr.trim().split(' ');
     const day = parseInt(dayStr, 10);
     const month = MONTHS[monthStr?.toLowerCase()];
-
     if (isNaN(day) || month === undefined) return null;
-
     return { label: label.trim(), day, month, type: 'mission', raw: row };
   }).filter(Boolean);
 }
 
-/* --- Sheet 2: Corporate --- */
 function expandCorporateRow(row) {
   const src = row.eventdate1;
   if (!src) return [];
-
   return src.split(',').map(d => {
     const [monthStr, dayStr] = d.trim().split(' ');
     const month = MONTHS[monthStr?.toLowerCase()];
     const day = parseInt(dayStr, 10);
-
     if (month === undefined || isNaN(day)) return null;
-
-    return {
-      label: row.event1 || 'Corporate Event',
-      day,
-      month,
-      type: 'corporate',
-      raw: row
-    };
+    return { label: row.event1 || 'Corporate Event', day, month, type: 'corporate', raw: row };
   }).filter(Boolean);
 }
 
-/* ===============================
-   UI BINDINGS
-=============================== */
 function bindUI() {
   document.getElementById('btnPrev')?.addEventListener('click', () => changeMonth(-1));
   document.getElementById('btnNext')?.addEventListener('click', () => changeMonth(1));
   document.getElementById('btnToday')?.addEventListener('click', goToToday);
   document.getElementById('btnGrid')?.addEventListener('click', () => toggleCalView('grid'));
   document.getElementById('btnList')?.addEventListener('click', () => toggleCalView('list'));
-
-  // Modal close actions
-  document.getElementById('btnCloseModal')
-    ?.addEventListener('click', closeEnterpriseModal);
-
-  document.getElementById('enterpriseModal')
-    ?.addEventListener('click', e => {
-      if (e.target?.id === 'enterpriseModal') closeEnterpriseModal();
-    });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeEnterpriseModal();
+  document.getElementById('btnCloseModal')?.addEventListener('click', closeEnterpriseModal);
+  document.getElementById('enterpriseModal')?.addEventListener('click', e => {
+    if (e.target?.id === 'enterpriseModal') closeEnterpriseModal();
   });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEnterpriseModal(); });
 }
 
-/* ===============================
-   RENDERING
-=============================== */
 function renderCalendar() {
   viewMode === 'grid' ? renderGrid() : renderList();
 }
@@ -154,62 +95,43 @@ function renderCalendar() {
 function renderGrid() {
   const grid = document.getElementById('calGridContainer');
   if (!grid) return;
-
   grid.innerHTML = '';
 
   const m = calDate.getMonth();
   const y = calDate.getFullYear();
   const today = new Date();
 
-  // Day headers
   ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
     grid.insertAdjacentHTML('beforeend', `<div class="cal-day-label">${d}</div>`);
   });
 
   const start = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const monthEvents = eventStore.filter(e => e.month === m);
 
-  // Empty cells before first day
-  for (let i = 0; i < start; i++) {
-    grid.insertAdjacentHTML('beforeend', `<div class="cal-day-cell empty"></div>`);
+  if (monthEvents.length === 0) {
+    grid.innerHTML += `<div class="empty-state-msg"><i class="ri-calendar-line text-4xl block mb-2 opacity-20"></i><p class="uppercase text-[10px] font-black tracking-widest">No events scheduled</p></div>`;
+    return;
   }
 
-  // Actual days
+  for (let i = 0; i < start; i++) grid.insertAdjacentHTML('beforeend', `<div class="cal-day-cell empty"></div>`);
+
   for (let day = 1; day <= daysInMonth; day++) {
-    const isToday =
-      day === today.getDate() &&
-      m === today.getMonth() &&
-      y === today.getFullYear();
-
-    let cellHTML = `
-      <div class="cal-day-cell ${isToday ? 'is-today' : ''}">
-        <span class="cal-day-num">${day}</span>
-    `;
-
+    const isToday = day === today.getDate() && m === today.getMonth() && y === today.getFullYear();
+    let cellHTML = `<div class="cal-day-cell ${isToday ? 'is-today' : ''}"><span class="cal-day-num">${day}</span>`;
+    
     eventsForDay(day, m).forEach(ev => {
       const idx = eventStore.indexOf(ev);
-      cellHTML += `
-        <button
-          class="cal-event-chip ${ev.type}"
-          onclick="openEnterpriseModal(${idx})"
-          aria-haspopup="dialog"
-          title="${escapeAttr(ev.label)}">
-          ${escapeHtml(ev.label)}
-        </button>
-      `;
+      cellHTML += `<button class="cal-event-chip ${ev.type}" onclick="openEnterpriseModal(${idx})" title="${escapeAttr(ev.label)}">${escapeHtml(ev.label)}</button>`;
     });
-
-    cellHTML += `</div>`;
-    grid.insertAdjacentHTML('beforeend', cellHTML);
+    grid.insertAdjacentHTML('beforeend', cellHTML + `</div>`);
   }
 }
 
 function renderList() {
   const list = document.getElementById('calListView');
   if (!list) return;
-
   list.innerHTML = '';
-
   const m = calDate.getMonth();
   const monthName = calDate.toLocaleString('default', { month: 'short' });
   const daysInMonth = new Date(calDate.getFullYear(), m + 1, 0).getDate();
@@ -217,279 +139,80 @@ function renderList() {
   for (let day = 1; day <= daysInMonth; day++) {
     const events = eventsForDay(day, m);
     if (!events.length) continue;
-
-    let block = `
-      <div class="list-date-group">
-        <div class="list-date-header">
-          <span class="date-badge">${monthName} ${day}</span>
-        </div>
-    `;
-
+    let block = `<div class="list-date-group"><div class="list-date-header"><span class="date-badge">${monthName} ${day}</span></div>`;
     events.forEach(ev => {
       const idx = eventStore.indexOf(ev);
-      block += `
-        <div class="list-event-item"
-             role="button"
-             tabindex="0"
-             onclick="openEnterpriseModal(${idx})">
-          <div class="list-country-title">${escapeHtml(ev.label)}</div>
-        </div>
-      `;
+      block += `<div class="list-event-item" role="button" onclick="openEnterpriseModal(${idx})"><div class="list-country-title">${escapeHtml(ev.label)}</div></div>`;
     });
-
     list.insertAdjacentHTML('beforeend', block + `</div>`);
   }
 }
 
-/* ===============================
-   HELPERS
-=============================== */
-function eventsForDay(day, month) {
-  return eventStore.filter(e => e.day === day && e.month === month);
-}
-
-function changeMonth(delta) {
-  calDate.setMonth(calDate.getMonth() + delta);
-  updateNavLabel();
-  renderCalendar();
-}
-
-function goToToday() {
-  calDate = new Date();
-  updateNavLabel();
-  renderCalendar();
-}
-
-function toggleCalView(v) {
-  viewMode = v;
-  document.getElementById('calGridContainer').style.display = v === 'grid' ? 'grid' : 'none';
-  document.getElementById('calListView').style.display = v === 'list' ? 'block' : 'none';
-  renderCalendar();
-}
-
-function updateNavLabel() {
-  const months = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December'
-  ];
-  document.getElementById('curDateLabel').innerText =
-    `${months[calDate.getMonth()]} ${calDate.getFullYear()}`;
-}
-
-function updateEventCount() {
-  const el = document.getElementById('eventsCount');
-  if (el) el.innerText = `${eventStore.length} events`;
-}
-
-/* ===============================
-   MODAL (ENTERPRISE)
-=============================== */
 function openEnterpriseModal(idx) {
   const ev = eventStore[idx];
   if (!ev) return;
-
-  const modal = document.getElementById('enterpriseModal');
-  const title = document.getElementById('mTitle');
-  const body = document.getElementById('mDateContainer');
-
-  const monthName = new Date(2024, ev.month, 1)
-    .toLocaleString('default', { month: 'long' });
-
-  title.textContent = ev.label;
-
-  let html = `
-    <div class="event-item-date-bubble">
-      ${monthName} ${ev.day}
-    </div>
-
-    <span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'} mt-3 inline-block">
-      ${ev.type.toUpperCase()}
-    </span>
-  `;
-
-  if (ev.type === 'mission') {
-    if (ev.raw?.country) {
-      html += `<div class="text-sm font-bold mt-4">${escapeHtml(ev.raw.country)}</div>`;
-    }
-
-    const address =
-      ev.raw?.address ||
-      ev.raw?.address2 ||
-      ev.raw?.address3 ||
-      ev.raw?.address4;
-
-    if (address) {
-      html += `<div class="text-sm text-slate-600 mt-2">${escapeHtml(address)}</div>`;
-    }
-  }
-
-  if (ev.type === 'corporate') {
-    if (ev.raw?.details1) {
-      html += `<div class="text-sm text-slate-700 mt-4">${escapeHtml(ev.raw.details1)}</div>`;
-    }
-
-    if (ev.raw?.eventlink1) {
-      const safeHref = sanitizeUrl(ev.raw.eventlink1);
-      if (safeHref) {
-        html += `
-          <a href="${safeHref}"
-             target="_blank"
-             rel="noopener"
-             class="text-sm text-blue-600 font-bold mt-4 inline-block">
-            View more →
-          </a>
-        `;
-      }
-    }
-  }
-
-  body.innerHTML = html;
-
-  modal.style.display = 'flex';
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeEnterpriseModal() {
-  const modal = document.getElementById('enterpriseModal');
-  if (!modal) return;
-  modal.style.display = 'none';
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-/* ===============================
-   SECURITY HELPERS (XSS SAFE)
-=============================== */
-function escapeHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function escapeAttr(str) {
-  // For attribute contexts like title=""
-  return escapeHtml(str).replace(/`/g, '&#96;');
-}
-
-function sanitizeUrl(url) {
-  try {
-    const u = new URL(String(url), window.location.href);
-    if (u.protocol === 'http:' || u.protocol === 'https:') return u.href;
-    return '';
-  } catch {
-    return '';
-  }
-}
-
-
-
-
-let lastActiveEl = null;
-
-function getFocusableElements(container) {
-  return Array.from(
-    container.querySelectorAll(
-      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    )
-  ).filter(el => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
-}
-
-function openEnterpriseModal(idx) {
-  const ev = eventStore[idx];
-  if (!ev) return;
-
   lastActiveEl = document.activeElement;
-
   const overlay = document.getElementById('enterpriseModal');
-  const modal = overlay?.querySelector('.ent-modal');
   const title = document.getElementById('mTitle');
   const body = document.getElementById('mDateContainer');
+  if (!overlay || !title || !body) return;
 
-  if (!overlay || !modal || !title || !body) return;
-
-  // Populate content (keep your existing HTML build logic here)
   const monthName = new Date(2024, ev.month, 1).toLocaleString('default', { month: 'long' });
   title.textContent = ev.label;
 
   let html = `
-    <div class="event-item-date-bubble">${monthName} ${ev.day}</div>
-    <span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'}">
-      ${ev.type.toUpperCase()}
-    </span>
+    <div class="flex items-center gap-3 mb-6">
+        <span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'}">${ev.type.toUpperCase()}</span>
+        <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">${monthName} ${ev.day}</span>
+    </div>
   `;
 
   if (ev.type === 'mission') {
-    if (ev.raw?.country) html += `<div class="text-sm font-bold">${ev.raw.country}</div>`;
-    const address = ev.raw?.address || ev.raw?.address2 || ev.raw?.address3 || ev.raw?.address4;
-    if (address) html += `<div class="text-sm text-slate-600">${address}</div>`;
+    if (ev.raw?.country) html += `<div class="text-sm font-bold mt-4">${escapeHtml(ev.raw.country)}</div>`;
+    const addr = ev.raw?.address || ev.raw?.address2 || ev.raw?.address3;
+    if (addr) html += `<div class="bg-slate-50 p-4 rounded-xl border mt-4 text-sm text-slate-600"><i class="ri-map-pin-2-line text-red-600 mr-1"></i> ${escapeHtml(addr)}</div>`;
   }
 
   if (ev.type === 'corporate') {
-    if (ev.raw?.details1) html += `<div class="text-sm text-slate-700">${ev.raw.details1}</div>`;
-    if (ev.raw?.eventlink1) {
-      html += `<a href="${ev.raw.eventlink1}" target="_blank" rel="noopener"
-        class="text-sm text-blue-600 font-bold inline-block">View more →</a>`;
-    }
+    if (ev.raw?.details1) html += `<p class="text-sm text-slate-700 mt-4 leading-relaxed">${escapeHtml(ev.raw.details1)}</p>`;
+    const safeLink = sanitizeUrl(ev.raw?.eventlink1);
+    if (safeLink) html += `<a href="${safeLink}" target="_blank" class="modal-cta-btn"><i class="ri-external-link-line"></i> View Documentation</a>`;
   }
 
   body.innerHTML = html;
-
-  // Show
   overlay.style.display = 'flex';
   overlay.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
-
-  // Focus management
-  modal.focus();
-
-  // Trap focus
+  overlay.querySelector('.ent-modal').focus();
   overlay.addEventListener('keydown', trapFocus);
 }
 
 function closeEnterpriseModal() {
   const overlay = document.getElementById('enterpriseModal');
-  const modal = overlay?.querySelector('.ent-modal');
-  if (!overlay || !modal) return;
-
+  if (!overlay) return;
   overlay.style.display = 'none';
   overlay.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
-
   overlay.removeEventListener('keydown', trapFocus);
-
-  if (lastActiveEl && typeof lastActiveEl.focus === 'function') {
-    lastActiveEl.focus();
-  }
-  lastActiveEl = null;
+  if (lastActiveEl) lastActiveEl.focus();
 }
 
 function trapFocus(e) {
   if (e.key !== 'Tab') return;
-
-  const overlay = document.getElementById('enterpriseModal');
-  const modal = overlay?.querySelector('.ent-modal');
-  if (!overlay || !modal) return;
-
-  const focusables = getFocusableElements(modal);
-  if (focusables.length === 0) {
-    e.preventDefault();
-    modal.focus();
-    return;
-  }
-
-  const first = focusables[0];
-  const last = focusables[focusables.length - 1];
-
-  if (e.shiftKey && document.activeElement === first) {
-    e.preventDefault();
-    last.focus();
-  } else if (!e.shiftKey && document.activeElement === last) {
-    e.preventDefault();
-    first.focus();
-  }
+  const modal = document.querySelector('.ent-modal');
+  const focusables = Array.from(modal.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+  const first = focusables[0], last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 }
 
+/* --- HELPERS & SECURITY --- */
+function eventsForDay(d, m) { return eventStore.filter(e => e.day === d && e.month === m); }
+function changeMonth(d) { calDate.setMonth(calDate.getMonth() + d); updateNavLabel(); renderCalendar(); }
+function goToToday() { calDate = new Date(); updateNavLabel(); renderCalendar(); }
+function toggleCalView(v) { viewMode = v; document.getElementById('calGridContainer').style.display = v === 'grid' ? 'grid' : 'none'; document.getElementById('calListView').style.display = v === 'list' ? 'block' : 'none'; renderCalendar(); }
+function updateNavLabel() { const m = ['January','February','March','April','May','June','July','August','September','October','November','December']; document.getElementById('curDateLabel').innerText = `${m[calDate.getMonth()]} ${calDate.getFullYear()}`; }
+function updateEventCount() { const el = document.getElementById('eventsCount'); if (el) el.innerText = `${eventStore.length} events`; }
+function escapeHtml(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function escapeAttr(s) { return escapeHtml(s).replace(/`/g,'&#96;'); }
+function sanitizeUrl(u) { try { const res = new URL(String(u), window.location.href); return (res.protocol==='http:'||res.protocol==='https:') ? res.href : ''; } catch { return ''; } }
