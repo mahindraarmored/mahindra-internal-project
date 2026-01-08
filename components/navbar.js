@@ -1,7 +1,27 @@
 /**
  * Mahindra Emirates Internal Portal 
- * Navbar & Sidebar Injection Logic
+ * Security Gate & Navbar Injection
  */
+
+const disclaimerHTML = `
+    <div id="disclaimerOverlay">
+        <div class="disclaimer-card">
+            <div class="disclaimer-icon">
+                <i class="ri-shield-keyhole-fill"></i>
+            </div>
+            <h2 style="font-weight: 900; font-size: 1.5rem; color: #0f172a; text-transform: uppercase;">Internal Access Only</h2>
+            <div style="height: 4px; width: 40px; background: #dc2626; margin: 1rem auto; border-radius: 10px;"></div>
+            <p style="color: #64748b; font-size: 0.875rem; line-height: 1.6; margin-bottom: 2rem;">
+                This system contains proprietary information for <strong>Mahindra Emirates</strong> personnel. 
+                By clicking "I Agree", you confirm you are an authorized employee and agree to maintain strict confidentiality of all data contained herein.
+            </p>
+            <button id="agreeBtn">I Agree & Continue</button>
+            <p style="margin-top: 1.5rem; font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
+                Secure Gateway • v2.5.0
+            </p>
+        </div>
+    </div>
+`;
 
 const sidebarContent = `
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden"></div>
@@ -66,11 +86,25 @@ const headerContent = `
 `;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Inject Sidebar
+    // 1. Security Disclaimer Logic
+    const hasAgreed = sessionStorage.getItem('meva_agreed');
+    
+    if (!hasAgreed) {
+        document.body.insertAdjacentHTML('afterbegin', disclaimerHTML);
+        const overlay = document.getElementById('disclaimerOverlay');
+        const btn = document.getElementById('agreeBtn');
+        
+        btn.addEventListener('click', () => {
+            sessionStorage.setItem('meva_agreed', 'true');
+            overlay.classList.add('disclaimer-hidden');
+            setTimeout(() => overlay.remove(), 600);
+        });
+    }
+
+    // 2. Inject Sidebar & Header (Your existing code)
     const sidebarRoot = document.getElementById('sidebar-root');
     if (sidebarRoot) sidebarRoot.innerHTML = sidebarContent;
 
-    // 2. Inject Header
     const headerRoot = document.getElementById('header-root');
     if (headerRoot) headerRoot.innerHTML = headerContent;
 
