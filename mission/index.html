@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mission Database | Mahindra Emirates</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="../components/style.css">
+    <link rel="stylesheet" href="./mission.css">
+    <script src="../components/navbar.js" defer></script>
+    <script src="./mission.js" defer></script>
+</head>
+<body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
+    <div id="sidebar-root"></div>
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
+        <div id="header-root"></div>
+        <div class="flex-1 flex overflow-hidden">
+            <aside class="w-80 border-r border-slate-200 flex flex-col bg-white">
+                <div class="p-4 border-b border-slate-100">
+                    <div class="relative">
+                        <i class="ri-search-line absolute left-3 top-2.5 text-slate-400"></i>
+                        <input type="text" id="countrySearch" placeholder="Search Country..." 
+                               class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-red-500">
+                    </div>
+                </div>
+                <div id="sidebarList" class="flex-1 overflow-y-auto hide-scrollbar"></div>
+            </aside>
+            <section class="flex-1 bg-white p-10 overflow-y-auto">
+                <div id="detailsArea" class="max-w-4xl mx-auto">
+                    <div class="h-full flex flex-col items-center justify-center text-slate-300 py-32">
+                        <i class="ri-government-line text-7xl opacity-10 mb-6"></i>
+                        <p class="font-bold text-slate-400 uppercase tracking-widest text-xs">Select a mission for details</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
