@@ -1,334 +1,122 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Global Events | Mahindra Emirates</title>
-    <!-- Tailwind for Layout & Utility -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <style>
-        /* --- Design Language (Asset Hub Style) --- */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Global Events | Mahindra Emirates</title>
 
-        :root {
-            --mahindra-red: #dc2626;
-            --mahindra-red-dark: #b91c1c;
-            --slate-primary: #0f172a;
-            --slate-secondary: #1e293b;
-            --border-color: #e2e8f0;
-        }
+  <!-- Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
-        body {
-            font-family: 'Inter', "Segoe UI", sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-        }
+  <!-- Global + Page Styles -->
+  <link rel="stylesheet" href="/components/style.css">
+  <link rel="stylesheet" href="/events/events.css">
 
-        .sidebar { background-color: var(--slate-primary); color: white; }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            color: #94a3b8;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover { background-color: var(--slate-secondary); color: white; }
-        .nav-link.active { background-color: var(--mahindra-red); color: white; }
-
-        /* Card Styling */
-        .portal-card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .portal-card:hover { border-color: var(--mahindra-red); transform: translateY(-2px); }
-
-        /* Calendar Grid */
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            border-top: 1px solid var(--border-color);
-            background: #f1f5f9;
-            gap: 1px;
-        }
-
-        .cal-day {
-            min-height: 120px;
-            background: white;
-            padding: 8px;
-            font-size: 12px;
-            overflow-y: auto;
-        }
-
-        .event-chip {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-        }
-        .event-chip.mission { background: #fee2e2; color: #b91c1c; border-left: 2px solid #dc2626; }
-        .event-chip.corporate { background: #eff6ff; color: #1e40af; border-left: 2px solid #2563eb; }
-
-        /* Modal Overlays */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            padding: 20px;
-        }
-
-        .modal-container {
-            background: white;
-            width: 100%;
-            max-width: 1100px;
-            max-height: 90vh;
-            border-radius: 16px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
+  <!-- Global Navigation -->
+  <script src="/components/navbar.js" defer></script>
+  <script src="/events/events.js" defer></script>
 </head>
-<body class="flex h-screen overflow-hidden">
 
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar w-64 flex-shrink-0 flex flex-col">
-        <div class="p-6 border-b border-slate-800">
+<body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
+
+  <!-- Sidebar -->
+  <div id="sidebar-root"></div>
+
+  <!-- Main -->
+  <main class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <div id="header-root"></div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-6 md:p-10 hide-scrollbar">
+      <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">
+              Global Events
+            </h2>
+            <p id="eventsCount" class="text-slate-500 mt-1 font-medium">
+              Loading events…
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btnToday" class="ent-btn">
+              <i class="ri-time-line"></i> Today
+            </button>
+
+            <div class="ent-seg">
+              <button id="btnGrid" class="ent-seg-btn active">
+                <i class="ri-calendar-2-line"></i> Grid
+              </button>
+              <button id="btnList" class="ent-seg-btn">
+                <i class="ri-list-check-2"></i> List
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calendar Card -->
+        <section class="calendar-card">
+
+          <!-- Calendar Header -->
+          <div class="calendar-header-styled">
             <div class="flex items-center gap-3">
-                <div class="bg-red-600 p-1.5 rounded-lg">
-                    <i class="ri-shield-fill text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-extrabold text-sm tracking-tighter uppercase leading-none">Mahindra</h1>
-                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-[8px]">Defence Systems</span>
-                </div>
-            </div>
-        </div>
+              <button id="btnPrev" class="icon-pill">
+                <i class="ri-arrow-left-s-line"></i>
+              </button>
 
-        <nav class="flex-1 p-4 space-y-1">
-            <a href="../index.html" class="nav-link">
-                <i class="ri-dashboard-line"></i> Main Portal
-            </a>
-            <a href="#" class="nav-link active">
-                <i class="ri-calendar-event-line"></i> Global Events
-            </a>
-        </nav>
-        
-        <div class="p-4 mt-auto border-t border-slate-800 text-[10px] text-slate-500 font-bold uppercase text-center">
-            System V2.5.0
-        </div>
-    </aside>
+              <div id="curDateLabel" class="cal-month">—</div>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <!-- Header -->
-        <header class="h-16 bg-white border-b flex items-center justify-between px-8 z-10">
-            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Strategic Event Tracking</h2>
-            <div class="flex items-center gap-4">
-                <button onclick="openCalendarModal()" class="px-4 py-1.5 bg-red-600 text-white text-[10px] font-black uppercase rounded-lg shadow-sm hover:bg-red-700 transition-all">
-                    Expand View
-                </button>
+              <button id="btnNext" class="icon-pill">
+                <i class="ri-arrow-right-s-line"></i>
+              </button>
             </div>
-        </header>
 
-        <!-- Page Dashboard Content -->
-        <div class="flex-1 overflow-y-auto p-8 md:p-12">
-            <div class="max-w-6xl mx-auto space-y-10">
-                <div class="flex items-end justify-between">
-                    <div>
-                        <h2 class="text-4xl font-black text-slate-900 tracking-tight">GLOBAL EVENTS</h2>
-                        <p class="text-slate-500 mt-1">Real-time tracking of mission holidays and corporate schedules.</p>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <button onclick="changeMonth(-1)" class="w-10 h-10 border rounded-xl hover:bg-white flex items-center justify-center transition-all"><i class="ri-arrow-left-s-line"></i></button>
-                        <div class="px-6 h-10 border rounded-xl bg-white flex items-center font-bold text-slate-900 min-w-[180px] justify-center" id="calDisplayLabel">Loading...</div>
-                        <button onclick="changeMonth(1)" class="w-10 h-10 border rounded-xl hover:bg-white flex items-center justify-center transition-all"><i class="ri-arrow-right-s-line"></i></button>
-                    </div>
-                </div>
+            <div class="flex items-center gap-3">
+              <span class="legend-pill">
+                <span class="dot mission"></span> Mission
+              </span>
+              <span class="legend-pill">
+                <span class="dot corporate"></span> Corporate
+              </span>
+            </div>
+          </div>
 
-                <!-- Embedded Calendar View -->
-                <div class="portal-card overflow-hidden">
-                    <div class="bg-slate-50 px-6 py-3 grid grid-cols-7 text-center border-b">
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<span class="text-[10px] font-black uppercase tracking-widest text-slate-400">${d}</span>`).join('')}
-                    </div>
-                    <div id="pageCalendarGrid" class="cal-grid">
-                        <!-- Calendar populated by JS -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+          <!-- Grid View -->
+          <div id="calGridContainer" class="cal-grid-container"></div>
 
-    <!-- Modal: Large Calendar View -->
-    <div id="calendarModal" class="modal-overlay" onclick="closeModal('calendarModal')">
-        <div class="modal-container" onclick="event.stopPropagation()">
-            <div class="p-6 border-b bg-slate-50 flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-bold">Event Intelligence Modal</h3>
-                    <div class="flex gap-4 mt-1">
-                        <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-600"></span><span class="text-[9px] font-black uppercase text-slate-500">Mission</span></div>
-                        <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-600"></span><span class="text-[9px] font-black uppercase text-slate-500">Corporate</span></div>
-                    </div>
-                </div>
-                <button onclick="closeModal('calendarModal')" class="w-10 h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors">
-                    <i class="ri-close-line text-xl"></i>
-                </button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-slate-100">
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                     <div id="modalCalendarGrid" class="cal-grid"></div>
-                </div>
-            </div>
-        </div>
+          <!-- List View -->
+          <div id="calListView" class="cal-list-view" style="display:none;"></div>
+
+        </section>
+      </div>
     </div>
+  </main>
 
-<script>
-    /* --- DATA & LOGIC (STRICTLY PRESERVED) --- */
-    const EMBASSY_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=0';
-    const CALENDAR_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=258527421';
+  <!-- Modal -->
+  <div id="enterpriseModal" class="ent-modal-overlay" aria-hidden="true">
+    <div class="ent-modal" role="dialog" aria-modal="true">
 
-    let embassyData = [];
-    let calendarData = [];
-    let currentCalDate = new Date();
+      <div class="flex items-center justify-between p-6 border-b">
+        <h3 id="mTitle" class="ent-modal-title">Event</h3>
+        <button id="btnCloseModal" class="icon-pill">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
 
-    async function fetchDatabase() {
-        try {
-            const [embRes, calRes] = await Promise.all([
-                fetch(EMBASSY_SHEET_URL).then(r => r.text()),
-                fetch(CALENDAR_SHEET_URL).then(r => r.text())
-            ]);
-            embassyData = parseCSV(embRes);
-            calendarData = parseCSV(calRes);
-            renderCalendar();
-            return true;
-        } catch (e) {
-            console.error("Database sync error", e);
-            return false;
-        }
-    }
+      <div class="p-6">
+        <div class="ent-modal-section">
+          <div id="mDateContainer" class="space-y-2"></div>
+        </div>
+      </div>
 
-    function parseCSV(text) {
-        const rows = text.split('\n').filter(r => r.trim());
-        const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
-        return rows.slice(1).map(row => {
-            const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            const obj = {};
-            headers.forEach((h, i) => {
-                obj[h] = values[i] ? values[i].replace(/"/g, '').trim() : "";
-            });
-            return obj;
-        });
-    }
+    </div>
+  </div>
 
-    function renderCalendar() {
-        const mIdx = currentCalDate.getMonth();
-        const y = currentCalDate.getFullYear();
-        const mNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        
-        document.getElementById('calDisplayLabel').innerText = `${mNames[mIdx]} ${y}`;
-
-        // Render both the page grid and modal grid
-        populateGrid('pageCalendarGrid', y, mIdx);
-        populateGrid('modalCalendarGrid', y, mIdx);
-    }
-
-    function populateGrid(gridId, y, mIdx) {
-        const grid = document.getElementById(gridId);
-        if(!grid) return;
-        grid.innerHTML = '';
-
-        const first = new Date(y, mIdx, 1).getDay();
-        const total = new Date(y, mIdx + 1, 0).getDate();
-
-        // Padding
-        for (let i = 0; i < first; i++) {
-            const p = document.createElement('div');
-            p.className = 'cal-day bg-slate-50/50';
-            grid.appendChild(p);
-        }
-
-        // Days
-        for (let num = 1; num <= total; num++) {
-            const cell = document.createElement('div');
-            cell.className = 'cal-day';
-            cell.innerHTML = `<span class="font-black text-slate-300 mb-1 block">${num}</span>`;
-            
-            // Mission Matching (Important Days column)
-            embassyData.forEach(m => {
-                if (isDateMatch(m['important days'], num, mIdx)) {
-                    addChip(cell, m.country, 'mission');
-                }
-            });
-
-            // Corporate Matching
-            calendarData.forEach(ev => {
-                const dStr = ev.date || ev.eventdate1;
-                if (isDateMatch(dStr, num, mIdx)) {
-                    addChip(cell, ev.event1 || "Corporate Event", 'corporate');
-                }
-            });
-
-            grid.appendChild(cell);
-        }
-    }
-
-    function isDateMatch(str, day, month) {
-        if (!str) return false;
-        const s = str.toLowerCase();
-        const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-        const fullMonths = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
-        
-        const mMatch = s.includes(months[month]) || s.includes(fullMonths[month]) || s.includes(`${month + 1}/`);
-        if (!mMatch) return false;
-        
-        const nums = s.match(/\b\d{1,2}\b/g);
-        return nums && nums.some(n => parseInt(n) === day);
-    }
-
-    function addChip(container, text, type) {
-        const chip = document.createElement('div');
-        chip.className = `event-chip ${type}`;
-        chip.innerText = text;
-        container.appendChild(chip);
-    }
-
-    function changeMonth(dir) { 
-        currentCalDate.setMonth(currentCalDate.getMonth() + dir); 
-        renderCalendar(); 
-    }
-
-    function openCalendarModal() { 
-        document.getElementById('calendarModal').style.display = 'flex'; 
-    }
-
-    function closeModal(id) { 
-        document.getElementById(id).style.display = 'none'; 
-    }
-
-    window.onload = fetchDatabase;
-</script>
 </body>
 </html>
