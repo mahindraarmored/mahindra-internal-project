@@ -1,3 +1,16 @@
+:root {
+    --mahindra-red: #dc2626;
+    --border-color: #e2e8f0;
+}
+
+/* Fix 7: Resetting containers for better overflow control */
+aside {
+    scrollbar-width: none; /* Firefox */
+}
+aside::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
 /* Sidebar Filter Buttons */
 .side-filter-btn {
     display: flex;
@@ -8,17 +21,21 @@
     font-size: 12px;
     font-weight: 700;
     color: #64748b;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
 }
 
 .side-filter-btn:hover {
     background: #f8fafc;
     color: var(--mahindra-red);
+    border-color: #fee2e2;
 }
 
 .side-filter-btn.active {
     background: #fef2f2;
     color: var(--mahindra-red);
+    border-color: #fecaca;
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.05);
 }
 
 .count-pill {
@@ -39,17 +56,19 @@
 .vehicle-card {
     background: white;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 16px;
+    overflow: hidden;
     position: relative;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .vehicle-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     border-color: var(--mahindra-red);
 }
 
+/* Tooltip & Icon Actions */
 .icon-action {
     width: 32px; height: 32px;
     display: flex; align-items: center; justify-content: center;
@@ -58,18 +77,23 @@
 }
 
 .icon-action:hover {
-    background: var(--slate-primary);
+    background: var(--mahindra-red);
     color: white;
 }
 
-.icon-action.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.icon-action.disabled { 
+    opacity: 0.2; 
+    cursor: not-allowed; 
+    pointer-events: none; 
+}
 
 .icon-action .tooltip {
     position: absolute; bottom: 100%; left: 50%;
     transform: translateX(-50%) translateY(-8px);
-    background: var(--slate-primary); color: white;
+    background: #0f172a; color: white;
     font-size: 10px; padding: 4px 8px; border-radius: 4px;
-    white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.2s;
+    white-space: nowrap; opacity: 0; visibility: hidden; 
+    transition: all 0.2s; z-index: 50;
 }
 
 .icon-action:hover .tooltip { opacity: 1; visibility: visible; }
