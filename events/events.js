@@ -201,23 +201,113 @@ function bindUI() {
   document.getElementById('btnCloseModal')?.addEventListener('click', closeEnterpriseModal);
 }
 
+/* --- PRODUCTION-GRADE MODAL ENGINE --- */
 function openEnterpriseModal(idx) {
   const ev = eventStore[idx];
   if (!ev) return;
+
   const overlay = document.getElementById('enterpriseModal');
   const body = document.getElementById('mDateContainer');
-  const monthName = new Date(2024, ev.month, 1).toLocaleString('default', { month: 'long' });
-  document.getElementById('mTitle').textContent = ev.label;
-
-  let html = `<div class="flex items-center gap-3 mb-6"><span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'}">${ev.type.toUpperCase()}</span><span class="text-slate-400 text-xs font-bold uppercase tracking-widest">${monthName} ${ev.day}</span></div>`;
-  if (ev.type === 'mission' && ev.raw?.country) html += `<div class="text-sm font-bold mt-4">${escapeHtml(ev.raw.country)}</div>`;
+  const title = document.getElementById('mTitle');
   
+  // Update Header Title (event1 for corporate / label for mission)
+  title.textContent = ev.label;
+  
+  // Format Date (Current year 2026)
+  const monthName = new Date(2026, ev.month, 1).toLocaleString('default', { month: 'long' });
+  const dateLabel = `${monthName} ${ev.day}, 2026`;
+
+  // Start building the UI
+  let html = `
+    <div class="flex items-center gap-3 mb-6">
+      <span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'}">
+        ${ev.type.toUpperCase()}
+      </span>
+      <span class="text-slate-400 text-[11px] font-black uppercase tracking-widest">${dateLabel}</span>
+    </div>
+  `;
+
+  // CORPORATE LOGIC (Mapped to columns: region, location, details1, eventlink1, cta1)
+  if (ev.type === 'corporate') {
+    // Region & Location Metadata
+    if (ev.raw?.region || ev.raw?.location) {
+      html += `
+        <div class="flex flex-wrap gap-6 mb-6">
+          ${ev.raw.region ? `
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Region</p>
+              <p class="text-sm font-bold text-slate-800">${escapeHtml(ev.raw.region)}</p>
+            </div>` : ''}
+          ${ev.raw.location ? `
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Location</p>
+              <p class="text-sm font-bold text-slate-800">${escapeHtml(ev.raw.location)}</p>
+            </div>` : ''}
+        </div>`;
+    }
+
+    // Description (details1)
+    if (ev.raw?.details1) {
+      html += `
+        <div class="mb-6">
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Event Details</p>
+          <p class="text-sm text-slate-600 leading-relaxed">${escapeHtml(ev.raw.details1)}</p>
+        </div>`;
+    }
+
+    // Call to Action (eventlink1 & cta1)
+    const safeLink = sanitizeUrl(ev.raw?.eventlink1);
+    const ctaText = ev.raw?.cta1 || 'View Documentation';
+    if (safeLink) {
+      html += `
+        <a href="${safeLink}" target="_blank" class="modal-cta-btn">
+          <i class="ri-external-link-line"></i> ${escapeHtml(ctaText)}
+        </a>`;
+    }
+  }
+
+  // MISSION LOGIC
+  if (ev.type === 'mission') {
+    if (ev.raw?.country) {
+      html += `<div class="text-lg font-black text-slate-900 mb-2">${escapeHtml(ev.raw.country)}</div>`;
+    }
+    const addr = ev.raw?.address || ev.raw?.address2 || ev.raw?.address3;
+    if (addr) {
+      html += `
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mt-4 flex gap-3">
+          <i class="ri-map-pin-2-fill text-red-600"></i>
+          <p class="text-sm text-slate-600 leading-relaxed">${escapeHtml(addr)}</p>
+        </div>`;
+    }
+  }
+
+  // Inject and Show
   body.innerHTML = html;
   overlay.style.display = 'flex';
+  
+  // Visual Polish: Prevent body scroll and trigger animation
+  document.body.style.overflow = 'hidden';
+  const modalBox = overlay.querySelector('.ent-modal');
+  if (modalBox) {
+    modalBox.classList.remove('opacity-0', 'scale-95');
+    modalBox.classList.add('opacity-100', 'scale-100');
+  }
 }
 
 function closeEnterpriseModal() {
-  document.getElementById('enterpriseModal').style.display = 'none';
+  const overlay = document.getElementById('enterpriseModal');
+  const modalBox = overlay.querySelector('.ent-modal');
+  
+  // Smooth close animation
+  if (modalBox) {
+    modalBox.classList.add('opacity-0', 'scale-95');
+    modalBox.classList.remove('opacity-100', 'scale-100');
+  }
+  
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 200);
 }
 
 function changeMonth(d) { calDate.setMonth(calDate.getMonth() + d); updateNavLabel(); renderCalendar(); }
