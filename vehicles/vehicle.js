@@ -6,27 +6,33 @@ const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-H
 let assets = [];
 let currentFilter = 'ALL';
 
-// Fix 6: Use addEventListener instead of window.onload
+// Initialize on page load
 window.addEventListener('load', fetchSheetData);
 
 async function fetchSheetData() {
     try {
         const res = await fetch(SHEET_CSV_URL);
         const csv = await res.text();
+        
+        // Use a more robust header split in case of comma issues
         assets = parseCSV(csv);
+        
         renderSidebar();
         renderAssets();
         
-        // Fix 3: Add event listener for search instead of inline HTML attribute
-        document.getElementById('searchInput').addEventListener('keyup', renderAssets);
+        // Global listener for the search input
+        const searchBox = document.getElementById('searchInput');
+        if(searchBox) searchBox.addEventListener('keyup', renderAssets);
+        
     } catch (e) {
         console.error("Database Connection Failed:", e);
+        document.getElementById('assetCount').innerText = "Sync Error - Check Console";
     }
 }
 
 function parseCSV(csv) {
     const lines = csv.trim().split('\n');
-    // Fix 4: Improved header parsing to handle quoted commas in headers
+    // Parse headers precisely
     const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
         .map(h => h.replace(/"/g, '').trim().toLowerCase());
 
@@ -35,27 +41,27 @@ function parseCSV(csv) {
         const row = {};
         headers.forEach((h, i) => row[h] = values[i] || '');
 
+        // MAPPING TO YOUR SPECIFIC COLUMNS (A-H)
         return {
-            name: row['vehicle name'] || 'Unknown Model',
-            // Fix 2: Provide fallback for missing categories
-            type: row['category'] || 'Uncategorised',
-            // Fix 1: Ensure spec is always at least an empty string
-            spec: row['specification'] || row['sub heading'] || '',
-            status: row['status'] || 'Active',
-            // Fix 5: Cleaner website logic
-            website: row['website'] || ''
+            type: row['category'] || 'Uncategorised',      // Column A
+            name: row['vehicle name'] || '',               // Column B
+            chassis: row['base vehicle / chassis'] || '',  // Column C
+            spec: row['sub heading'] || '',                // Column D
+            website: row['website'] || '',                 // Column G
+            status: row['future'] || 'Active'              // Column H
         };
-    }).filter(v => v.name !== 'Unknown Model');
+    }).filter(v => v.name); // Keeps only valid rows with a Vehicle Name
 }
 
 function renderSidebar() {
     const container = document.getElementById('sidebarFilters');
     if (!container) return;
 
+    // Scan unique categories for the sidebar
     const categories = [...new Set(assets.map(v => v.type.toUpperCase()))].sort();
 
     let html = `
-        <button id="btn-all" onclick="filterType('ALL', this)" class="side-filter-btn active w-full">
+        <button onclick="filterType('ALL', this)" class="side-filter-btn active w-full">
             <span>All Assets</span>
             <span class="count-pill">${assets.length}</span>
         </button>
@@ -76,49 +82,56 @@ function renderSidebar() {
 function renderAssets() {
     const grid = document.getElementById('assetGrid');
     const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    if (!grid) return;
     grid.innerHTML = '';
 
     const filtered = assets.filter(v => {
-        // Fix 1: Null-safe search logic
-        const nameVal = (v.name || '').toLowerCase();
-        const typeVal = (v.type || '').toLowerCase();
-        const specVal = (v.spec || '').toLowerCase();
-
-        const matchesSearch = nameVal.includes(search) || 
-                              typeVal.includes(search) ||
-                              specVal.includes(search);
+        // GLOBAL SEARCH: Checks Name, Type, Chassis, and Sub Heading
+        const matchesSearch = 
+            (v.name || '').toLowerCase().includes(search) || 
+            (v.type || '').toLowerCase().includes(search) ||
+            (v.chassis || '').toLowerCase().includes(search) ||
+            (v.spec || '').toLowerCase().includes(search);
 
         const matchesType = currentFilter === 'ALL' || v.type.toUpperCase() === currentFilter;
         return matchesSearch && matchesType;
     });
 
     filtered.forEach(v => {
-        // Fix 5: Correct boolean check for website
-        const hasWeb = v.website.startsWith('http') || v.website.includes('.');
+        // Robust URL validation
+        const hasWeb = v.website.length > 3; // Basic check for content
         const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website}`;
 
         const card = document.createElement('div');
-        card.className = 'vehicle-card p-5 space-y-4 flex flex-col';
+        card.className = 'vehicle-card p-5 space-y-4 flex flex-col group';
 
         card.innerHTML = `
             <div class="flex justify-between items-start">
                 <span class="text-[10px] font-black px-2 py-1 rounded ${getCategoryColor(v.type)} uppercase tracking-widest">
                     ${v.type}
                 </span>
-                <span class="text-[10px] font-bold ${v.status === 'Active' ? 'text-green-500' : 'text-amber-500'} uppercase tracking-widest">
+                <span class="text-[10px] font-bold ${v.status.toLowerCase() === 'active' ? 'text-green-500' : 'text-amber-500'} uppercase tracking-widest">
                     ${v.status}
                 </span>
             </div>
             <div>
-                <h4 class="text-lg font-bold text-slate-900 leading-tight">${v.name}</h4>
-                <p class="text-xs text-slate-500 mt-2 font-medium leading-relaxed">${v.spec}</p>
+                <h4 class="text-lg font-black text-slate-900 leading-tight group-hover:text-red-600 transition-colors uppercase">
+                    ${v.name}
+                </h4>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-tighter mt-1">
+                    Chassis: ${v.chassis}
+                </p>
+                <p class="text-xs text-slate-500 mt-3 font-medium leading-relaxed italic">
+                    ${v.spec}
+                </p>
             </div>
-            <div class="pt-4 mt-auto border-t flex items-center justify-between">
+            <div class="pt-4 mt-auto border-t border-slate-50 flex items-center justify-between">
                 <div class="flex gap-2">
                     <button class="icon-action"><i class="ri-file-list-3-line"></i><span class="tooltip">Datasheet</span></button>
                     <button class="icon-action"><i class="ri-gallery-line"></i><span class="tooltip">Gallery</span></button>
                 </div>
-                <a href="${hasWeb ? finalUrl : '#'}" class="icon-action ${hasWeb ? '' : 'disabled'}" 
+                <a href="${hasWeb ? finalUrl : '#'}" 
+                   class="icon-action ${hasWeb ? '' : 'disabled'}" 
                    target="${hasWeb ? '_blank' : '_self'}">
                     <i class="ri-global-line"></i><span class="tooltip">${hasWeb ? 'View Online' : 'No Link'}</span>
                 </a>
@@ -127,7 +140,8 @@ function renderAssets() {
         grid.appendChild(card);
     });
 
-    document.getElementById('assetCount').innerText = `${filtered.length} Vehicles Detected`;
+    const countLabel = document.getElementById('assetCount');
+    if(countLabel) countLabel.innerText = `${filtered.length} Vehicles Detected`;
 }
 
 function getCategoryColor(type) {
