@@ -22,6 +22,7 @@
   flex-direction:column;
   height:auto;
   position:relative;
+  overflow: hidden;
 }
 
 .calendar-card::before{
@@ -59,7 +60,7 @@
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  transition:background .15s ease;
+  transition:all .15s ease;
 }
 
 .icon-pill:hover{
@@ -92,20 +93,26 @@
   background:#fff;
   min-height:110px;
   padding:10px;
+  transition: background 0.2s ease;
 }
 
 .cal-day-cell.empty{
   background:#f9fafb;
 }
 
-.cal-day-cell.is-today{
-  background:#fffbfb;
+/* --- TODAY HIGHLIGHT --- */
+.cal-day-cell.is-today {
+    background-color: #fff7ed !important; /* Subtle Orange Tint */
+    position: relative;
+    border: 2px solid #fdba74 !important;
+    z-index: 1;
 }
 
 .cal-day-num{
   font-size:13px;
   font-weight:700;
   margin-bottom:8px;
+  display: inline-block;
 }
 
 .cal-day-cell.is-today .cal-day-num{
@@ -119,32 +126,58 @@
   justify-content:center;
 }
 
+/* Today Label */
+.cal-day-cell.is-today::after {
+    content: "TODAY";
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 7px;
+    font-weight: 900;
+    color: #f97316;
+    background: white;
+    padding: 1px 4px;
+    border-radius: 4px;
+    border: 1px solid #fed7aa;
+}
+
 /* =========================
-   EVENT CHIPS
+   EVENT CHIPS (PILLS)
 ========================= */
-.cal-event-chip{
-  font-size:10px;
-  padding:6px 8px;
-  border-radius:6px;
-  background:#fff;
-  border:1px solid var(--m-border);
-  border-left:3px solid var(--m-red);
-  font-weight:800;
-  margin-bottom:6px;
-  cursor:pointer;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  transition:background .15s ease, transform .15s ease;
+.cal-event-chip {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 5px 8px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.cal-event-chip.corporate{
-  border-left-color:var(--m-blue);
+.cal-event-chip.mission {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+    border-left: 3px solid var(--m-red);
 }
 
-.cal-event-chip:hover{
-  background:#f8fafc;
-  transform:translateX(2px);
+.cal-event-chip.corporate {
+    background: #eff6ff;
+    color: #1e40af;
+    border-color: #bfdbfe;
+    border-left: 3px solid var(--m-blue);
+}
+
+.cal-event-chip:hover {
+    transform: translateX(3px);
+    filter: brightness(0.97);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 /* =========================
@@ -178,6 +211,7 @@
 .list-event-item{
   padding:14px 18px;
   cursor:pointer;
+  transition: background 0.2s;
 }
 
 .list-event-item:hover{
@@ -191,14 +225,35 @@
 }
 
 /* =========================
-   BADGES
+   MODAL & BADGES
 ========================= */
+.ent-modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding: 12px;
+}
+
+.ent-modal{
+  background:#fff;
+  border-radius:24px;
+  width:min(600px, 100%);
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
 .ent-badge{
   font-size:10px;
   font-weight:800;
-  padding:4px 10px;
+  padding:4px 12px;
   border-radius:999px;
   text-transform:uppercase;
+  display: inline-block;
 }
 
 .badge-mission{
@@ -213,37 +268,6 @@
   border:1px solid #bfdbfe;
 }
 
-/* =========================
-   MODAL
-========================= */
-.ent-modal-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(15,23,42,.55);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:50;
-}
-
-.ent-modal{
-  background:#fff;
-  border-radius:18px;
-  width:min(720px, 100%);
-  max-height:90vh;
-  overflow-y:auto;
-}
-
-.ent-modal-title{
-  font-size:16px;
-  font-weight:800;
-  text-transform:uppercase;
-}
-
-.ent-modal-section{
-  margin-top:20px;
-}
-
 .event-item-date-bubble{
   display:inline-block;
   background:var(--m-red);
@@ -254,32 +278,54 @@
   font-weight:800;
 }
 
-/* Modal close button polish */
-.ent-modal .icon-pill{
-  background:#f8fafc;
-  border:1px solid #e5e7eb;
+/* --- MODAL CTA BUTTON --- */
+.modal-cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    background: #0f172a;
+    color: white !important;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+    text-decoration: none;
 }
 
-.ent-modal .icon-pill:hover{
-  background:#e5e7eb;
+.modal-cta-btn:hover {
+    background: var(--m-red);
+    transform: translateY(-2px);
+}
+
+/* --- EMPTY STATE --- */
+.empty-state-msg {
+    grid-column: 1 / -1;
+    padding: 80px 20px;
+    text-align: center;
+    color: #94a3b8;
+    background: #fff;
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
-/* Mobile: make modal comfortable */
 @media (max-width:768px){
   .ent-modal{
-    width: calc(100% - 24px);
+    width: 100%;
     border-radius: 16px;
   }
   .calendar-header-styled{
     flex-direction: column;
     align-items: flex-start;
   }
-}
-
-/* Modal: prevent background scroll + improve touch */
-.ent-modal-overlay{
-  padding: 12px;
+  .cal-day-cell {
+    min-height: 80px;
+    padding: 5px;
+  }
 }
