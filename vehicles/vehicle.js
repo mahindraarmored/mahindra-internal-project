@@ -1,28 +1,34 @@
 /* ===============================
-   VEHICLE LIBRARY LOGIC
+   VEHICLE LIBRARY LOGIC - ROBUST
 =============================== */
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-Hzbhsw1kmNd2_2-SjwUqQcAGtw6xG9h3tUS_uSpcDTfu2SxU5J4w0XA1A8Llg9cZ6eAIkwu/pub?output=csv';
 
 let assets = [];
 let currentFilter = 'ALL';
 
-window.onload = fetchSheetData;
+// Fix 6: Use addEventListener instead of window.onload
+window.addEventListener('load', fetchSheetData);
 
 async function fetchSheetData() {
     try {
         const res = await fetch(SHEET_CSV_URL);
         const csv = await res.text();
         assets = parseCSV(csv);
-        renderSidebar(); // Generates categories from data
+        renderSidebar();
         renderAssets();
+        
+        // Fix 3: Add event listener for search instead of inline HTML attribute
+        document.getElementById('searchInput').addEventListener('keyup', renderAssets);
     } catch (e) {
-        console.error("Data Sync Error:", e);
+        console.error("Database Connection Failed:", e);
     }
 }
 
 function parseCSV(csv) {
     const lines = csv.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+    // Fix 4: Improved header parsing to handle quoted commas in headers
+    const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+        .map(h => h.replace(/"/g, '').trim().toLowerCase());
 
     return lines.slice(1).map(line => {
         const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/"/g, '').trim());
@@ -30,24 +36,26 @@ function parseCSV(csv) {
         headers.forEach((h, i) => row[h] = values[i] || '');
 
         return {
-            name: row['vehicle name'],
-            type: row['category'],
-            spec: row['specification'] || row['sub heading'],
+            name: row['vehicle name'] || 'Unknown Model',
+            // Fix 2: Provide fallback for missing categories
+            type: row['category'] || 'Uncategorised',
+            // Fix 1: Ensure spec is always at least an empty string
+            spec: row['specification'] || row['sub heading'] || '',
             status: row['status'] || 'Active',
-            website: row['website']?.startsWith('http') ? row['website'] : row['website'] ? `https://${row['website']}` : '#'
+            // Fix 5: Cleaner website logic
+            website: row['website'] || ''
         };
-    }).filter(v => v.name);
+    }).filter(v => v.name !== 'Unknown Model');
 }
 
 function renderSidebar() {
     const container = document.getElementById('sidebarFilters');
     if (!container) return;
 
-    // Extract unique categories directly from your data
     const categories = [...new Set(assets.map(v => v.type.toUpperCase()))].sort();
 
     let html = `
-        <button onclick="filterType('ALL', this)" class="side-filter-btn active w-full">
+        <button id="btn-all" onclick="filterType('ALL', this)" class="side-filter-btn active w-full">
             <span>All Assets</span>
             <span class="count-pill">${assets.length}</span>
         </button>
@@ -67,21 +75,28 @@ function renderSidebar() {
 
 function renderAssets() {
     const grid = document.getElementById('assetGrid');
-    const search = document.getElementById('searchInput').value.toLowerCase();
+    const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
     grid.innerHTML = '';
 
     const filtered = assets.filter(v => {
-        // Global search: Checks name, type, and specs
-        const matchesSearch = v.name.toLowerCase().includes(search) || 
-                              v.type.toLowerCase().includes(search) ||
-                              v.spec.toLowerCase().includes(search);
+        // Fix 1: Null-safe search logic
+        const nameVal = (v.name || '').toLowerCase();
+        const typeVal = (v.type || '').toLowerCase();
+        const specVal = (v.spec || '').toLowerCase();
+
+        const matchesSearch = nameVal.includes(search) || 
+                              typeVal.includes(search) ||
+                              specVal.includes(search);
 
         const matchesType = currentFilter === 'ALL' || v.type.toUpperCase() === currentFilter;
         return matchesSearch && matchesType;
     });
 
     filtered.forEach(v => {
-        const hasWeb = v.website.startsWith('http');
+        // Fix 5: Correct boolean check for website
+        const hasWeb = v.website.startsWith('http') || v.website.includes('.');
+        const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website}`;
+
         const card = document.createElement('div');
         card.className = 'vehicle-card p-5 space-y-4 flex flex-col';
 
@@ -95,7 +110,7 @@ function renderAssets() {
                 </span>
             </div>
             <div>
-                <h4 class="text-lg font-bold text-slate-900 leading-tight group-hover:text-red-600 transition-colors">${v.name}</h4>
+                <h4 class="text-lg font-bold text-slate-900 leading-tight">${v.name}</h4>
                 <p class="text-xs text-slate-500 mt-2 font-medium leading-relaxed">${v.spec}</p>
             </div>
             <div class="pt-4 mt-auto border-t flex items-center justify-between">
@@ -103,7 +118,8 @@ function renderAssets() {
                     <button class="icon-action"><i class="ri-file-list-3-line"></i><span class="tooltip">Datasheet</span></button>
                     <button class="icon-action"><i class="ri-gallery-line"></i><span class="tooltip">Gallery</span></button>
                 </div>
-                <a href="${hasWeb ? v.website : '#'}" class="icon-action ${hasWeb ? '' : 'disabled'}" target="_blank">
+                <a href="${hasWeb ? finalUrl : '#'}" class="icon-action ${hasWeb ? '' : 'disabled'}" 
+                   target="${hasWeb ? '_blank' : '_self'}">
                     <i class="ri-global-line"></i><span class="tooltip">${hasWeb ? 'View Online' : 'No Link'}</span>
                 </a>
             </div>
@@ -115,7 +131,7 @@ function renderAssets() {
 }
 
 function getCategoryColor(type) {
-    const t = type.toUpperCase();
+    const t = (type || '').toUpperCase();
     if (t.includes('CAV')) return 'bg-blue-50 text-blue-600';
     if (t.includes('APC')) return 'bg-red-50 text-red-600';
     if (t.includes('PICKUP')) return 'bg-slate-100 text-slate-600';
