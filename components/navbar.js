@@ -2,16 +2,16 @@
 const sidebarHTML = `
     <aside class="sidebar w-64 flex-shrink-0 flex flex-col">
         <div class="p-6 border-b border-slate-800">
-            <div class="flex items-center gap-3">
-                <div class="bg-red-600 p-1.5 rounded-lg">
-                    <i class="ri-shield-fill text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-extrabold text-sm tracking-tighter uppercase leading-none">Mahindra</h1>
-                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Emirates Portal</span>
+            <div class="flex items-center justify-center">
+                <div class="w-full h-12 flex items-center">
+                    <img src="../assets/MEVA LOGO.png" alt="Mahindra Logo" class="h-full w-auto object-contain">
                 </div>
             </div>
         </div>
+    
+    
+    
+    
         <nav class="flex-1 p-4 space-y-1">
             <a href="/index.html" class="nav-link" id="nav-dashboard"><i class="ri-dashboard-line"></i> Dashboard</a>
             <a href="/vehicles/index.html" class="nav-link" id="nav-vehicles"><i class="ri-truck-line"></i> Vehicle Library</a>
