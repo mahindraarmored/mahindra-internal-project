@@ -1,6 +1,6 @@
 /* ===============================
-   EVENTS ENGINE – FINAL
-   =============================== */
+   EVENTS ENGINE – FIXED
+=============================== */
 
 /* === CSV SOURCES === */
 const SHEET_MISSION =
@@ -9,7 +9,7 @@ const SHEET_MISSION =
 const SHEET_CORPORATE =
   'https://docs.google.com/spreadsheets/d/1RRhfYSCEpKzlbjfIWirapC0eiaJGlZ4u9P_EQZfstQM/gviz/tq?tqx=out:csv&gid=258527421';
 
-/* === INTERNAL STATE === */
+/* === STATE === */
 let eventStore = [];
 let calDate = new Date();
 let viewMode = 'grid';
@@ -22,7 +22,7 @@ const MONTHS = {
 
 /* ===============================
    INIT
-   =============================== */
+=============================== */
 window.addEventListener('load', initCalendar);
 
 async function initCalendar() {
@@ -40,7 +40,9 @@ async function initCalendar() {
       ...corporateRows.flatMap(expandCorporateRow)
     ];
 
+    bindUI();
     updateNavLabel();
+    updateEventCount();
     renderCalendar();
 
   } catch (err) {
@@ -49,13 +51,17 @@ async function initCalendar() {
 }
 
 /* ===============================
-   CSV PARSER
-   =============================== */
+   CSV PARSER (FIXED)
+=============================== */
 function parseCSV(text) {
   const lines = text.split(/\r?\n/).filter(Boolean);
   const headers = lines[0]
     .split(',')
-    .map(h => h.replace(/"/g, '').trim().toLowerCase());
+    .map(h =>
+      h.replace(/"/g, '')
+       .replace(/\s+/g, '')
+       .toLowerCase()
+    );
 
   return lines.slice(1).map(row => {
     const cells = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -69,43 +75,33 @@ function parseCSV(text) {
 
 /* ===============================
    DATA EXPANSION
-   =============================== */
-
-/* --- Sheet 1: Mission / Embassy --- */
+=============================== */
 function expandMissionRow(row) {
-  const src = row['important days'];
+  const src = row.importantdays;
   if (!src) return [];
 
   return src.split(',').map(chunk => {
-    const parts = chunk.split(':');
-    if (parts.length < 2) return null;
+    const [label, dateStr] = chunk.split(':');
+    if (!label || !dateStr) return null;
 
-    const label = parts[0].trim();
-    const dateParts = parts[1].trim().split(' ');
-    const day = parseInt(dateParts[0]);
-    const month = MONTHS[dateParts[1]?.toLowerCase()];
+    const [dayStr, monthStr] = dateStr.trim().split(' ');
+    const day = parseInt(dayStr);
+    const month = MONTHS[monthStr?.toLowerCase()];
 
     if (isNaN(day) || month === undefined) return null;
 
-    return {
-      label,
-      day,
-      month,
-      type: 'mission',
-      raw: row
-    };
+    return { label: label.trim(), day, month, type: 'mission', raw: row };
   }).filter(Boolean);
 }
 
-/* --- Sheet 2: Corporate --- */
 function expandCorporateRow(row) {
   const src = row.eventdate1;
   if (!src) return [];
 
   return src.split(',').map(d => {
-    const parts = d.trim().split(' ');
-    const month = MONTHS[parts[0]?.toLowerCase()];
-    const day = parseInt(parts[1]);
+    const [monthStr, dayStr] = d.trim().split(' ');
+    const month = MONTHS[monthStr?.toLowerCase()];
+    const day = parseInt(dayStr);
 
     if (month === undefined || isNaN(day)) return null;
 
@@ -120,9 +116,19 @@ function expandCorporateRow(row) {
 }
 
 /* ===============================
-   CALENDAR RENDERING
-   =============================== */
+   UI BINDINGS (FIXED)
+=============================== */
+function bindUI() {
+  document.getElementById('btnPrev')?.addEventListener('click', () => changeMonth(-1));
+  document.getElementById('btnNext')?.addEventListener('click', () => changeMonth(1));
+  document.getElementById('btnToday')?.addEventListener('click', goToToday);
+  document.getElementById('btnGrid')?.addEventListener('click', () => toggleCalView('grid'));
+  document.getElementById('btnList')?.addEventListener('click', () => toggleCalView('list'));
+}
 
+/* ===============================
+   RENDERING
+=============================== */
 function renderCalendar() {
   viewMode === 'grid' ? renderGrid() : renderList();
 }
@@ -154,14 +160,10 @@ function renderGrid() {
       y === today.getFullYear();
 
     let cell = `<div class="cal-day-cell ${isToday ? 'is-today' : ''}">
-                  <span class="cal-day-num">${day}</span>`;
+      <span class="cal-day-num">${day}</span>`;
 
     eventsForDay(day, m).forEach(ev => {
-      const idx = eventStore.indexOf(ev);
-      cell += `<button class="cal-event-chip ${ev.type}"
-                 onclick="openEnterpriseModal(${idx})">
-                 ${ev.label}
-               </button>`;
+      cell += `<div class="cal-event-chip ${ev.type}">${ev.label}</div>`;
     });
 
     grid.insertAdjacentHTML('beforeend', cell + '</div>');
@@ -184,21 +186,12 @@ function renderList() {
       <div class="list-date-group">
         <div class="list-date-header">
           <span class="date-badge">${monthName} ${day}</span>
-        </div>
-    `;
+        </div>`;
 
     events.forEach(ev => {
-      const idx = eventStore.indexOf(ev);
-      block += `
-        <div class="list-event-item" onclick="openEnterpriseModal(${idx})">
-          <div class="list-master-row">
-            <div class="list-country-title">${ev.label}</div>
-            <span class="ent-badge ${ev.type === 'corporate' ? 'badge-corporate' : 'badge-mission'}">
-              ${ev.type.toUpperCase()}
-            </span>
-          </div>
-        </div>
-      `;
+      block += `<div class="list-event-item">
+        <div class="list-country-title">${ev.label}</div>
+      </div>`;
     });
 
     list.insertAdjacentHTML('beforeend', block + '</div>');
@@ -207,8 +200,7 @@ function renderList() {
 
 /* ===============================
    HELPERS
-   =============================== */
-
+=============================== */
 function eventsForDay(day, month) {
   return eventStore.filter(e => e.day === day && e.month === month);
 }
@@ -229,8 +221,6 @@ function toggleCalView(v) {
   viewMode = v;
   document.getElementById('calGridContainer').style.display = v === 'grid' ? 'grid' : 'none';
   document.getElementById('calListView').style.display = v === 'list' ? 'block' : 'none';
-  document.getElementById('btnGrid')?.classList.toggle('active', v === 'grid');
-  document.getElementById('btnList')?.classList.toggle('active', v === 'list');
   renderCalendar();
 }
 
@@ -241,4 +231,9 @@ function updateNavLabel() {
   ];
   document.getElementById('curDateLabel').innerText =
     `${months[calDate.getMonth()]} ${calDate.getFullYear()}`;
+}
+
+function updateEventCount() {
+  const el = document.getElementById('eventsCount');
+  if (el) el.innerText = `${eventStore.length} events`;
 }
