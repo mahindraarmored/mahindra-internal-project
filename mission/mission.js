@@ -124,3 +124,12 @@ function setupSearch() {
         });
     });
 }
+function openDiplomaticTemplate(countryName, holidayInfo) {
+    const codes = { "india": "in", "australia": "au", "united arab emirates": "ae", "united kingdom": "uk", "united states": "us" };
+    const code = codes[countryName.toLowerCase()] || "in";
+    
+    const encodedHoliday = encodeURIComponent(holidayInfo);
+    
+    // Pass the intelligence as a URL parameter called 'intel'
+    window.location.href = `./specialdays/index.html?country=${code}&intel=${encodedHoliday}`;
+}
