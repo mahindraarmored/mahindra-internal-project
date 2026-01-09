@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Diplomatic Correspondence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@500;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-red: #e41837;
+            --gold-foil: linear-gradient(135deg, #bf953f 0%, #fcf6ba 45%, #b38728 70%, #fbf5b7 85%, #aa771c 100%);
+            --gold-static: #af8f55;
+            --gold-deep: #8a6d3b;
+            --ministerial-gold: #9d7a4a;
+            --slate-900: #0f172a;
+            --slate-700: #334155;
+            --slate-400: #94a3b8;
+            --slate-50: #f8fafc;
+            --navy-deep: #0a1a2f;
+            --red-foil: linear-gradient(150deg, #8b0d1e 0%, #e41837 35%, #ffffff 50%, #e41837 65%, #8b0d1e 100%);
+        }
+
+        /* Essential Reset */
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; margin: 0; padding: 0; }
+        
+        body {
+            background-color: #cbd5e1;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+
+        /* STRICT A4 BOUNDARY */
+        .page {
+            width: 210mm;
+            height: 297mm;
+            max-width: 210mm;
+            max-height: 297mm;
+            background: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Paper Texture Overlay */
+        .page::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0.05;
+            pointer-events: none;
+            background-image: url("https://www.transparenttextures.com/patterns/linen-paper.png");
+            z-index: 20;
+        }
+
+        /* --- HEADER SYSTEM (Left-Right Split) --- */
+        .header-system {
+            height: 90mm;
+            background: #ffffff;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 30mm;
+        }
+
+        .header-top-bar {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 28px;
+            background: var(--gold-foil);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diplomatic-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.55em;
+            text-transform: uppercase;
+            color: #4a370e;
+        }
+
+        .header-bg-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.04;
+            background-image: radial-gradient(circle at 2px 2px, var(--gold-deep) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        .header-hero-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .header-left { flex: 0 0 auto; }
+        .header-right { flex: 1; text-align: right; }
+
+        .flag-box {
+            width: 110px;
+            height: 80px;
+            background: white;
+            border-radius: 8px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        .flag-box img { width: 100%; height: 100%; object-fit: contain; }
+
+        .date-display {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--gold-deep);
+            letter-spacing: 0.2em;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            outline: none;
+        }
+
+        .event-heading {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 48px;
+            background: var(--gold-foil);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            filter: drop-shadow(0px 2px 1px rgba(0,0,0,0.1));
+            letter-spacing: -0.02em;
+            outline: none;
+        }
+
+        /* Placeholder Logic */
+        [contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: rgba(138, 109, 59, 0.4);
+            font-style: italic;
+        }
+
+        /* --- CONTENT AREA --- */
+        .content-area {
+            padding: 15mm 30mm;
+            flex-grow: 1;
+        }
+
+        .salutation {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 17.5px;
+            font-weight: 700;
+            color: var(--slate-900);
+            margin-bottom: 48px;
+            line-height: 2;
+            position: relative;
+        }
+
+        .salutation::after {
+            content: "";
+            position: absolute;
+            bottom: -12px; 
+            left: 0;
+            width: 60px; 
+            height: 3px;
+            background: var(--gold-foil);
+            border-radius: 2px;
+        }
+
+        .message-body {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 18.5px;
+            line-height: 2;
+            color: var(--slate-700);
+            text-align: justify;
+            outline: none;
+        }
+
+        .emphasis { color: var(--slate-900); font-weight: 700; }
+
+        /* --- FOOTER SYSTEM --- */
+        .footer-system {
+            padding: 10mm 20mm 10mm; 
+            background: transparent;
+            position: relative;
+        }
+        .footer-bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0; 
+            width: 100%; 
+            height: 10px;
+            background: var(--red-foil); 
+            z-index: 5;
+        }
+        .footer-container {
+            border-top: 1.5pt solid var(--ministerial-gold);
+            padding-top: 15px;
+            position: relative;
+        }
+
+        .footer-container::before {
+            content: "";
+            position: absolute;
+            top: 5px; left: 0; right: 0;
+            border-top: 0.5pt solid var(--ministerial-gold);
+            opacity: 0.5;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 0.4fr 1.3fr;
+            align-items: end;
+            position: relative;
+        }
+
+        .signatory-info { text-align: left; }
+
+        .signature-area {
+            height: 60px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .signature-image {
+            max-height: 100%;
+            max-width: 180px;
+            object-fit: contain;
+            filter: contrast(1.1) brightness(0.9);
+        }
+
+        .identity-block {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 42px; 
+        }
+
+        .name {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 17.5px;
+            font-weight: 700;
+            color: var(--navy-deep);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #e41837;
+            margin: 8px 0 0 0;
+            line-height: 1;
+        }
+
+        .info-separator {
+            height: 1px;
+            background: rgba(0,0,0,0.1);
+            width: 100%;
+            margin: 12px 0 8px 0;
+        }
+
+        .details-text {
+            font-family: 'Georama', serif;
+            font-size: 9px;
+            color: var(--slate-700);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .seal-floating {
+            position: absolute;
+            left: 60%;
+            top: 15%;
+            transform: translate(-50%, -40%) ; 
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .official-seal {
+            width: 140px;
+            height: 140px;
+            display: inline-flex;
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .seal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: contrast(1.2) sepia(0.3) opacity(0.8);
+            mix-blend-mode: multiply; 
+        }
+
+        .mahindra-identity {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-end;
+            width: 100%;
+            float: right;
+        }
+
+        .logo-container {
+            width: 100px;            
+            height: auto;            
+            background: white;
+            border-radius: 50%;      
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 12px -4px rgba(0,0,0,0.12); 
+            overflow: hidden;
+            margin-left: auto;       
+        }
+
+        .logo-image {
+            width: 100%;
+            height: auto;
+            max-height: 100%;
+            object-fit: contain;    
+        }
+
+        .watermark-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .watermark-image {
+            width: 83%; 
+            height: auto;
+            opacity: 0.08;
+        }
+
+        /* UI Elements */
+        .admin-panel {
+            position: fixed; left: 20px; top: 20px; width: 280px; background: white; padding: 20px; 
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999;
+            font-family: 'Inter', sans-serif; border-top: 4px solid var(--brand-red);
+        }
+        .admin-panel select { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 6px; }
+
+        .print-controls { position: fixed; bottom: 40px; right: 40px; z-index: 9999; }
+        .btn-print {
+            appearance: none; background: var(--slate-900); color: white; border: none; padding: 14px 28px; 
+            border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; gap: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        @media print {
+            .admin-panel, .print-controls { display: none !important; }
+            @page { size: A4; margin: 0; }
+            body { background: white !important; padding: 0 !important; }
+            .page { box-shadow: none !important; margin: 0 !important; width: 210mm !important; height: 297mm !important; }
+            .message-body { widows: 3; orphans: 3; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-panel">
+        <h3>Diplomatic Controls</h3>
+        <label style="font-size: 11px; color: #666; margin-top: 10px; display: block;">Destination Country</label>
+        <select id="countrySelect" onchange="updateAssets()">
+            <option value="in">India</option>
+            <option value="au">Australia</option>
+            <option value="ae">United Arab Emirates</option>
+            <option value="uk">United Kingdom</option>
+            <option value="us">United States</option>
+        </select>
+    </div>
+
+    <div class="page">
+        <div class="watermark-container">
+            <img src="inwm.png" id="watermarkImg" alt="Watermark" class="watermark-image">
+        </div>
+
+        <header class="header-system">
+            <div class="header-top-bar"><span class="diplomatic-label">Diplomatic Excellence</span></div>
+            <div class="header-bg-pattern"></div>
+            <div class="header-hero-content">
+                <div class="header-left">
+                    <div class="flag-box">
+                        <img src="inflag.png" id="flagImg" alt="Flag">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="date-display" contenteditable="true">January 26, 2026</div>
+                    <h1 class="event-heading" id="eventInput" contenteditable="true" oninput="syncEventName()" data-placeholder="Enter Occasion">Type Day</h1>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <div class="salutation">
+                His Excellency,<br>
+                The Ambassador of <span id="countryLabel">India</span> to the UAE
+            </div>
+            <div class="message-body" contenteditable="true">
+                We convey our <span class="emphasis">sincerest congratulations</span> to Your Excellency, the Government, and the people of <span class="country-span">India</span> on the historic occasion of <span class="emphasis dynamic-event-text">Type Day</span>.
+                <br><br>
+                This celebration honors your nation's remarkable heritage and enduring progress. We express our deep appreciation for the robust partnership and mutual respect shared between our communities.
+<br><br>
+                May this year continue to foster peace, innovation, and shared prosperity.
+            </div>
+        </main>
+
+        <section class="footer-system">
+            <footer class="footer-container">
+                <div class="seal-floating">
+                    <div class="official-seal">
+                        <img src="seal.png" alt="Official Seal" class="seal-image" onerror="this.style.display='none';">
+                    </div>
+                </div>
+                <div class="footer-grid">
+                    <div class="signatory-info">
+                        <div class="signature-area">
+                            <img src="sign.png" alt="Signature" class="signature-image" onerror="this.style.opacity='0.2';">
+                        </div>
+                        <div class="identity-block">
+                            <h2 class="name">Rajiv Gupta</h2>
+                            <p class="title">Chief Executive Officer & Director</p>
+                        </div>
+                        <div class="info-separator"></div>
+                        <div class="details-text">
+                            Mahindra Emirates Vehicle Armouring FZ LLC<br> Ras Al Khaimah, United Arab Emirates
+                        </div>
+                    </div>
+                    <div></div>
+                    <div class="mahindra-identity">
+                        <div class="signature-area"></div> 
+                        <div class="logo-container">
+                            <img src="dp.png" alt="Company Logo" class="logo-image">
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </section>
+        <div class="footer-bottom-bar"></div>
+    </div>
+
+    <div class="print-controls">
+        <button onclick="window.print()" class="btn-print">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+                <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Generate Diplomatic PDF
+        </button>
+    </div>
+
+    <script>
+        const countryNames = {
+            "in": "India", "au": "Australia", "ae": "United Arab Emirates", "uk": "United Kingdom", "us": "United States"
+        };
+
+        function updateAssets() {
+            const code = document.getElementById('countrySelect').value;
+            const fullName = countryNames[code];
+            document.getElementById('watermarkImg').src = code + "wm.png";
+            document.getElementById('flagImg').src = code + "flag.png";
+            document.getElementById('countryLabel').innerText = fullName;
+            document.querySelectorAll('.country-span').forEach(span => span.innerText = fullName);
+        }
+
+        function syncEventName() {
+            const newEvent = document.getElementById('eventInput').innerText;
+            document.querySelectorAll('.dynamic-event-text').forEach(el => el.innerText = newEvent);
+        }
+    </script>
+</body>
+</html>
