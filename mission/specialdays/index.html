@@ -355,7 +355,44 @@
             height: auto;
             opacity: 0.08;
         }
+.print-controls {
+        position: fixed;
+        bottom: 40px;
+        left: 40px; /* Container now spans across the bottom */
+        right: 40px;
+        z-index: 9999;
+        display: flex;
+        justify-content: space-between; /* Pushes buttons to opposite sides */
+        pointer-events: none; /* Allows clicking through the container gap */
+    }
 
+    .btn-print, .btn-link {
+        appearance: none;
+        background: var(--slate-900);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none; /* For the link button */
+        pointer-events: auto; /* Re-enables clicking on buttons */
+    }
+
+    .btn-print:hover, .btn-link:hover {
+        background: var(--brand-red);
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(228, 24, 55, 0.4);
+    }
         /* UI Elements */
         .admin-panel {
             position: fixed; left: 20px; top: 20px; width: 280px; background: white; padding: 20px; 
@@ -384,7 +421,7 @@
 
     <div class="admin-panel">
         <h3>Diplomatic Controls</h3>
-        <label style="font-size: 11px; color: #666; margin-top: 10px; display: block;">Destination Country</label>
+        <label style="font-size: 11px; color: #666; margin-top: 10px; display: block;">Select Country</label>
         <select id="countrySelect" onchange="updateAssets()">
             <option value="in">India</option>
             <option value="au">Australia</option>
@@ -464,14 +501,22 @@
     </div>
 
     <div class="print-controls">
-        <button onclick="window.print()" class="btn-print">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
-                <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                <rect x="6" y="14" width="12" height="8"></rect>
-            </svg>
-            Generate Diplomatic PDF
-        </button>
-    </div>
+    <a href="https://internal.mahindraarmored.com" class="btn-link" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Go back to MEVA Internal Portal
+    </a>
+
+    <button onclick="window.print()" class="btn-print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+            <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Generate Diplomatic PDF
+    </button>
+</div>
 
     <script>
         const countryNames = {
