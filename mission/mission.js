@@ -49,19 +49,16 @@ function showDetails(countryName) {
     const area = document.getElementById('detailsArea');
     if (!item || !area) return;
     
-    // Update Sidebar Active State
     document.querySelectorAll('.country-item').forEach(el => {
         el.classList.toggle('active-mission', el.innerText.includes(countryName));
     });
 
-    // BUILD DYNAMIC SECTIONS (Type, Type 2, Type 3...)
     let sectionsHtml = '';
     const keys = Object.keys(item);
-    // Find all keys that start with "type" (type, type 2, type 3, etc.)
     const typeKeys = keys.filter(k => k.startsWith('type')).sort();
 
     typeKeys.forEach(tKey => {
-        const suffix = tKey.replace('type', '').trim(); // e.g., "", "2", "3"
+        const suffix = tKey.replace('type', '').trim();
         const typeLabel = item[tKey];
         const addr = item['address' + (suffix ? ' ' + suffix : '')] || item['address' + suffix];
         const contact = item['contact' + (suffix ? ' ' + suffix : '')] || item['contact' + suffix];
@@ -108,10 +105,36 @@ function showDetails(countryName) {
 
             <div class="mt-8 bg-slate-50 p-8 rounded-3xl border border-slate-100 relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-red-500/5 -mr-16 -mt-16 rounded-full"></div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-6 border-b border-slate-200 pb-3">Critical Dates & Observations</label>
+                
+                <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-3">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Critical Dates & Observations</label>
+                    
+                    <button onclick="transferToIntelTemplate('${item.country.replace(/'/g, "\\'")}', '${(item['important days'] || '').replace(/'/g, "\\'")}')" 
+                            class="bg-white border border-slate-200 hover:border-red-500 hover:text-red-600 text-slate-600 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-2 shadow-sm">
+                        <i class="ri-mail-send-line"></i> Generate Correspondence
+                    </button>
+                </div>
+
                 <p class="text-sm font-bold text-red-800 leading-loose">${item['important days'] || 'No specific holiday intelligence currently tracked for this region.'}</p>
             </div>
         </div>`;
+}
+
+/**
+ * Transfer Function: Connects the Mission Database to the Special Days Template
+ */
+function transferToIntelTemplate(countryName, holidayIntel) {
+    // Standard ISO 2-letter mapping
+    const codes = { 
+        "india": "in", "australia": "au", "united arab emirates": "ae", 
+        "united kingdom": "uk", "united states": "us" 
+    };
+    
+    const code = codes[countryName.toLowerCase()] || "in";
+    const encodedIntel = encodeURIComponent(holidayIntel);
+    
+    // Path leads to the index.html inside the specialdays sub-folder
+    window.location.href = `./specialdays/index.html?country=${code}&intel=${encodedIntel}`;
 }
 
 function setupSearch() {
@@ -123,13 +146,4 @@ function setupSearch() {
             i.style.display = i.innerText.toLowerCase().includes(q) ? 'block' : 'none';
         });
     });
-}
-function openDiplomaticTemplate(countryName, holidayInfo) {
-    const codes = { "india": "in", "australia": "au", "united arab emirates": "ae", "united kingdom": "uk", "united states": "us" };
-    const code = codes[countryName.toLowerCase()] || "in";
-    
-    const encodedHoliday = encodeURIComponent(holidayInfo);
-    
-    // Pass the intelligence as a URL parameter called 'intel'
-    window.location.href = `./specialdays/index.html?country=${code}&intel=${encodedHoliday}`;
 }
