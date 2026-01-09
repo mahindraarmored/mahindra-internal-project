@@ -34,7 +34,6 @@
             padding: 40px 0;
         }
 
-        /* STRICT A4 BOUNDARY */
         .page {
             width: 210mm;
             height: 297mm;
@@ -48,7 +47,6 @@
             overflow: hidden;
         }
 
-        /* Paper Texture Overlay */
         .page::after {
             content: "";
             position: absolute;
@@ -59,7 +57,6 @@
             z-index: 20;
         }
 
-        /* --- HEADER SYSTEM (Left-Right Split) --- */
         .header-system {
             height: 90mm;
             background: #ffffff;
@@ -148,14 +145,12 @@
             outline: none;
         }
 
-        /* Placeholder Logic */
         [contenteditable="true"]:empty:before {
             content: attr(data-placeholder);
             color: rgba(138, 109, 59, 0.4);
             font-style: italic;
         }
 
-        /* --- CONTENT AREA --- */
         .content-area {
             padding: 15mm 30mm;
             flex-grow: 1;
@@ -193,7 +188,6 @@
 
         .emphasis { color: var(--slate-900); font-weight: 700; }
 
-        /* --- FOOTER SYSTEM --- */
         .footer-system {
             padding: 10mm 20mm 10mm; 
             background: transparent;
@@ -214,14 +208,6 @@
             position: relative;
         }
 
-        .footer-container::before {
-            content: "";
-            position: absolute;
-            top: 5px; left: 0; right: 0;
-            border-top: 0.5pt solid var(--ministerial-gold);
-            opacity: 0.5;
-        }
-
         .footer-grid {
             display: grid;
             grid-template-columns: 1.3fr 0.4fr 1.3fr;
@@ -229,115 +215,17 @@
             position: relative;
         }
 
-        .signatory-info { text-align: left; }
-
-        .signature-area {
-            height: 60px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .signature-image {
-            max-height: 100%;
-            max-width: 180px;
-            object-fit: contain;
-            filter: contrast(1.1) brightness(0.9);
-        }
-
-        .identity-block {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 42px; 
-        }
-
-        .name {
-            font-family: 'Libre Baskerville', serif;
-            font-size: 17.5px;
-            font-weight: 700;
-            color: var(--navy-deep);
-            margin: 0;
-            line-height: 1;
-        }
-
-        .title {
-            font-family: 'Libre Baskerville', serif;
-            font-size: 15px;
-            font-weight: 700;
-            color: #e41837;
-            margin: 8px 0 0 0;
-            line-height: 1;
-        }
-
-        .info-separator {
-            height: 1px;
-            background: rgba(0,0,0,0.1);
-            width: 100%;
-            margin: 12px 0 8px 0;
-        }
-
-        .details-text {
-            font-family: 'Georama', serif;
-            font-size: 9px;
-            color: var(--slate-700);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-        }
-
-        .seal-floating {
-            position: absolute;
-            left: 60%;
-            top: 15%;
-            transform: translate(-50%, -40%) ; 
-            z-index: 30;
-            pointer-events: none;
-        }
-
-        .official-seal {
-            width: 140px;
-            height: 140px;
-            display: inline-flex;
-            align-items: center; 
-            justify-content: center;
-        }
-
-        .seal-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: contrast(1.2) sepia(0.3) opacity(0.8);
-            mix-blend-mode: multiply; 
-        }
-
-        .mahindra-identity {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: flex-end;
-            width: 100%;
-            float: right;
-        }
-
-        .logo-container {
-            width: 100px;            
-            height: auto;            
-            background: white;
-            border-radius: 50%;      
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            box-shadow: 0 4px 12px -4px rgba(0,0,0,0.12); 
-            overflow: hidden;
-            margin-left: auto;       
-        }
-
-        .logo-image {
-            width: 100%;
-            height: auto;
-            max-height: 100%;
-            object-fit: contain;    
-        }
+        .identity-block { display: flex; flex-direction: column; justify-content: center; height: 42px; }
+        .name { font-family: 'Libre Baskerville', serif; font-size: 17.5px; font-weight: 700; color: var(--navy-deep); margin: 0; line-height: 1; }
+        .title { font-family: 'Libre Baskerville', serif; font-size: 15px; font-weight: 700; color: #e41837; margin: 8px 0 0 0; line-height: 1; }
+        .info-separator { height: 1px; background: rgba(0,0,0,0.1); width: 100%; margin: 12px 0 8px 0; }
+        .details-text { font-family: 'Georama', serif; font-size: 9px; color: var(--slate-700); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .seal-floating { position: absolute; left: 60%; top: 15%; transform: translate(-50%, -40%); z-index: 30; pointer-events: none; }
+        .official-seal { width: 140px; height: 140px; display: inline-flex; align-items: center; justify-content: center; }
+        .seal-image { width: 100%; height: 100%; object-fit: contain; filter: contrast(1.2) sepia(0.3) opacity(0.8); mix-blend-mode: multiply; }
+        .mahindra-identity { display: inline-flex; flex-direction: column; align-items: flex-end; width: 100%; float: right; }
+        .logo-container { width: 100px; height: auto; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px -4px rgba(0,0,0,0.12); overflow: hidden; margin-left: auto; }
+        .logo-image { width: 100%; height: auto; max-height: 100%; object-fit: contain; }
 
         .watermark-container {
             position: absolute;
@@ -350,50 +238,8 @@
             overflow: hidden;
         }
 
-        .watermark-image {
-            width: 83%; 
-            height: auto;
-            opacity: 0.08;
-        }
-.print-controls {
-        position: fixed;
-        bottom: 40px;
-        left: 40px; /* Container now spans across the bottom */
-        right: 40px;
-        z-index: 9999;
-        display: flex;
-        justify-content: space-between; /* Pushes buttons to opposite sides */
-        pointer-events: none; /* Allows clicking through the container gap */
-    }
+        .watermark-image { width: 83%; height: auto; opacity: 0.08; }
 
-    .btn-print, .btn-link {
-        appearance: none;
-        background: var(--slate-900);
-        color: white;
-        border: none;
-        padding: 14px 28px;
-        border-radius: 12px;
-        font-family: 'Outfit', sans-serif;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        cursor: pointer;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        text-decoration: none; /* For the link button */
-        pointer-events: auto; /* Re-enables clicking on buttons */
-    }
-
-    .btn-print:hover, .btn-link:hover {
-        background: var(--brand-red);
-        transform: translateY(-5px);
-        box-shadow: 0 25px 50px rgba(228, 24, 55, 0.4);
-    }
-        /* UI Elements */
         .admin-panel {
             position: fixed; left: 20px; top: 20px; width: 280px; background: white; padding: 20px; 
             border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999;
@@ -401,11 +247,11 @@
         }
         .admin-panel select { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 6px; }
 
-        .print-controls { position: fixed; bottom: 40px; right: 40px; z-index: 9999; }
-        .btn-print {
+        .print-controls { position: fixed; bottom: 40px; left: 40px; right: 40px; z-index: 9999; display: flex; justify-content: space-between; pointer-events: none; }
+        .btn-print, .btn-link {
             appearance: none; background: var(--slate-900); color: white; border: none; padding: 14px 28px; 
             border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; gap: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-decoration: none; display: flex; align-items: center; gap: 12px; pointer-events: auto;
         }
 
         @media print {
@@ -413,7 +259,6 @@
             @page { size: A4; margin: 0; }
             body { background: white !important; padding: 0 !important; }
             .page { box-shadow: none !important; margin: 0 !important; width: 210mm !important; height: 297mm !important; }
-            .message-body { widows: 3; orphans: 3; }
         }
     </style>
 </head>
@@ -425,15 +270,16 @@
         <select id="countrySelect" onchange="updateAssets()">
             <option value="in">India</option>
             <option value="au">Australia</option>
-            <option value="ae">United Arab Emirates</option>
-            <option value="uk">United Kingdom</option>
-            <option value="us">United States</option>
+            <option value="ae">United_Arab_Emirates</option>
+            <option value="uk">United_Kingdom</option>
+            <option value="us">United_States</option>
+            <option value="jo">Jordan</option>
         </select>
     </div>
 
     <div class="page">
         <div class="watermark-container">
-            <img src="inwm.png" id="watermarkImg" alt="Watermark" class="watermark-image">
+            <img src="https://flagdownload.com/wp-content/uploads/Flag_of_India_Flat_Wavy-1024x589.png" id="watermarkImg" alt="Watermark" class="watermark-image">
         </div>
 
         <header class="header-system">
@@ -442,12 +288,12 @@
             <div class="header-hero-content">
                 <div class="header-left">
                     <div class="flag-box">
-                        <img src="inflag.png" id="flagImg" alt="Flag">
+                        <img src="https://flagdownload.com/wp-content/uploads/Flag_of_India-1024x512.png" id="flagImg" alt="Flag">
                     </div>
                 </div>
                 <div class="header-right">
                     <div class="date-display" contenteditable="true">January 26, 2026</div>
-                    <h1 class="event-heading" id="eventInput" contenteditable="true" oninput="syncEventName()" data-placeholder="Enter Occasion">Type Day</h1>
+                    <h1 class="event-heading" id="eventInput" contenteditable="true" oninput="syncEventName()" data-placeholder="Enter Occasion">Republic Day</h1>
                 </div>
             </div>
         </header>
@@ -458,11 +304,9 @@
                 The Ambassador of <span id="countryLabel">India</span> to the UAE
             </div>
             <div class="message-body" contenteditable="true">
-                We convey our <span class="emphasis">sincerest congratulations</span> to Your Excellency, the Government, and the people of <span class="country-span">India</span> on the historic occasion of <span class="emphasis dynamic-event-text">Type Day</span>.
+                We convey our <span class="emphasis">sincerest congratulations</span> to Your Excellency, the Government, and the people of <span class="country-span">India</span> on the historic occasion of <span class="emphasis dynamic-event-text">Republic Day</span>.
                 <br><br>
                 This celebration honors your nation's remarkable heritage and enduring progress. We express our deep appreciation for the robust partnership and mutual respect shared between our communities.
-<br><br>
-                May this year continue to foster peace, innovation, and shared prosperity.
             </div>
         </main>
 
@@ -476,7 +320,7 @@
                 <div class="footer-grid">
                     <div class="signatory-info">
                         <div class="signature-area">
-                            <img src="sign.png" alt="Signature" class="signature-image" onerror="this.style.opacity='0.2';">
+                            <div style="height: 60px;"></div>
                         </div>
                         <div class="identity-block">
                             <h2 class="name">Rajiv Gupta</h2>
@@ -501,25 +345,11 @@
     </div>
 
     <div class="print-controls">
-    <a href="https://internal.mahindraarmored.com" class="btn-link" target="_blank">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        Go back - MEVA Internal Portal
-    </a>
+        <a href="https://internal.mahindraarmored.com" class="btn-link" target="_blank">Go back - MEVA Internal Portal</a>
+        <button onclick="window.print()" class="btn-print">Generate Diplomatic PDF</button>
+    </div>
 
-    <button onclick="window.print()" class="btn-print">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
-            <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-            <rect x="6" y="14" width="12" height="8"></rect>
-        </svg>
-        Generate Diplomatic PDF
-    </button>
-</div>
-
-   <script>
-    // 1. Country Mapping (Must match the naming convention of the external URL)
+    <script>
     const countryNames = {
         "in": "India",
         "au": "Australia",
@@ -529,39 +359,33 @@
         "jo": "Jordan"
     };
 
-    // 2. Receiver Logic: ONLY triggers the country dropdown
     window.addEventListener('load', () => {
         const params = new URLSearchParams(window.location.search);
         const countryCode = params.get('country');
-
-        // Only update the dropdown and assets if a country is passed
         if (countryCode && countryNames[countryCode]) {
             const selector = document.getElementById('countrySelect');
             if (selector) {
                 selector.value = countryCode;
-                updateAssets(); // Trigger the image and text swap
+                updateAssets(); 
             }
         }
     });
 
-    // 3. Asset Update Function: Builds external URLs dynamically
     function updateAssets() {
         const code = document.getElementById('countrySelect').value;
         const urlName = countryNames[code]; 
-        const displayName = urlName.replace(/_/g, ' '); // Format for display
+        const displayName = urlName.replace(/_/g, ' '); 
 
-        // Update Flag: External URL based on country name
+        // Update Flag using external URL based on country name logic
         document.getElementById('flagImg').src = `https://flagdownload.com/wp-content/uploads/Flag_of_${urlName}-1024x512.png`;
         
-        // Update Watermark: External URL based on country name
+        // Update Watermark using external URL based on country name logic
         document.getElementById('watermarkImg').src = `https://flagdownload.com/wp-content/uploads/Flag_of_${urlName}_Flat_Wavy-1024x589.png`;
 
-        // Update Text Labels
         document.getElementById('countryLabel').innerText = displayName;
         document.querySelectorAll('.country-span').forEach(span => span.innerText = displayName);
     }
 
-    // 4. Heading Sync Function: Maintains live typing link
     function syncEventName() {
         const newEvent = document.getElementById('eventInput').innerText;
         document.querySelectorAll('.dynamic-event-text').forEach(el => {
