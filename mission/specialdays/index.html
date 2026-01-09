@@ -376,11 +376,24 @@
         const urlName = countryNames[code]; 
         const displayName = urlName.replace(/_/g, ' '); 
 
-        // Update Flag using external URL based on country name logic
-        document.getElementById('flagImg').src = `https://flagdownload.com/wp-content/uploads/Flag_of_${urlName}-1024x512.png`;
-        
-        // Update Watermark using external URL based on country name logic
-        document.getElementById('watermarkImg').src = `https://flagdownload.com/wp-content/uploads/Flag_of_${urlName}_Flat_Wavy-1024x589.png`;
+        // Default dimensions
+        let flagDim = "1024x512";
+        let wavyDim = "1024x589";
+
+        // Logic for United States specific dimensions
+        if (code === "us") {
+            flagDim = "1024x539";
+            wavyDim = "1024x620";
+        } 
+        // Logic for UK specific dimensions (if they vary from default)
+        else if (code === "uk") {
+            flagDim = "1024x512";
+            wavyDim = "1024x589";
+        }
+
+        // Apply URLs with dynamic dimensions
+        document.getElementById('flagImg').src = `https://flagdownload.com/wp-content/uploads/Flag_of_${urlName}-${flagDim}.png`;
+        document.getElementById('watermarkImg').src = `https://flagdownload.com/wp-content/uploads/Flag_of_${urlName}_Flat_Wavy-${wavyDim}.png`;
 
         document.getElementById('countryLabel').innerText = displayName;
         document.querySelectorAll('.country-span').forEach(span => span.innerText = displayName);
