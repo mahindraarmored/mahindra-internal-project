@@ -519,23 +519,62 @@
 </div>
 
     <script>
-        const countryNames = {
-            "in": "India", "au": "Australia", "ae": "United Arab Emirates", "uk": "United Kingdom", "us": "United States"
-        };
+    // 1. Standard Country Mapping
+    const countryNames = {
+        "in": "India",
+        "au": "Australia",
+        "ae": "United Arab Emirates",
+        "uk": "United Kingdom",
+        "us": "United States"
+    };
 
-        function updateAssets() {
-            const code = document.getElementById('countrySelect').value;
-            const fullName = countryNames[code];
-            document.getElementById('watermarkImg').src = code + "wm.png";
-            document.getElementById('flagImg').src = code + "flag.png";
-            document.getElementById('countryLabel').innerText = fullName;
-            document.querySelectorAll('.country-span').forEach(span => span.innerText = fullName);
+    // 2. Main Receiver Logic: Runs when the page opens via the "Generate Correspondence" button
+    window.addEventListener('load', () => {
+        const params = new URLSearchParams(window.location.search);
+        const countryCode = params.get('country');
+        const intel = params.get('intel');
+
+        // Catch and apply Country Data from the URL
+        if (countryCode && countryNames[countryCode]) {
+            const selector = document.getElementById('countrySelect');
+            if(selector) selector.value = countryCode;
+            updateAssets();
         }
 
-        function syncEventName() {
-            const newEvent = document.getElementById('eventInput').innerText;
-            document.querySelectorAll('.dynamic-event-text').forEach(el => el.innerText = newEvent);
+        // Catch and apply Holiday Intel to the Heading
+        if (intel) {
+            const headingEl = document.getElementById('eventInput');
+            // We use decodeURIComponent to handle special characters and spaces from the URL
+            headingEl.innerText = decodeURIComponent(intel);
+            
+            // This ensures the message body updates to match the new heading immediately
+            syncEventName(); 
         }
-    </script>
+    });
+
+    // 3. Asset Update Function: Handles Flag, Watermark, and Country Name Labels
+    function updateAssets() {
+        const code = document.getElementById('countrySelect').value;
+        const fullName = countryNames[code];
+
+        // Updates images using the first 2 letters + naming convention
+        document.getElementById('watermarkImg').src = code + "wm.png";
+        document.getElementById('flagImg').src = code + "flag.png";
+
+        // Updates the "The Ambassador of [Country]" text
+        document.getElementById('countryLabel').innerText = fullName;
+        
+        // Updates all mentions of the country name within the message body
+        document.querySelectorAll('.country-span').forEach(span => span.innerText = fullName);
+    }
+
+    // 4. Heading Sync Function: Ensures the message body text follows the gold heading
+    function syncEventName() {
+        const newEvent = document.getElementById('eventInput').innerText;
+        document.querySelectorAll('.dynamic-event-text').forEach(el => {
+            el.innerText = newEvent;
+        });
+    }
+</script>
 </body>
 </html>
