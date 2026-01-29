@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --meva-red: #e11d48;
+    --portal-dark: #0f172a;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f8fafc;
+    color: var(--portal-dark);
+    direction: ltr !important;
+}
+
+/* Sidebar Styling Overrides to sync with navbar.js */
+.sidebar { background: var(--portal-dark) !important; color: white !important; }
+.nav-link.active { background: var(--meva-red) !important; color: white !important; }
+
+/* Flipbook Viewport Dynamics */
+#flipbook-viewport {
+    width: 100%;
+    height: calc(100vh - 280px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 2500px;
+    padding: 20px;
+}
+
+@media (max-width: 1024px) {
+    #flipbook-viewport { height: calc(100vh - 350px); }
+}
+
+/* Page Design */
+.stPageFlip {
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25), 
+                0 18px 36px -18px rgba(0, 0, 0, 0.3);
+    background: white;
+}
+
+.page { background: white; }
+.page-content { 
+    width: 100%; 
+    height: 100%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+canvas { 
+    max-width: 100%; 
+    max-height: 100%; 
+    box-shadow: 0 0 20px rgba(0,0,0,0.02);
+}
+
+/* Toggle Buttons */
+.lang-btn {
+    font-size: 10px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    letter-spacing: 0.1em;
+    padding: 10px 20px; 
+    border-radius: 99px; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    color: #64748b;
+}
+
+.lang-btn.active { 
+    background: #fee2e2; 
+    color: var(--meva-red);
+    box-shadow: inset 0 2px 4px rgba(225, 29, 72, 0.1);
+}
+
+.lang-btn:hover:not(.active) {
+    background: #f1f5f9;
+    color: var(--portal-dark);
+}
+
+/* Status Transitions */
+.disclaimer-hidden { 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+#loading-overlay {
+    transition: all 0.5s ease;
+}
