@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEVA Interactive Flipbook - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PDF.js for rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <!-- PageFlip for the book effect -->
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #e11d48; 
+            --primary-glow: rgba(225, 29, 72, 0.4);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0f1a;
+            color: #f8fafc;
+            overflow: hidden;
+            direction: ltr !important;
+        }
+
+        .mesh-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: 
+                radial-gradient(at 0% 0%, rgba(225, 29, 72, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(30, 41, 59, 0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(225, 29, 72, 0.08) 0px, transparent 50%);
+            filter: blur(80px);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Flipbook Styles */
+        #flipbook-container {
+            width: 100%;
+            height: calc(100vh - 280px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 2000px;
+        }
+
+        .stPageFlip {
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            background: #1e293b;
+        }
+
+        .page {
+            background-color: white;
+            overflow: hidden;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .lang-btn.active {
+            color: white;
+            background: rgba(225, 29, 72, 0.25);
+            border-color: var(--primary);
+        }
+
+        .btn-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+        .btn-control:hover {
+            background: rgba(225, 29, 72, 0.2);
+            border-color: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col min-h-screen">
+    <div class="mesh-gradient"></div>
+
+    <div class="max-w-[1600px] mx-auto w-full flex-grow space-y-6 flex flex-col">
+        <!-- Header -->
+        <header class="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-rose-600 rounded flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-rose-900/20">MEVA</div>
+                <div>
+                    <h1 id="header-title" class="text-xl md:text-2xl font-bold tracking-tight text-white uppercase">Vehicle Armouring</h1>
+                    <p id="header-subtitle" class="text-gray-500 text-[10px] font-bold tracking-[0.2em] uppercase">Interactive Flipbook Portfolio</p>
+                </div>
+            </div>
+
+            <nav class="glass rounded-full p-1 flex items-center gap-1 shadow-2xl border-white/5">
+                <button onclick="switchLanguage('en')" id="btn-en" class="lang-btn active px-5 py-2 text-[10px] font-bold rounded-full transition-all uppercase tracking-widest">English</button>
+                <button onclick="switchLanguage('ar')" id="btn-ar" class="lang-btn px-5 py-2 text-[10px] font-bold rounded-full transition-all uppercase tracking-widest">العربية</button>
+                <button onclick="switchLanguage('es')" id="btn-es" class="lang-btn px-5 py-2 text-[10px] font-bold rounded-full transition-all uppercase tracking-widest">Español</button>
+                <button onclick="switchLanguage('fr')" id="btn-fr" class="lang-btn px-5 py-2 text-[10px] font-bold rounded-full transition-all uppercase tracking-widest">Français</button>
+            </nav>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="relative flex-grow flex flex-col">
+            <!-- Loading Overlay -->
+            <div id="loading-overlay" class="absolute inset-0 z-50 bg-[#0a0f1a]/80 backdrop-blur-md flex items-center justify-center transition-opacity duration-500">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-12 h-12 border-4 border-rose-600/20 border-t-rose-600 rounded-full animate-spin"></div>
+                    <span class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">Rendering Pages</span>
+                </div>
+            </div>
+
+            <!-- Flipbook Area -->
+            <div id="flipbook-container" class="no-scrollbar">
+                <div id="book" class="stPageFlip">
+                    <!-- Pages will be rendered here dynamically -->
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex justify-center items-center gap-6 mt-4">
+                <button onclick="pageFlip.flipPrev()" class="btn-control p-3 rounded-full text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                
+                <div class="glass px-6 py-2 rounded-full text-[10px] font-bold tracking-widest text-gray-400">
+                    PAGE <span id="page-current" class="text-rose-500">1</span> / <span id="page-total">0</span>
+                </div>
+
+                <button onclick="pageFlip.flipNext()" class="btn-control p-3 rounded-full text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="flex items-center justify-between px-2 py-4 border-t border-white/5">
+            <div class="flex items-center gap-6 text-[9px] font-bold uppercase tracking-widest text-gray-600">
+                <span id="lang-indicator">Active: English Portfolio</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                <span>MAHINDRA GROUP</span>
+            </div>
+            <a id="download-link" href="#" download class="text-[9px] font-bold uppercase tracking-widest text-rose-500 hover:text-white transition-colors flex items-center gap-2">
+                Download PDF
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        const translations = {
+            en: { title: "Vehicle Armouring", indicator: "Active: English Portfolio", file: "brochure-en.pdf" },
+            ar: { title: "حلول تصفيح المركبات", indicator: "اللغة الحالية: العربية", file: "brochure-ar.pdf" },
+            es: { title: "Blindaje de Vehículos", indicator: "Activo: Portafolio Español", file: "brochure-es.pdf" },
+            fr: { title: "Blindage de Véhicules", indicator: "Actif: Portfolio Français", file: "brochure-fr.pdf" }
+        };
+
+        let pageFlip = null;
+        let currentPdf = null;
+
+        async function initFlipbook(url) {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.opacity = '1';
+            overlay.style.display = 'flex';
+
+            const bookDiv = document.getElementById('book');
+            
+            // Cleanup existing flipbook
+            if (pageFlip) {
+                pageFlip.destroy();
+                bookDiv.innerHTML = '';
+            }
+
+            try {
+                const loadingTask = pdfjsLib.getDocument(url);
+                currentPdf = await loadingTask.promise;
+                const totalPages = currentPdf.numPages;
+                document.getElementById('page-total').innerText = totalPages;
+
+                // Render all pages to canvases
+                for (let i = 1; i <= totalPages; i++) {
+                    const page = await currentPdf.getPage(i);
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'page';
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'page-content';
+                    
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+                    
+                    contentDiv.appendChild(canvas);
+                    pageDiv.appendChild(contentDiv);
+                    bookDiv.appendChild(pageDiv);
+                }
+
+                // Initialize PageFlip
+                pageFlip = new St.PageFlip(bookDiv, {
+                    width: 600, 
+                    height: 800,
+                    size: "stretch",
+                    minWidth: 315,
+                    maxWidth: 1000,
+                    minHeight: 420,
+                    maxHeight: 1350,
+                    maxShadowOpacity: 0.5,
+                    showCover: true,
+                    mobileScrollSupport: false
+                });
+
+                pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+
+                pageFlip.on('flip', (e) => {
+                    document.getElementById('page-current').innerText = e.data + 1;
+                });
+
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 500);
+
+            } catch (err) {
+                console.error("Error loading PDF:", err);
+                overlay.innerHTML = `<div class="text-rose-500 font-bold">Error loading ${url}<br><span class="text-gray-500 text-xs">Ensure file exists in same directory</span></div>`;
+            }
+        }
+
+        function switchLanguage(lang) {
+            const config = translations[lang];
+            
+            document.getElementById('header-title').innerText = config.title;
+            document.getElementById('lang-indicator').innerText = config.indicator;
+            document.getElementById('download-link').href = config.file;
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+
+            initFlipbook(config.file);
+        }
+
+        // Initialize on start
+        window.addEventListener('load', () => {
+            initFlipbook('brochure-en.pdf');
+        });
+    </script>
+</body>
+</html>
