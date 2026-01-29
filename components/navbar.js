@@ -70,7 +70,7 @@ const sidebarContent = `
             <a href="/vehicles/index.html" class="nav-link" id="nav-vehicles"><i class="ri-truck-line"></i> Vehicle Library</a>
             <a href="/events/index.html" class="nav-link" id="nav-events"><i class="ri-calendar-event-line"></i> Global Events</a>
             <a href="/mission/index.html" class="nav-link" id="nav-mission"><i class="ri-shield-user-line"></i> Mission Database</a>
-            <a href="/support/index.html" class="nav-link" id="nav-support"><i class="ri-customer-service-2-line"></i> Technical Support</a>
+            <a href="/overview/index.html" class="nav-link" id="nav-overview"><i class="ri-customer-service-2-line"></i> Our Overview</a>
         </nav>
         <div class="p-4 border-t border-slate-800">
             <div class="bg-slate-800/40 p-4 rounded-2xl">
