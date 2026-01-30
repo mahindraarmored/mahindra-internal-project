@@ -12,8 +12,9 @@ const disclaimerHTML = `
             <h2 style="font-weight: 900; font-size: 1.5rem; color: #0f172a; text-transform: uppercase;">Internal Access Only</h2>
             <p style="color: #64748b; font-size: 0.875rem; line-height: 1.6; margin-bottom: 2rem;">
                 This system contains confidential information of Mahindra Emirates Vehicle Armouring FZ LLC.</p>
-            <div style="height: 4px; width: 40px; background: #dc2626; margin: 1rem auto; border-radius: 10px;"></div>
+            
             <button id="agreeBtn">Agree & Continue</button>
+            <div style="height: 4px; width: 40px; background: #dc2626; margin: 1rem auto; border-radius: 10px;"></div>
                <p style="color: #64748b; font-size: 0.875rem; line-height: 1.6; margin-bottom: 2rem;">
                By clicking "I Agree", you confirm you are authorized employee and agree to maintain strict confidentiality of all data contained herein.</p>
             
