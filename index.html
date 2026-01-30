@@ -12,9 +12,47 @@
     <link rel="stylesheet" href="/components/style.css">
     
     <script src="/components/navbar.js" defer></script>
+    <style>
+        /* Shake animation for incorrect password */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .animate-shake {
+            animation: shake 0.2s ease-in-out 0s 2;
+        }
+        /* Hide scrollbar while locked */
+        .locked { overflow: hidden !important; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
 </head>
 <body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
-
+<div id="password-overlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/95 backdrop-blur-2xl">
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-slate-200 text-center animate-in zoom-in duration-500">
+        <div class="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+            <i class="ri-shield-keyhole-fill text-4xl"></i>
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Internal Access</h2>
+        <p class="text-slate-500 text-sm mb-8 font-medium">Please authenticate to access the MEVA Internal Portal.</p>
+        
+        <div class="relative mb-4">
+            <input type="password" id="site-password" 
+                class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-red-600 transition-all text-center tracking-[0.5em] font-bold text-lg"
+                placeholder="••••••••"
+                onkeydown="if(event.key === 'Enter') checkPassword()">
+        </div>
+            
+        <button onclick="checkPassword()" 
+            class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-red-600 hover:shadow-lg hover:shadow-red-600/20 transition-all duration-300">
+            Authorize Session
+        </button>
+        
+        <p id="password-error" class="text-red-600 text-[10px] mt-4 font-black uppercase tracking-widest hidden">
+            Invalid Credentials. Access Denied.
+        </p>
+    </div>
+</div>
     <div id="sidebar-root"></div>
 
     <main class="flex-1 flex flex-col h-full overflow-hidden">
@@ -116,6 +154,47 @@
             </div>
         </div>
     </main>
+<script>
+    // Configuration
+    const MASTER_PASSWORD = "MEVA2026"; 
 
+    function checkPassword() {
+        const input = document.getElementById('site-password');
+        const overlay = document.getElementById('password-overlay');
+        const error = document.getElementById('password-error');
+
+        if (input.value === MASTER_PASSWORD) {
+            // Grant access
+            sessionStorage.setItem('portal_auth', 'active');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('locked');
+            
+            // Remove from DOM after transition
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 500);
+        } else {
+            // Deny access
+            error.classList.remove('hidden');
+            input.value = '';
+            input.classList.add('border-red-600', 'animate-shake');
+            // Haptic/Visual feedback
+            setTimeout(() => input.classList.remove('animate-shake'), 500);
+        }
+    }
+
+    // Initialize security on load
+    window.addEventListener('DOMContentLoaded', () => {
+        const auth = sessionStorage.getItem('portal_auth');
+        const overlay = document.getElementById('password-overlay');
+        
+        if (auth === 'active') {
+            overlay.style.display = 'none';
+            document.body.classList.remove('locked');
+        } else {
+            document.body.classList.add('locked');
+        }
+    });
+</script>
 </body>
 </html>
