@@ -30,20 +30,69 @@
                     <div class="h-1 w-20 bg-red-600 mt-4 rounded-full"></div>
                 </div>
 
-                <div class="min-h-[400px] border-2 border-dashed border-slate-200 rounded-3xl overflow-hidden flex items-center justify-center">
-    <iframe 
-        src="https://1drv.ms/p/c/f91e71cf4403fa00/IQRya5vMebbKSZw0OkCifpxpAenffHhH_DgdE_BmUo9rOlA?em=2&amp;wdAr=1.7777777777777777&amp;wdEaaCheck=0" 
-        width="100%" 
-        height="400px" 
-        frameborder="0"
-        class="rounded-3xl">
-        This is an Official <a target="_blank" href="https://mahindraarmored.com">Corporate Profile</a>.
-    </iframe>
+                <div id="ppt-viewport" class="relative w-full aspect-video border-2 border-dashed border-slate-200 rounded-3xl overflow-hidden flex items-center justify-center bg-slate-50">
+    
+    <div id="ppt-placeholder" class="text-center cursor-pointer group p-6 z-10">
+        <div class="bg-white p-5 rounded-full shadow-md mb-4 inline-block group-hover:scale-110 group-hover:bg-blue-600 transition-all duration-300">
+            <i class="ri-slideshow-4-line text-4xl text-blue-500 group-hover:text-white"></i>
+        </div>
+        <h3 class="font-bold text-slate-700 text-lg uppercase tracking-wider">View Corporate Profile</h3>
+        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 mt-2 font-semibold">100 Pages • Widescreen</p>
+    </div>
+
+    <div id="ppt-loader" class="hidden text-center z-10">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-3 mx-auto"></div>
+        <p class="text-sm text-slate-500 font-medium">Loading presentation...</p>
+    </div>
 </div>
 
             </div>
         </div>
     </main>
+<script>
+    (function() {
+        const viewport = document.getElementById('ppt-viewport');
+        const placeholder = document.getElementById('ppt-placeholder');
+        const loader = document.getElementById('ppt-loader');
 
+        function loadPowerPoint() {
+            // Show loader and hide play button
+            placeholder.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            const iframe = document.createElement('iframe');
+            
+            // Your precise OneDrive Link
+            iframe.src = "https://1drv.ms/p/c/f91e71cf4403fa00/IQRya5vMebbKSZw0OkCifpxpAenffHhH_DgdE_BmUo9rOlA?em=2&wdAr=1.7777777777777777&wdEaaCheck=0";
+            
+            // Classes to remove blank areas and fit 100%
+            iframe.className = "absolute top-0 left-0 w-full h-full rounded-3xl opacity-0 transition-opacity duration-1000";
+            iframe.frameBorder = "0";
+            iframe.allowFullscreen = true;
+            
+            iframe.onload = function() {
+                loader.classList.add('hidden');
+                iframe.classList.remove('opacity-0');
+                
+                // Clean up container appearance
+                viewport.classList.remove('border-dashed', 'bg-slate-50');
+                viewport.classList.add('border-solid', 'border-slate-100', 'bg-black');
+            };
+
+            viewport.appendChild(iframe);
+        }
+
+        // Only activate click event when the user actually scrolls to the section
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    placeholder.onclick = loadPowerPoint;
+                }
+            });
+        }, { threshold: 0.1 });
+
+        observer.observe(viewport);
+    })();
+</script>
 </body>
 </html>
