@@ -141,36 +141,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     [openBtn, closeBtn, overlay].forEach(el => el?.addEventListener('click', toggleMenu));
 
-    // 5. Highlight Active Page
+    // 5. IMPROVED: Highlight Active Page Logic
     const currentPath = window.location.pathname;
+    
+    // Priority order: folders first, then files
     const navLinks = [
-        { path: 'vehicles', id: 'nav-vehicles' },
-        { path: 'events', id: 'nav-events' },
-        { path: 'mission', id: 'nav-mission' },
-        { path: 'support', id: 'nav-support' },
-        { path: 'index.html', id: 'nav-dashboard' }
+        { path: '/vehicles/', id: 'nav-vehicles' },
+        { path: '/events/', id: 'nav-events' },
+        { path: '/mission/', id: 'nav-mission' },
+        { path: '/overview/', id: 'nav-overview' },
+        { path: '/support/', id: 'nav-support' }
     ];
 
     let found = false;
+
+    // Remove existing active classes to reset state
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+    // Check for folder-based matches first
     navLinks.forEach(link => {
         if (currentPath.includes(link.path)) {
             document.getElementById(link.id)?.classList.add('active');
             found = true;
         }
     });
-    if (!found || currentPath === '/' || currentPath === '') {
+
+    // Special condition for Dashboard: 
+    // Only active if it's the root path or index.html at the root (not in a folder)
+    if (!found && (currentPath === '/' || currentPath === '' || (currentPath.endsWith('index.html') && !currentPath.includes('/', 1)))) {
         document.getElementById('nav-dashboard')?.classList.add('active');
     }
 
     // 6. Clock Logic (Header & Regional)
     const updateTimes = () => {
-        // Local Header Clock
         const clockEl = document.getElementById('headerClock');
         if (clockEl) {
             clockEl.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
         }
 
-        // Regional Dashboard Clocks
         const zones = [
             { id: 'time-uae', tz: 'Asia/Dubai' },
             { id: 'time-europe', tz: 'Europe/London' },
