@@ -32,13 +32,16 @@
                     </div>
                     
                     <div class="flex bg-slate-200/50 p-1 rounded-2xl w-fit border border-slate-200 shadow-inner">
-                        <button onclick="updateMapMode('countries')" id="btn-countries" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm">
-                            Territories
-                        </button>
-                        <button onclick="updateMapMode('agencies')" id="btn-agencies" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700">
-                            Agencies
-                        </button>
-                    </div>
+    <button onclick="updateMapMode('all')" id="btn-all" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm">
+        All
+    </button>
+    <button onclick="updateMapMode('countries')" id="btn-countries" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700">
+        Countries
+    </button>
+    <button onclick="updateMapMode('agencies')" id="btn-agencies" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700">
+        Agencies
+    </button>
+</div>
                 </div>
 
                 <div class="bg-white border border-slate-200 rounded-3xl shadow-sm min-h-[600px] relative overflow-hidden flex flex-col">
@@ -53,73 +56,92 @@
     </main>
 
     <script>
-        const map = L.map('map-canvas', { center: [20, 10], zoom: 2.5, attributionControl: false, zoomControl: false });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+    const map = L.map('map-canvas', { center: [20, 10], zoom: 2.5, attributionControl: false, zoomControl: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-        const countryLayer = L.layerGroup().addTo(map);
-        const agencyLayer = L.layerGroup();
-        let currentMode = 'countries';
-        let activeManager = 'ALL';
+    const countryLayer = L.layerGroup().addTo(map);
+    const agencyLayer = L.layerGroup();
+    let currentMode = 'all'; // Default to 'all' to match your new button
+    let activeManager = 'ALL';
 
-        function renderMarkers() {
-            countryLayer.clearLayers();
-            agencyLayer.clearLayers();
+    function renderMarkers() {
+        countryLayer.clearLayers();
+        agencyLayer.clearLayers();
 
-            const filteredCountries = activeManager === 'ALL' ? mapData.countries : mapData.countries.filter(c => c.manager === activeManager);
-            const filteredAgencies = activeManager === 'ALL' ? mapData.agencies : mapData.agencies.filter(a => a.manager === activeManager);
+        const filteredCountries = activeManager === 'ALL' ? mapData.countries : mapData.countries.filter(c => c.manager === activeManager);
+        const filteredAgencies = activeManager === 'ALL' ? mapData.agencies : mapData.agencies.filter(a => a.manager === activeManager);
 
-            filteredCountries.forEach(c => {
-                L.circleMarker(c.coords, { radius: 8, fillColor: mapData.managerColors[c.manager], color: "#fff", weight: 2, fillOpacity: 0.8 })
-                 .addTo(countryLayer).bindPopup(`<b>${c.name}</b><br>${c.manager}`);
+        filteredCountries.forEach(c => {
+            L.circleMarker(c.coords, { radius: 8, fillColor: mapData.managerColors[c.manager], color: "#fff", weight: 2, fillOpacity: 0.8 })
+             .addTo(countryLayer).bindPopup(`<b>${c.name}</b><br>${c.manager}`);
+        });
+
+        filteredAgencies.forEach(a => {
+            const icon = L.divIcon({
+                html: `<div class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-md border-2" style="border-color:${mapData.managerColors[a.manager]}"><i class="ri-government-line text-lg" style="color:${mapData.managerColors[a.manager]}"></i></div>`,
+                className: 'custom-div-icon', iconSize: [32, 32]
             });
+            L.marker(a.coords, { icon }).addTo(agencyLayer).bindPopup(`<b>${a.name}</b><br>${a.manager}`);
+        });
 
-            filteredAgencies.forEach(a => {
-                const icon = L.divIcon({
-                    html: `<div class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-md border-2" style="border-color:${mapData.managerColors[a.manager]}"><i class="ri-government-line text-lg" style="color:${mapData.managerColors[a.manager]}"></i></div>`,
-                    className: 'custom-div-icon', iconSize: [32, 32]
-                });
-                L.marker(a.coords, { icon }).addTo(agencyLayer).bindPopup(`<b>${a.name}</b><br>${a.manager}`);
-            });
+        // Smart Zoom logic for filtered views
+        if (activeManager !== 'ALL') {
+            let activeSet;
+            if (currentMode === 'all') activeSet = new L.featureGroup([countryLayer, agencyLayer]);
+            else activeSet = currentMode === 'countries' ? countryLayer : agencyLayer;
 
-            if (activeManager !== 'ALL') {
-                const activeSet = currentMode === 'countries' ? countryLayer : agencyLayer;
-                if (activeSet.getLayers().length > 0) {
-                    map.fitBounds(new L.featureGroup(activeSet.getLayers()).getBounds(), { padding: [50, 50], maxZoom: 5 });
-                }
+            if (activeSet.getLayers().length > 0) {
+                map.fitBounds(activeSet.getBounds(), { padding: [50, 50], maxZoom: 5 });
             }
         }
+    }
 
-        function updateMapMode(mode) {
-            currentMode = mode;
-            const btnC = document.getElementById('btn-countries');
-            const btnA = document.getElementById('btn-agencies');
-            if (mode === 'countries') {
-                map.removeLayer(agencyLayer); countryLayer.addTo(map);
-                btnC.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl bg-white text-slate-900 shadow-sm";
-                btnA.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl text-slate-500 hover:text-slate-700";
-            } else {
-                map.removeLayer(countryLayer); agencyLayer.addTo(map);
-                btnA.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl bg-white text-slate-900 shadow-sm";
-                btnC.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl text-slate-500 hover:text-slate-700";
-            }
+    function updateMapMode(mode) {
+        currentMode = mode;
+        const btnAll = document.getElementById('btn-all');
+        const btnC = document.getElementById('btn-countries');
+        const btnA = document.getElementById('btn-agencies');
+
+        // Reset Styles
+        [btnAll, btnC, btnA].forEach(btn => {
+            if(btn) btn.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700";
+        });
+
+        // Layer and Button Logic
+        if (mode === 'all') {
+            countryLayer.addTo(map);
+            agencyLayer.addTo(map);
+            btnAll.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm";
+        } else if (mode === 'countries') {
+            countryLayer.addTo(map);
+            map.removeLayer(agencyLayer);
+            btnC.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm";
+        } else {
+            map.removeLayer(countryLayer);
+            agencyLayer.addTo(map);
+            btnA.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm";
         }
+    }
 
-        function filterByManager(manager) { activeManager = manager; renderMarkers(); renderUI(); }
+    function filterByManager(manager) { activeManager = manager; renderMarkers(); renderUI(); }
 
-        function renderUI() {
-            const filterContainer = document.getElementById('manager-filters');
-            const legendContainer = document.getElementById('map-legend');
-            filterContainer.innerHTML = `<button onclick="filterByManager('ALL')" class="px-3 py-1 text-[9px] font-bold uppercase rounded-full border ${activeManager === 'ALL' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200'}">All</button>`;
-            legendContainer.innerHTML = '';
-            
-            Object.entries(mapData.managerColors).forEach(([name, color]) => {
-                const isActive = activeManager === name;
-                filterContainer.innerHTML += `<button onclick="filterByManager('${name}')" class="px-3 py-1 text-[9px] font-bold uppercase rounded-full border flex items-center gap-2 ${isActive ? 'bg-white border-slate-900 text-slate-900 shadow-sm' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}"><span class="w-1.5 h-1.5 rounded-full" style="background-color: ${color}"></span>${name.replace('MR. ', '')}</button>`;
-                legendContainer.innerHTML += `<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background-color: ${color}"></span><span class="text-[9px] font-bold text-slate-400 uppercase">${name}</span></div>`;
-            });
-        }
+    function renderUI() {
+        const filterContainer = document.getElementById('manager-filters');
+        const legendContainer = document.getElementById('map-legend');
+        filterContainer.innerHTML = `<button onclick="filterByManager('ALL')" class="px-3 py-1 text-[9px] font-bold uppercase rounded-full border ${activeManager === 'ALL' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200'}">All Team</button>`;
+        legendContainer.innerHTML = '';
+        
+        Object.entries(mapData.managerColors).forEach(([name, color]) => {
+            const isActive = activeManager === name;
+            filterContainer.innerHTML += `<button onclick="filterByManager('${name}')" class="px-3 py-1 text-[9px] font-bold uppercase rounded-full border flex items-center gap-2 ${isActive ? 'bg-white border-slate-900 text-slate-900 shadow-sm' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}"><span class="w-1.5 h-1.5 rounded-full" style="background-color: ${color}"></span>${name.replace('MR. ', '')}</button>`;
+            legendContainer.innerHTML += `<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background-color: ${color}"></span><span class="text-[9px] font-bold text-slate-400 uppercase">${name}</span></div>`;
+        });
+    }
 
-        renderMarkers(); renderUI();
-    </script>
+    // Initialize with both layers active for 'All' mode
+    updateMapMode('all');
+    renderMarkers(); 
+    renderUI();
+</script>
 </body>
 </html>
