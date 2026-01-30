@@ -36,14 +36,18 @@ document.addEventListener('DOMContentLoaded', function() {
     observer.observe(viewport);
 });
 
-// 2. Global Modal Functions
+// ... existing PPT logic ...
+
 function openBrochure(pdfUrl) {
     const modal = document.getElementById('brochure-modal');
     const frame = document.getElementById('brochure-frame');
-    frame.src = pdfUrl;
+    
+    // Check if it's a local file in the docs folder
+    frame.src = `docs/${pdfUrl}`;
+    
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden'; 
 }
 
 function closeBrochure() {
@@ -52,5 +56,12 @@ function closeBrochure() {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
     frame.src = "";
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = 'auto'; 
+}
+
+// Robust UX: Close if user clicks the dark backdrop area
+function closeOnBackdrop(event) {
+    if (event.target.id === 'brochure-modal') {
+        closeBrochure();
+    }
 }
