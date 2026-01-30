@@ -7,18 +7,17 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-
     <link rel="stylesheet" href="../components/style.css">
+    <link rel="stylesheet" href="overview.css">
     
     <script src="../components/navbar.js" defer></script>
+    <script src="overview.js" defer></script>
 </head>
 
 <body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
-
     <div id="sidebar-root"></div>
 
     <main class="flex-1 flex flex-col h-full overflow-hidden">
-        
         <div id="header-root" class="w-full"></div>
 
         <div class="flex-1 overflow-y-auto p-8 md:p-12 hide-scrollbar">
@@ -30,69 +29,70 @@
                     <div class="h-1 w-20 bg-red-600 mt-4 rounded-full"></div>
                 </div>
 
-                <div id="ppt-viewport" class="relative w-full aspect-video border-2 border-dashed border-slate-200 rounded-3xl overflow-hidden flex items-center justify-center bg-slate-50">
-    
-    <div id="ppt-placeholder" class="text-center cursor-pointer group p-6 z-10">
-        <div class="bg-white p-5 rounded-full shadow-md mb-4 inline-block group-hover:scale-110 group-hover:bg-red-600 transition-all duration-300">
-            <i class="ri-slideshow-4-line text-4xl text-blue-500 group-hover:text-white"></i>
-        </div>
-        <h3 class="font-bold text-slate-700 text-lg uppercase tracking-wider">Load Corporate Profile</h3>
-        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 mt-2 font-semibold">Allow to land in our vast scope</p>
-    </div>
+                <div id="ppt-viewport" class="relative w-full aspect-video border-2 border-dashed border-slate-200 rounded-3xl overflow-hidden flex items-center justify-center bg-slate-50 transition-all duration-500">
+                    <div id="ppt-placeholder" class="text-center cursor-pointer group p-6 z-10">
+                        <div class="bg-white p-5 rounded-full shadow-sm mb-4 inline-block group-hover:scale-110 group-hover:bg-red-600 transition-all duration-300">
+                            <i class="ri-slideshow-4-line text-4xl text-red-600 group-hover:text-white transition-colors"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg uppercase tracking-wider">Explore Our Global Reach</h3>
+                        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 mt-3 font-semibold max-w-xs mx-auto leading-relaxed">Our scope is vast—please allow a moment to land.</p>
+                    </div>
 
-    <div id="ppt-loader" class="hidden text-center z-10">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-3 mx-auto"></div>
-        <p class="text-sm text-slate-500 font-medium">Loading presentation...</p>
-    </div>
-</div>
+                    <div id="ppt-loader" class="hidden text-center z-10">
+                        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mb-3 mx-auto"></div>
+                        <p class="text-sm text-slate-500 font-medium italic animate-pulse">Navigating to our destination...</p>
+                    </div>
+                </div>
 
+                <div class="mt-12 mb-20 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800 uppercase tracking-tight">Executive Briefings</h3>
+                            <p class="text-sm text-slate-500 font-medium">Concise capabilities brochures in multiple languages.</p>
+                        </div>
+                        <div class="h-px flex-1 bg-slate-100 mx-8 hidden md:block"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button onclick="openBrochure('URL_TO_EN')" class="lang-card group text-left">
+                            <i class="ri-file-pdf-2-line text-2xl mb-4 block text-slate-400 group-hover:text-red-600"></i>
+                            <p class="font-bold text-slate-700">English</p>
+                            <p class="text-[9px] uppercase tracking-tighter text-slate-400">Corporate Brief</p>
+                        </button>
+                        <button onclick="openBrochure('URL_TO_AR')" class="lang-card group text-right">
+                            <i class="ri-file-pdf-2-line text-2xl mb-4 block text-slate-400 group-hover:text-red-600"></i>
+                            <p class="font-bold text-slate-700">العربية</p>
+                            <p class="text-[9px] uppercase tracking-tighter text-slate-400">ملخص الشركة</p>
+                        </button>
+                        <button onclick="openBrochure('URL_TO_FR')" class="lang-card group text-left">
+                            <i class="ri-file-pdf-2-line text-2xl mb-4 block text-slate-400 group-hover:text-red-600"></i>
+                            <p class="font-bold text-slate-700">Français</p>
+                            <p class="text-[9px] uppercase tracking-tighter text-slate-400">Profil d'entreprise</p>
+                        </button>
+                        <button onclick="openBrochure('URL_TO_ES')" class="lang-card group text-left">
+                            <i class="ri-file-pdf-2-line text-2xl mb-4 block text-slate-400 group-hover:text-red-600"></i>
+                            <p class="font-bold text-slate-700">Español</p>
+                            <p class="text-[9px] uppercase tracking-tighter text-slate-400">Resumen Ejecutivo</p>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
-<script>
-    (function() {
-        const viewport = document.getElementById('ppt-viewport');
-        const placeholder = document.getElementById('ppt-placeholder');
-        const loader = document.getElementById('ppt-loader');
 
-        function loadPowerPoint() {
-            // Show loader and hide play button
-            placeholder.classList.add('hidden');
-            loader.classList.remove('hidden');
-
-            const iframe = document.createElement('iframe');
-            
-            // Your precise OneDrive Link
-            iframe.src = "https://1drv.ms/p/c/f91e71cf4403fa00/IQRya5vMebbKSZw0OkCifpxpAenffHhH_DgdE_BmUo9rOlA?em=2&wdAr=1.7777777777777777&wdEaaCheck=0";
-            
-            // Classes to remove blank areas and fit 100%
-            iframe.className = "absolute top-0 left-0 w-full h-full rounded-3xl opacity-0 transition-opacity duration-1000";
-            iframe.frameBorder = "0";
-            iframe.allowFullscreen = true;
-            
-            iframe.onload = function() {
-                loader.classList.add('hidden');
-                iframe.classList.remove('opacity-0');
-                
-                // Clean up container appearance
-                viewport.classList.remove('border-dashed', 'bg-slate-50');
-                viewport.classList.add('border-solid', 'border-slate-100', 'bg-black');
-            };
-
-            viewport.appendChild(iframe);
-        }
-
-        // Only activate click event when the user actually scrolls to the section
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    placeholder.onclick = loadPowerPoint;
-                }
-            });
-        }, { threshold: 0.1 });
-
-        observer.observe(viewport);
-    })();
-</script>
+    <div id="brochure-modal" class="fixed inset-0 z-[100] hidden flex-col bg-slate-900/95 backdrop-blur-sm">
+        <div class="flex items-center justify-between p-4 md:p-6 text-white">
+            <div class="flex items-center gap-4">
+                <div class="w-1 bg-red-600 h-8 rounded-full"></div>
+                <h4 class="font-bold uppercase tracking-widest text-sm">Brochure Viewer</h4>
+            </div>
+            <button onclick="closeBrochure()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-red-600 transition-all">
+                <i class="ri-close-line text-xl"></i>
+            </button>
+        </div>
+        <div class="flex-1 p-4 md:p-8 pt-0">
+            <iframe id="brochure-frame" src="" class="w-full h-full rounded-xl bg-white" frameborder="0"></iframe>
+        </div>
+    </div>
 </body>
 </html>
