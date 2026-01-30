@@ -1,38 +1,33 @@
-/* --- OVERVIEW PAGE SPECIFIC STYLES --- */
-
-/* Entrance Animation States */
-.reveal {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+/* Custom Scrollbar for the main content */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-.reveal-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Custom layout for the 113-slide migration (Grid-based sections) */
-.content-section {
+/* Language Brochure Cards */
+.lang-card {
     background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    padding: 3rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.section-label {
-    font-size: 10px;
-    font-weight: 900;
-    color: var(--mahindra-red);
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    margin-bottom: 0.5rem;
-    display: block;
+.lang-card:hover {
+    border-color: #dc2626; /* Mahindra Red */
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    transform: translateY(-2px);
 }
 
-/* Staggering animation delays for child elements */
-.delay-1 { transition-delay: 0.1s; }
-.delay-2 { transition-delay: 0.2s; }
-.delay-3 { transition-delay: 0.3s; }
+/* Animations for Modal */
+#brochure-modal {
+    transition: opacity 0.3s ease;
+}
+
+#brochure-frame {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
