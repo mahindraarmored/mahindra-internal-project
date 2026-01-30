@@ -12,10 +12,10 @@ const disclaimerHTML = `
             <h2 style="font-weight: 900; font-size: 1.5rem; color: #0f172a; text-transform: uppercase;">Internal Access Only</h2>
             <div style="height: 4px; width: 40px; background: #dc2626; margin: 1rem auto; border-radius: 10px;"></div>
             <p style="color: #64748b; font-size: 0.875rem; line-height: 1.6; margin-bottom: 2rem;">
-                This system contains proprietary information for <strong>Mahindra Emirates</strong> personnel. 
-                By clicking "I Agree", you confirm you are an authorized employee and agree to maintain strict confidentiality of all data contained herein.
+                This system contains confidential information of Mahindra Emirates Vehicle Armouring personnel. 
+                <strong>By clicking "I Agree", you confirm you are authorized employee</strong> and agree to maintain strict confidentiality of all data contained herein.
             </p>
-            <button id="agreeBtn">I Agree & Continue</button>
+            <button id="agreeBtn">Agree & Continue</button>
             <p style="margin-top: 1.5rem; font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
                 Secure Gateway • v2.5.0
             </p>
