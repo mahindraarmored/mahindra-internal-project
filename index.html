@@ -155,8 +155,7 @@
         </div>
     </main>
 <script>
-    // SHA-256 fingerprint of "MEVA2026"
-    // This is mathematically irreversible, making it secure even if inspected.
+    // SHA-256 fingerprint of "MEVA2026" (Verified)
     const HASH_KEY = "e6e8891f6920f86280031804b9015945145f448a31e13a9435b542095033a39e";
 
     async function checkPassword() {
@@ -164,35 +163,36 @@
         const overlay = document.getElementById('password-overlay');
         const error = document.getElementById('password-error');
 
-        // Clean input: remove spaces and force uppercase to match our HASH_KEY
+        // This removes accidental spaces and forces caps to match the HASH_KEY
         const cleanInput = inputField.value.trim().toUpperCase();
 
         if (!cleanInput) return;
 
-        // Generate SHA-256 Hash of the input
-        const msgUint8 = new TextEncoder().encode(cleanInput);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        try {
+            const msgUint8 = new TextEncoder().encode(cleanInput);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-        if (hashHex === HASH_KEY) {
-            // Success: Save session and hide overlay
-            sessionStorage.setItem('portal_auth', 'active');
-            overlay.classList.add('opacity-0', 'pointer-events-none');
-            document.body.style.overflow = 'auto'; // Re-enable scrolling
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 500);
-        } else {
-            // Failure: Show error and trigger shake animation
-            error.classList.remove('hidden');
-            inputField.value = '';
-            inputField.classList.add('border-red-600', 'animate-shake');
-            setTimeout(() => inputField.classList.remove('animate-shake'), 500);
+            if (hashHex === HASH_KEY) {
+                // SUCCESS
+                sessionStorage.setItem('portal_auth', 'active');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                document.body.style.overflow = 'auto';
+                setTimeout(() => { overlay.style.display = 'none'; }, 500);
+            } else {
+                // FAILURE
+                error.classList.remove('hidden');
+                inputField.value = '';
+                inputField.classList.add('border-red-600', 'animate-shake');
+                setTimeout(() => inputField.classList.remove('animate-shake'), 500);
+            }
+        } catch (e) {
+            console.error("Security API Error:", e);
         }
     }
 
-    // Auto-check session on page load
+    // Initialize security on load
     window.addEventListener('DOMContentLoaded', () => {
         const auth = sessionStorage.getItem('portal_auth');
         const overlay = document.getElementById('password-overlay');
@@ -201,7 +201,9 @@
             if (overlay) overlay.style.display = 'none';
             document.body.style.overflow = 'auto';
         } else {
-            document.body.style.overflow = 'hidden'; // Lock screen
+            document.body.style.overflow = 'hidden';
+            // Auto-focus the input for the user
+            document.getElementById('site-password').focus();
         }
     });
 </script>
