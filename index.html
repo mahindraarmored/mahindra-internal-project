@@ -155,7 +155,7 @@
         </div>
     </main>
 <script>
-    // SHA-256 fingerprint of "MEVA2026" (Verified)
+    // SHA-256 fingerprint of "MEVA2026"
     const HASH_KEY = "e6e8891f6920f86280031804b9015945145f448a31e13a9435b542095033a39e";
 
     async function checkPassword() {
@@ -163,47 +163,48 @@
         const overlay = document.getElementById('password-overlay');
         const error = document.getElementById('password-error');
 
-        // This removes accidental spaces and forces caps to match the HASH_KEY
+        // Clean input: remove spaces and force uppercase
         const cleanInput = inputField.value.trim().toUpperCase();
 
         if (!cleanInput) return;
 
         try {
+            // Check if Crypto API is available (requires HTTPS/GitHub Pages)
+            if (!window.isSecureContext) {
+                console.error("Crypto API requires an HTTPS connection (GitHub Pages).");
+            }
+
             const msgUint8 = new TextEncoder().encode(cleanInput);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
             if (hashHex === HASH_KEY) {
-                // SUCCESS
                 sessionStorage.setItem('portal_auth', 'active');
                 overlay.classList.add('opacity-0', 'pointer-events-none');
-                document.body.style.overflow = 'auto';
+                document.body.classList.remove('locked');
                 setTimeout(() => { overlay.style.display = 'none'; }, 500);
             } else {
-                // FAILURE
+                // Wrong password logic
                 error.classList.remove('hidden');
                 inputField.value = '';
                 inputField.classList.add('border-red-600', 'animate-shake');
                 setTimeout(() => inputField.classList.remove('animate-shake'), 500);
             }
         } catch (e) {
-            console.error("Security API Error:", e);
+            console.error("Auth Error:", e);
+            // Fallback for non-secure local testing: 
+            // If you are testing locally and it fails, temporarily use: 
+            // if (cleanInput === "MEVA2026") { ... success logic ... }
         }
     }
 
-    // Initialize security on load
     window.addEventListener('DOMContentLoaded', () => {
-        const auth = sessionStorage.getItem('portal_auth');
-        const overlay = document.getElementById('password-overlay');
-        
-        if (auth === 'active') {
-            if (overlay) overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
+        if (sessionStorage.getItem('portal_auth') === 'active') {
+            document.getElementById('password-overlay').style.display = 'none';
+            document.body.classList.remove('locked');
         } else {
-            document.body.style.overflow = 'hidden';
-            // Auto-focus the input for the user
-            document.getElementById('site-password').focus();
+            document.body.classList.add('locked');
         }
     });
 </script>
