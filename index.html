@@ -39,8 +39,12 @@
         <div class="relative mb-4">
             <input type="password" id="site-password" 
                 class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-red-500/10 focus:border-red-600 transition-all text-center tracking-[0.5em] font-bold text-lg"
-                placeholder="••••••••"
+                placeholder="********"
                 onkeydown="if(event.key === 'Enter') checkPassword()">
+            <button type="button" onclick="togglePasswordVisibility()" 
+        class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-600 transition-colors">
+        <i id="eye-icon" class="ri-eye-off-line text-xl"></i>
+    </button>
         </div>
             
         <button onclick="checkPassword()" 
@@ -155,7 +159,27 @@
         </div>
     </main>
 <script>
-    // Verified SHA-256 for "MEVA2026"
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('site-password');
+    const eyeIcon = document.getElementById('eye-icon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        // Switching to the open eye icon
+        eyeIcon.classList.replace('ri-eye-off-line', 'ri-eye-line');
+        // Optional: Reduce tracking slightly for better readability when visible
+        passwordInput.style.letterSpacing = '0.2em';
+    } else {
+        passwordInput.type = 'password';
+        // Switching back to the slashed eye icon
+        eyeIcon.classList.replace('ri-eye-line', 'ri-eye-off-line');
+        // Reset to wide tracking for bullets
+        passwordInput.style.letterSpacing = '0.5em';
+    }
+}
+
+    
+    
     const HASH_KEY = "12a70f027e3864a503f9fc6def22f9d5ca831302deb60adca11755fae64c827d";
 
     async function sha256Hex(str) {
@@ -201,6 +225,8 @@
             document.body.classList.add("locked");
         }
     });
+
+    
 </script>
 
 </body>
