@@ -18,9 +18,11 @@ const disclaimerHTML = `
                <p style="color: #64748b; font-size: 0.875rem; line-height: 1.6; margin-bottom: 2rem;">
                By clicking "I Agree", you confirm you are authorized employee and agree to maintain strict confidentiality of all data contained herein.</p>
             
-            <p style="margin-top: 1.5rem; font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
-                strictly reserved • © [2026]
-            </p>
+            <p style="margin-top: 1.5rem; font-size: 8px; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.6;">
+    © 2026 Mahindra Emirates Vehicle Armouring FZ LLC<br>
+    All rights strictly reserved.
+</p>
+
         </div>
     </div>
 `;
