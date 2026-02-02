@@ -1,12 +1,12 @@
 const mapData = {
     managerColors: {
-        "MR. RAJIV": "#3b82f6",
+        "MR. RAJIV": "#f43f5e",
         "MR. NADER": "#10b981",
         "MR. ROWAN": "#f59e0b",
         "MR. LYES": "#6366f1",
         "MR. CRISTIAN": "#8b5cf6",
         "MR. AZMI": "#06b6d4",
-        "MR. MARCOS": "#f43f5e",
+        "MR. MARCOS": "#3b82f6",
         "SUJITHA": "#ec4899",
         "OPEN": "#ef4444"
     },
