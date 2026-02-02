@@ -155,7 +155,7 @@
         </div>
     </main>
 <script>
-  // Verified SHA-256 fingerprint for "MEVA2026"
+  
   const HASH_KEY = "e6e8891f6920f86280031804b9015945145f448a31e13a9435b542095033a39e";
 
   async function sha256Hex(str) {
@@ -169,31 +169,29 @@
     const overlay = document.getElementById("password-overlay");
     const error = document.getElementById("password-error");
 
-    // Standardize input: remove whitespace and force uppercase
     const cleanInput = inputField.value.trim().toUpperCase();
     if (!cleanInput) return;
 
-    // GitHub Pages provides the required Secure Context (HTTPS)
+    // HARD CHECK: must be secure context + subtle available
     if (!window.isSecureContext || !crypto?.subtle) {
-      error.textContent = "Auth requires HTTPS (GitHub Pages).";
+      error.textContent = "Auth requires HTTPS (secure context).";
       error.classList.remove("hidden");
+      console.error("Not secure context. Open via HTTPS or localhost.");
       return;
     }
 
     const hashHex = await sha256Hex(cleanInput);
 
-    // Logs for your verification during setup
-    console.log("Input Received:", cleanInput);
-    console.log("Generated Hash:", hashHex);
+    // Debug: verify what you're actually hashing
+    console.log("INPUT:", cleanInput);
+    console.log("SHA-256:", hashHex);
 
     if (hashHex === HASH_KEY) {
-      // SUCCESS
       sessionStorage.setItem("portal_auth", "active");
-      overlay.classList.add('opacity-0', 'pointer-events-none');
+      overlay.classList.add("opacity-0", "pointer-events-none");
       document.body.classList.remove("locked");
       setTimeout(() => (overlay.style.display = "none"), 500);
     } else {
-      // FAILURE
       error.textContent = "Invalid Credentials. Access Denied.";
       error.classList.remove("hidden");
       inputField.value = "";
@@ -204,13 +202,13 @@
 
   window.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem("portal_auth") === "active") {
-      const overlay = document.getElementById("password-overlay");
-      if (overlay) overlay.style.display = "none";
+      document.getElementById("password-overlay").style.display = "none";
       document.body.classList.remove("locked");
     } else {
       document.body.classList.add("locked");
     }
   });
 </script>
+
 </body>
 </html>
