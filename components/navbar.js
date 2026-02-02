@@ -69,7 +69,7 @@ const sidebarContent = `
         </div>
         <nav class="flex-1 p-4 space-y-1 overflow-y-auto mt-4">
             <a href="/index.html" class="nav-link" id="nav-dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
-            <a href="/overview/index.html" class="nav-link" id="nav-overview"><i class="ri-customer-service-2-line"></i> MEVA Profile</a>
+            <a href="/overview/index.html" class="nav-link" id="nav-overview"><i class="ri-building-4-line"></i> MEVA Profile</a>
             <a href="/territory/index.html" class="nav-link" id="nav-territory"><i class="ri-map-pin-2-line"></i> Territory Map</a>
             <a href="/vehicles/index.html" class="nav-link" id="nav-vehicles"><i class="ri-truck-line"></i> Vehicle Library</a>
             <a href="/events/index.html" class="nav-link" id="nav-events"><i class="ri-calendar-event-line"></i> Global Events</a>
