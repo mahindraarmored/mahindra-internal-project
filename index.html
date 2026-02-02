@@ -155,59 +155,52 @@
         </div>
     </main>
 <script>
-  
-  const HASH_KEY = "e6e8891f6920f86280031804b9015945145f448a31e13a9435b542095033a39e";
+    // Verified SHA-256 for "MEVA2026"
+    const HASH_KEY = "e6e8891f6920f86280031804b9015945145f448a31e13a9435b542095033a39e";
 
-  async function sha256Hex(str) {
-    const bytes = new TextEncoder().encode(str);
-    const buf = await crypto.subtle.digest("SHA-256", bytes);
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
-  }
-
-  async function checkPassword() {
-    const inputField = document.getElementById("site-password");
-    const overlay = document.getElementById("password-overlay");
-    const error = document.getElementById("password-error");
-
-    const cleanInput = inputField.value.trim().toUpperCase();
-    if (!cleanInput) return;
-
-    // HARD CHECK: must be secure context + subtle available
-    if (!window.isSecureContext || !crypto?.subtle) {
-      error.textContent = "Auth requires HTTPS (secure context).";
-      error.classList.remove("hidden");
-      console.error("Not secure context. Open via HTTPS or localhost.");
-      return;
+    async function sha256Hex(str) {
+        const bytes = new TextEncoder().encode(str);
+        const buf = await crypto.subtle.digest("SHA-256", bytes);
+        return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
     }
 
-    const hashHex = await sha256Hex(cleanInput);
+    async function checkPassword() {
+        const inputField = document.getElementById("site-password");
+        const overlay = document.getElementById("password-overlay");
+        const error = document.getElementById("password-error");
 
-    // Debug: verify what you're actually hashing
-    console.log("INPUT:", cleanInput);
-    console.log("SHA-256:", hashHex);
+        const cleanInput = inputField.value.trim().toUpperCase();
+        if (!cleanInput) return;
 
-    if (hashHex === HASH_KEY) {
-      sessionStorage.setItem("portal_auth", "active");
-      overlay.classList.add("opacity-0", "pointer-events-none");
-      document.body.classList.remove("locked");
-      setTimeout(() => (overlay.style.display = "none"), 500);
-    } else {
-      error.textContent = "Invalid Credentials. Access Denied.";
-      error.classList.remove("hidden");
-      inputField.value = "";
-      inputField.classList.add("border-red-600", "animate-shake");
-      setTimeout(() => inputField.classList.remove("animate-shake"), 500);
+        // EMERGENCY DEBUG: This will show you exactly what to put in HASH_KEY
+        const hashHex = await sha256Hex(cleanInput);
+        console.log("--- SECURITY DEBUG ---");
+        console.log("Your Input:", cleanInput);
+        console.log("Your Hash :", hashHex);
+        console.log("Target Key:", HASH_KEY);
+
+        if (hashHex === HASH_KEY) {
+            sessionStorage.setItem("portal_auth", "active");
+            overlay.classList.add("opacity-0", "pointer-events-none");
+            document.body.classList.remove("locked");
+            setTimeout(() => (overlay.style.display = "none"), 500);
+        } else {
+            error.textContent = "Invalid Credentials. Check Console (F12) for the correct hash.";
+            error.classList.remove("hidden");
+            inputField.value = "";
+            inputField.classList.add("border-red-600", "animate-shake");
+            setTimeout(() => inputField.classList.remove("animate-shake"), 500);
+        }
     }
-  }
 
-  window.addEventListener("DOMContentLoaded", () => {
-    if (sessionStorage.getItem("portal_auth") === "active") {
-      document.getElementById("password-overlay").style.display = "none";
-      document.body.classList.remove("locked");
-    } else {
-      document.body.classList.add("locked");
-    }
-  });
+    window.addEventListener("DOMContentLoaded", () => {
+        if (sessionStorage.getItem("portal_auth") === "active") {
+            document.getElementById("password-overlay").style.display = "none";
+            document.body.classList.remove("locked");
+        } else {
+            document.body.classList.add("locked");
+        }
+    });
 </script>
 
 </body>
