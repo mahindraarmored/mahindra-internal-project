@@ -4,7 +4,7 @@ const mapData = {
         "MR. NADER": "#10b981",
         "MR. ROWAN": "#f59e0b",
         "MR. LYES": "#6366f1",
-        "MR. CRISTIAN": "#8b5cf6",
+        "MR. CRISTIAN": "#708090",
         "MR. AZMI": "#06b6d4",
         "MR. MARCOS": "#3b82f6",
         "SUJITHA": "#ec4899",
