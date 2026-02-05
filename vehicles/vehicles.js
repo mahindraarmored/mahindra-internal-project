@@ -49,21 +49,26 @@ function parseCSV(csv) {
 function renderSidebar() {
     const container = document.getElementById('sidebarFilters');
     if (!container) return;
+
+    // Get unique categories (or managers) from your data
     const categories = [...new Set(assets.map(v => v.type.toUpperCase()))].sort();
-    let html = `<button onclick="filterType('ALL', this)" class="side-filter-btn active w-full">
-            <span>All Assets</span>
-            <span class="count-pill">${assets.length}</span>
-        </button>`;
+
+    let html = `
+        <button onclick="filterType('ALL', this)" class="side-filter-btn active">
+            ALL TEAM
+        </button>
+    `;
+
     categories.forEach(cat => {
-        const count = assets.filter(v => v.type.toUpperCase() === cat).length;
-        html += `<button onclick="filterType('${cat}', this)" class="side-filter-btn w-full">
-                <span>${cat}</span>
-                <span class="count-pill">${count}</span>
-            </button>`;
+        html += `
+            <button onclick="filterType('${cat}', this)" class="side-filter-btn">
+                ${cat}
+            </button>
+        `;
     });
+    
     container.innerHTML = html;
 }
-
 function renderAssets() {
     const grid = document.getElementById('assetGrid');
     const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
