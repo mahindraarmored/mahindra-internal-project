@@ -11,145 +11,226 @@
     
     <link rel="stylesheet" href="../components/style.css">
     <script src="../components/navbar.js" defer></script>
-    <script src="mapData.js"></script> <style>
+    <script src="mapData.js"></script>
+
+    <style>
+        /* Map Layout Styles */
+        html, body { height: 100%; margin: 0; }
         #map-canvas { height: 100%; width: 100%; background: #f8fafc; z-index: 1; }
         .leaflet-container { font-family: inherit; }
+        
+        /* Custom UI Tweaks */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 4px; }
-    
-    /* Ensure the body and main take full height */
-    html, body { height: 100%; margin: 0; }
-    
-    /* Map will now expand to its parent container */
-    #map-canvas { 
-        height: 100%; 
-        width: 100%; 
-        background: #f8fafc; 
-        z-index: 1; 
-    }
-    
-    /* Hide scrollbars to match the "App" feel of the Library */
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    
-    .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 4px; }
-</style>
+        
+        /* Marker Hover Effects */
+        .custom-div-icon:hover { transform: scale(1.1); transition: transform 0.2s; }
+    </style>
 </head>
 <body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
     <div id="sidebar-root"></div>
+    
     <main class="flex-1 flex flex-col h-full overflow-hidden">
-    <div id="header-root"></div>
+        <div id="header-root"></div>
 
-    <div class="flex-1 flex flex-col overflow-hidden">
-        
-        <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-b border-slate-100">
-            <div>
-                <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">SALES TERRITORIES</h2>
-                <p class="text-slate-500 mt-1 font-medium italic text-xs">Sales Manager Territories & Regional Allocations.</p>
-            </div>
+        <div class="flex-1 flex flex-col overflow-hidden">
             
-            <div class="flex bg-slate-200/50 p-1 rounded-2xl w-fit border border-slate-200 shadow-inner">
-                <button onclick="updateMapMode('all')" id="btn-all" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm">All</button>
-                <button onclick="updateMapMode('countries')" id="btn-countries" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500">Countries</button>
-                <button onclick="updateMapMode('agencies')" id="btn-agencies" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500">Agencies</button>
+            <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-b border-slate-100 shadow-sm z-10">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">SALES TERRITORIES</h2>
+                    <p class="text-slate-500 mt-1 font-medium italic text-xs">Sales Manager Territories & Regional Allocations.</p>
+                </div>
+                
+                <div class="flex bg-slate-100 p-1.5 rounded-2xl w-fit border border-slate-200">
+                    <button onclick="updateMapMode('all')" id="btn-all" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">All</button>
+                    <button onclick="updateMapMode('countries')" id="btn-countries" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">Countries</button>
+                    <button onclick="updateMapMode('agencies')" id="btn-agencies" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">Agencies</button>
+                    <button onclick="updateMapMode('corporates')" id="btn-corporates" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">Corporates</button>
+                </div>
             </div>
-        </div>
 
-        <div class="bg-white border-b border-slate-100 p-3 flex flex-wrap gap-2 justify-center" id="manager-filters"></div>
-        
-        <div class="flex-1 relative" id="map-canvas"></div>
-        
-        <div class="p-4 flex flex-wrap gap-4 items-center justify-center bg-white border-t border-slate-100" id="map-legend"></div>
-    </div>
-</main>
+            <div class="bg-white border-b border-slate-100 p-3 flex flex-wrap gap-2 justify-center shadow-sm z-10" id="manager-filters"></div>
+            
+            <div class="flex-1 relative" id="map-canvas"></div>
+            
+            <div class="p-4 flex flex-wrap gap-4 items-center justify-center bg-white border-t border-slate-100 text-[10px]" id="map-legend"></div>
+        </div>
+    </main>
 
     <script>
-    const map = L.map('map-canvas', { center: [20, 10], zoom: 2.5, attributionControl: false, zoomControl: false });
+    // --- 1. INITIALIZATION ---
+    const map = L.map('map-canvas', { 
+        center: [25, 15], 
+        zoom: 3, 
+        attributionControl: false, 
+        zoomControl: false 
+    });
+    
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
 
+    // Create 3 distinct layers
     const countryLayer = L.layerGroup().addTo(map);
-    const agencyLayer = L.layerGroup();
-    let currentMode = 'all'; // Default to 'all' to match your new button
+    const agencyLayer = L.layerGroup().addTo(map);
+    const corporateLayer = L.layerGroup().addTo(map);
+
+    let currentMode = 'all'; 
     let activeManager = 'ALL';
 
+    // --- 2. RENDER LOGIC ---
     function renderMarkers() {
+        // Clear all layers before re-drawing
         countryLayer.clearLayers();
         agencyLayer.clearLayers();
+        corporateLayer.clearLayers();
 
-        const filteredCountries = activeManager === 'ALL' ? mapData.countries : mapData.countries.filter(c => c.manager === activeManager);
-        const filteredAgencies = activeManager === 'ALL' ? mapData.agencies : mapData.agencies.filter(a => a.manager === activeManager);
+        // Safe filtering (checks if array exists to prevent errors)
+        const getFiltered = (dataArray) => {
+            if (!dataArray) return [];
+            return activeManager === 'ALL' ? dataArray : dataArray.filter(item => item.manager === activeManager);
+        };
 
+        const filteredCountries = getFiltered(mapData.countries);
+        const filteredAgencies = getFiltered(mapData.agencies);
+        const filteredCorporates = getFiltered(mapData.corporates); // NEW
+
+        // A. Render Countries (Circles)
         filteredCountries.forEach(c => {
-            L.circleMarker(c.coords, { radius: 8, fillColor: mapData.managerColors[c.manager], color: "#fff", weight: 2, fillOpacity: 0.8 })
-             .addTo(countryLayer).bindPopup(`<b>${c.name}</b><br>${c.manager}`);
+            const color = mapData.managerColors[c.manager] || '#94a3b8';
+            L.circleMarker(c.coords, { 
+                radius: 6, 
+                fillColor: color, 
+                color: "#fff", 
+                weight: 2, 
+                fillOpacity: 0.9 
+            })
+            .addTo(countryLayer)
+            .bindPopup(`<div class='font-sans'><b class='uppercase text-xs text-slate-500'>Country</b><br><span class='font-bold text-slate-900'>${c.name}</span><br><span class='text-xs text-slate-400'>${c.manager}</span></div>`);
         });
 
+        // B. Render Agencies (Government Icon)
         filteredAgencies.forEach(a => {
+            const color = mapData.managerColors[a.manager] || '#94a3b8';
             const icon = L.divIcon({
-                html: `<div class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-md border-2" style="border-color:${mapData.managerColors[a.manager]}"><i class="ri-government-line text-lg" style="color:${mapData.managerColors[a.manager]}"></i></div>`,
-                className: 'custom-div-icon', iconSize: [32, 32]
+                html: `<div class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-md border-2 transition-transform" style="border-color:${color}">
+                        <i class="ri-government-line text-lg" style="color:${color}"></i>
+                       </div>`,
+                className: 'custom-div-icon', 
+                iconSize: [32, 32],
+                iconAnchor: [16, 32], // Tip of the pin
+                popupAnchor: [0, -32]
             });
-            L.marker(a.coords, { icon }).addTo(agencyLayer).bindPopup(`<b>${a.name}</b><br>${a.manager}`);
+            L.marker(a.coords, { icon }).addTo(agencyLayer)
+             .bindPopup(`<div class='font-sans'><b class='uppercase text-xs text-blue-500'>Agency</b><br><span class='font-bold text-slate-900'>${a.name}</span><br><span class='text-xs text-slate-400'>${a.manager}</span></div>`);
         });
 
-        // Smart Zoom logic for filtered views
-        if (activeManager !== 'ALL') {
-            let activeSet;
-            if (currentMode === 'all') activeSet = new L.featureGroup([countryLayer, agencyLayer]);
-            else activeSet = currentMode === 'countries' ? countryLayer : agencyLayer;
+        // C. Render Corporates (Building Icon - NEW)
+        filteredCorporates.forEach(c => {
+            const color = mapData.managerColors[c.manager] || '#94a3b8';
+            const icon = L.divIcon({
+                html: `<div class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 shadow-xl border-2 transition-transform" style="border-color:${color}">
+                        <i class="ri-building-4-fill text-sm text-white"></i>
+                       </div>`,
+                className: 'custom-div-icon', 
+                iconSize: [32, 32],
+                iconAnchor: [16, 16], // Center
+                popupAnchor: [0, -16]
+            });
+            L.marker(c.coords, { icon }).addTo(corporateLayer)
+             .bindPopup(`<div class='font-sans'><b class='uppercase text-xs text-slate-900'>Corporate</b><br><span class='font-bold text-slate-900'>${c.name}</span><br><span class='text-xs text-slate-400'>${c.manager}</span></div>`);
+        });
 
-            if (activeSet.getLayers().length > 0) {
-                map.fitBounds(activeSet.getBounds(), { padding: [50, 50], maxZoom: 5 });
-            }
+        // Smart Zoom Logic
+        smartZoom();
+    }
+
+    function smartZoom() {
+        if (activeManager === 'ALL' && currentMode === 'all') return; // Don't zoom out too much on load
+
+        let featureGroup = new L.featureGroup();
+        if (map.hasLayer(countryLayer)) featureGroup.addLayer(countryLayer);
+        if (map.hasLayer(agencyLayer)) featureGroup.addLayer(agencyLayer);
+        if (map.hasLayer(corporateLayer)) featureGroup.addLayer(corporateLayer);
+
+        if (featureGroup.getLayers().length > 0) {
+            map.fitBounds(featureGroup.getBounds(), { padding: [50, 50], maxZoom: 5 });
         }
     }
 
+    // --- 3. UI LOGIC ---
     function updateMapMode(mode) {
         currentMode = mode;
-        const btnAll = document.getElementById('btn-all');
-        const btnC = document.getElementById('btn-countries');
-        const btnA = document.getElementById('btn-agencies');
+        const btns = {
+            'all': document.getElementById('btn-all'),
+            'countries': document.getElementById('btn-countries'),
+            'agencies': document.getElementById('btn-agencies'),
+            'corporates': document.getElementById('btn-corporates')
+        };
 
-        // Reset Styles
-        [btnAll, btnC, btnA].forEach(btn => {
-            if(btn) btn.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700";
+        // Reset all buttons
+        Object.values(btns).forEach(btn => {
+            if(btn) btn.className = "px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-400 hover:text-slate-600 hover:bg-slate-50";
         });
 
-        // Layer and Button Logic
+        // Activate current button
+        if(btns[mode]) btns[mode].className = "px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-md transform scale-105";
+
+        // Layer Logic
+        map.removeLayer(countryLayer);
+        map.removeLayer(agencyLayer);
+        map.removeLayer(corporateLayer);
+
         if (mode === 'all') {
             countryLayer.addTo(map);
             agencyLayer.addTo(map);
-            btnAll.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm";
+            corporateLayer.addTo(map);
         } else if (mode === 'countries') {
             countryLayer.addTo(map);
-            map.removeLayer(agencyLayer);
-            btnC.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm";
-        } else {
-            map.removeLayer(countryLayer);
+        } else if (mode === 'agencies') {
             agencyLayer.addTo(map);
-            btnA.className = "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm";
+        } else if (mode === 'corporates') {
+            corporateLayer.addTo(map);
         }
     }
 
-    function filterByManager(manager) { activeManager = manager; renderMarkers(); renderUI(); }
+    function filterByManager(manager) { 
+        activeManager = manager; 
+        renderMarkers(); 
+        renderUI(); 
+    }
 
     function renderUI() {
         const filterContainer = document.getElementById('manager-filters');
         const legendContainer = document.getElementById('map-legend');
-        filterContainer.innerHTML = `<button onclick="filterByManager('ALL')" class="px-3 py-1 text-[9px] font-bold uppercase rounded-full border ${activeManager === 'ALL' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200'}">All Team</button>`;
-        legendContainer.innerHTML = '';
         
+        // Render Manager Buttons
+        filterContainer.innerHTML = `<button onclick="filterByManager('ALL')" class="px-4 py-2 text-[10px] font-bold uppercase rounded-full border transition-all ${activeManager === 'ALL' ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}">All Team</button>`;
+        
+        // Render Legend (Cleared first)
+        legendContainer.innerHTML = ''; 
+
         Object.entries(mapData.managerColors).forEach(([name, color]) => {
             const isActive = activeManager === name;
-            filterContainer.innerHTML += `<button onclick="filterByManager('${name}')" class="px-3 py-1 text-[9px] font-bold uppercase rounded-full border flex items-center gap-2 ${isActive ? 'bg-white border-slate-900 text-slate-900 shadow-sm' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}"><span class="w-1.5 h-1.5 rounded-full" style="background-color: ${color}"></span>${name.replace('MR. ', '')}</button>`;
-            legendContainer.innerHTML += `<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background-color: ${color}"></span><span class="text-[9px] font-bold text-slate-400 uppercase">${name}</span></div>`;
+            
+            // Add Filter Button
+            filterContainer.innerHTML += `
+                <button onclick="filterByManager('${name}')" class="px-3 py-1.5 text-[9px] font-bold uppercase rounded-full border flex items-center gap-2 transition-all ${isActive ? 'bg-white border-slate-900 text-slate-900 shadow-md ring-1 ring-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}">
+                    <span class="w-2 h-2 rounded-full shadow-sm" style="background-color: ${color}"></span>
+                    ${name.replace('MR. ', '')}
+                </button>`;
+            
+            // Add Legend Item
+            legendContainer.innerHTML += `
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full" style="background-color: ${color}"></span>
+                    <span class="text-slate-500 font-bold">${name.replace('MR. ', '')}</span>
+                </div>`;
         });
     }
 
-    // Initialize with both layers active for 'All' mode
-    updateMapMode('all');
-    renderMarkers(); 
-    renderUI();
-</script>
+    // --- 4. STARTUP ---
+    updateMapMode('all'); // Sets initial button state and layers
+    renderMarkers();      // Draws the data
+    renderUI();           // Draws the filters
+    </script>
 </body>
 </html>
