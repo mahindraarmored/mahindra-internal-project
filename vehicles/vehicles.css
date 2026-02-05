@@ -11,46 +11,58 @@ aside::-webkit-scrollbar {
     display: none; /* Chrome/Safari */
 }
 
-/* Sidebar Filter Buttons */
+/* Container to hide scrollbar but allow scrolling */
+#sidebarFilters {
+    scrollbar-width: none; 
+    ms-overflow-style: none;
+}
+#sidebarFilters::-webkit-scrollbar { display: none; }
+
+/* The Pill Button Design */
 .side-filter-btn {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #64748b;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid transparent;
-}
-
-.side-filter-btn:hover {
-    background: #f8fafc;
-    color: var(--mahindra-red);
-    border-color: #fee2e2;
-}
-
-.side-filter-btn.active {
-    background: #fef2f2;
-    color: var(--mahindra-red);
-    border-color: #fecaca;
-    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.05);
-}
-
-.count-pill {
-    font-size: 9px;
-    background: #f1f5f9;
-    color: #94a3b8;
-    padding: 2px 6px;
-    border-radius: 6px;
+    gap: 8px;
+    padding: 6px 14px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 99px;
+    font-size: 11px;
     font-weight: 800;
+    color: #475569;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.side-filter-btn.active .count-pill {
-    background: var(--mahindra-red);
-    color: white;
+/* The Dot */
+.side-filter-btn::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cbd5e1; /* Default Grey */
 }
+
+/* Hover State */
+.side-filter-btn:hover {
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+/* Active State (Black Background like your "ALL TEAM" button) */
+.side-filter-btn.active {
+    background: #1e293b; 
+    color: white;
+    border-color: #1e293b;
+}
+
+.side-filter-btn.active::before {
+    background: #ef4444; /* Red Dot when active */
+}
+
+/* Remove the count pill as it is not in your new design */
+.count-pill { display: none; }
 
 /* Updated Vehicle Card */
 .vehicle-card {
