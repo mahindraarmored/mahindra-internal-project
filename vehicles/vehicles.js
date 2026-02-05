@@ -1,29 +1,22 @@
 /* ===============================
-   VEHICLE LIBRARY LOGIC - ROBUST
+   VEHICLE LIBRARY LOGIC - FINAL FIXED
 =============================== */
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk4gER-Hzbhsw1kmNd2_2-SjwUqQcAGtw6xG9h3tUS_uSpcDTfu2SxU5J4w0XA1A8Llg9cZ6eAIkwu/pub?output=csv';
 
 let assets = [];
 let currentFilter = 'ALL';
 
-// Initialize on page load
 window.addEventListener('load', fetchSheetData);
 
 async function fetchSheetData() {
     try {
         const res = await fetch(SHEET_CSV_URL);
         const csv = await res.text();
-        
-        // Use a more robust header split in case of comma issues
         assets = parseCSV(csv);
-        
         renderSidebar();
         renderAssets();
-        
-        // Global listener for the search input
         const searchBox = document.getElementById('searchInput');
         if(searchBox) searchBox.addEventListener('keyup', renderAssets);
-        
     } catch (e) {
         console.error("Database Connection Failed:", e);
         document.getElementById('assetCount').innerText = "Sync Error - Check Console";
@@ -32,7 +25,6 @@ async function fetchSheetData() {
 
 function parseCSV(csv) {
     const lines = csv.trim().split('\n');
-    // Parse headers precisely
     const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
         .map(h => h.replace(/"/g, '').trim().toLowerCase());
 
@@ -41,42 +33,33 @@ function parseCSV(csv) {
         const row = {};
         headers.forEach((h, i) => row[h] = values[i] || '');
 
-        // MAPPING TO YOUR SPECIFIC COLUMNS (A-H)
         return {
-            type: row['category'] || 'Uncategorised',      // Col A
-            name: row['vehicle name'] || '',               // Col B
-            chassis: row['base vehicle / chassis'] || '',  // Col C
-            spec: row['sub heading'] || '',                // Col D
-            gallery: row['image status'] || '',            // Col E (OneDrive)
-            datasheet: row['brochure link'] || '',         // Col F (OneDrive)
-            website: row['website'] || '',                 // Col G
-            status: row['for future'] || 'Active'          // Col H
+            type: row['category'] || 'Uncategorised',      
+            name: row['vehicle name'] || '',               
+            chassis: row['base vehicle / chassis'] || '',  
+            spec: row['sub heading'] || '',                
+            gallery: row['image status'] || '',            
+            datasheet: row['brochure link'] || '',         
+            website: row['website'] || '',                 
+            status: row['for future'] || 'Active'          
         };
-    }).filter(v => v.name); // Keeps only valid rows with a Vehicle Name
+    }).filter(v => v.name);
 }
 
 function renderSidebar() {
     const container = document.getElementById('sidebarFilters');
     if (!container) return;
-
-    // Scan unique categories for the sidebar
     const categories = [...new Set(assets.map(v => v.type.toUpperCase()))].sort();
-
-    let html = `
-        <button onclick="filterType('ALL', this)" class="side-filter-btn active w-full">
+    let html = `<button onclick="filterType('ALL', this)" class="side-filter-btn active w-full">
             <span>All Assets</span>
             <span class="count-pill">${assets.length}</span>
-        </button>
-    `;
-
+        </button>`;
     categories.forEach(cat => {
         const count = assets.filter(v => v.type.toUpperCase() === cat).length;
-        html += `
-            <button onclick="filterType('${cat}', this)" class="side-filter-btn w-full">
+        html += `<button onclick="filterType('${cat}', this)" class="side-filter-btn w-full">
                 <span>${cat}</span>
                 <span class="count-pill">${count}</span>
-            </button>
-        `;
+            </button>`;
     });
     container.innerHTML = html;
 }
@@ -88,27 +71,23 @@ function renderAssets() {
     grid.innerHTML = '';
 
     const filtered = assets.filter(v => {
-        // GLOBAL SEARCH: Checks Name, Type, Chassis, and Sub Heading
         const matchesSearch = 
             (v.name || '').toLowerCase().includes(search) || 
             (v.type || '').toLowerCase().includes(search) ||
             (v.chassis || '').toLowerCase().includes(search) ||
             (v.spec || '').toLowerCase().includes(search);
-
         const matchesType = currentFilter === 'ALL' || v.type.toUpperCase() === currentFilter;
         return matchesSearch && matchesType;
     });
 
-   filtered.forEach(v => {
-        // DECLARE EVERYTHING ONCE HERE
+    filtered.forEach(v => {
         const hasPDF = v.datasheet && v.datasheet.length > 5;
         const hasGallery = v.gallery && v.gallery.length > 5;
-        const hasWeb = v.website && v.website.length > 3; 
+        const hasWeb = v.website && v.website.length > 3;
         const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website}`;
 
         const card = document.createElement('div');
         card.className = 'vehicle-card p-5 space-y-4 flex flex-col group';
-
         card.innerHTML = `
             <div class="flex justify-between items-start">
                 <span class="text-[10px] font-black px-2 py-1 rounded ${getCategoryColor(v.type)} uppercase tracking-widest">
@@ -131,31 +110,26 @@ function renderAssets() {
             </div>
             <div class="pt-4 mt-auto border-t border-slate-50 flex items-center justify-between">
                 <div class="flex gap-2">
-                    <a href="${hasPDF ? v.datasheet : '#'}" 
-                       target="_blank" 
-                       class="icon-action ${hasPDF ? '' : 'disabled'}">
+                    <a href="${hasPDF ? v.datasheet : '#'}" target="_blank" class="icon-action ${hasPDF ? '' : 'disabled'}">
                         <i class="ri-file-list-3-line"></i>
                         <span class="tooltip">${hasPDF ? 'View Brochure' : 'No Brochure'}</span>
                     </a>
-
-                    <a href="${hasGallery ? v.gallery : '#'}" 
-                       target="_blank" 
-                       class="icon-action ${hasGallery ? '' : 'disabled'}">
+                    <a href="${hasGallery ? v.gallery : '#'}" target="_blank" class="icon-action ${hasGallery ? '' : 'disabled'}">
                         <i class="ri-gallery-line"></i>
                         <span class="tooltip">${hasGallery ? 'View Photos' : 'No Gallery'}</span>
                     </a>
                 </div>
-                
-                <a href="${hasWeb ? finalUrl : '#'}" 
-                   class="icon-action ${hasWeb ? '' : 'disabled'}" 
-                   target="${hasWeb ? '_blank' : '_self'}">
+                <a href="${hasWeb ? finalUrl : '#'}" class="icon-action ${hasWeb ? '' : 'disabled'}" target="${hasWeb ? '_blank' : '_self'}">
                     <i class="ri-global-line"></i>
-                    <span class="tooltip">${hasWeb ? 'View Online' : 'No Link'}</span>
+                    <span class="tooltip">${hasWeb ? 'View Website' : 'No Link'}</span>
                 </a>
-            </div>
-        `;
+            </div>`;
         grid.appendChild(card);
     });
+
+    const countLabel = document.getElementById('assetCount');
+    if(countLabel) countLabel.innerText = `${filtered.length} Vehicles Detected`;
+}
 
 function getCategoryColor(type) {
     const t = (type || '').toUpperCase();
