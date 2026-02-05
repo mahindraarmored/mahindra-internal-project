@@ -16,7 +16,24 @@
         .leaflet-container { font-family: inherit; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 4px; }
-    </style>
+    
+    /* Ensure the body and main take full height */
+    html, body { height: 100%; margin: 0; }
+    
+    /* Map will now expand to its parent container */
+    #map-canvas { 
+        height: 100%; 
+        width: 100%; 
+        background: #f8fafc; 
+        z-index: 1; 
+    }
+    
+    /* Hide scrollbars to match the "App" feel of the Library */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    
+    .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 4px; }
+</style>
 </head>
 <body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
     <div id="sidebar-root"></div>
