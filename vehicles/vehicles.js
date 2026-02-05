@@ -99,26 +99,11 @@ function renderAssets() {
         return matchesSearch && matchesType;
     });
 
-    filtered.forEach(v => {
-        // Robust URL validation
-        const hasWeb = v.website.length > 3; // Basic check for content
-        const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website}`;
-
-        const card = document.createElement('div');
-        card.className = 'vehicle-card p-5 space-y-4 flex flex-col group';
-
-const hasPDF = v.datasheet && v.datasheet.length > 5;
-const hasGallery = v.gallery && v.gallery.length > 5;
-const hasWeb = v.website && v.website.length > 3;
-const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website}`;
-
-       
-       filtered.forEach(v => {
-        // 1. Validation for the links from Columns E, F, and G
-        const hasPDF = v.datasheet && v.datasheet.length > 5; // Column F: Brochure Link
-        const hasGallery = v.gallery && v.gallery.length > 5; // Column E: Image Status
-        const hasWeb = v.website && v.website.length > 3;    // Column G: Website
-        
+   filtered.forEach(v => {
+        // DECLARE EVERYTHING ONCE HERE
+        const hasPDF = v.datasheet && v.datasheet.length > 5;
+        const hasGallery = v.gallery && v.gallery.length > 5;
+        const hasWeb = v.website && v.website.length > 3; 
         const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website}`;
 
         const card = document.createElement('div');
@@ -171,10 +156,6 @@ const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website
         `;
         grid.appendChild(card);
     });
-
-    const countLabel = document.getElementById('assetCount');
-    if(countLabel) countLabel.innerText = `${filtered.length} Vehicles Detected`;
-}
 
 function getCategoryColor(type) {
     const t = (type || '').toUpperCase();
