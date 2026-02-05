@@ -21,39 +21,30 @@
 <body class="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
     <div id="sidebar-root"></div>
     <main class="flex-1 flex flex-col h-full overflow-hidden">
-        <div id="header-root"></div>
-        <div class="flex-1 overflow-y-auto p-8 md:p-12 hide-scrollbar">
-            <div class="max-w-6xl mx-auto space-y-8">
-                
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                    <div>
-                        <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">SALES TERRITORIES</h2>
-                        <p class="text-slate-500 mt-1 font-medium italic">Sales Manager Territories & Regional Allocations.</p>
-                    </div>
-                    
-                    <div class="flex bg-slate-200/50 p-1 rounded-2xl w-fit border border-slate-200 shadow-inner">
-    <button onclick="updateMapMode('all')" id="btn-all" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm">
-        All
-    </button>
-    <button onclick="updateMapMode('countries')" id="btn-countries" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700">
-        Countries
-    </button>
-    <button onclick="updateMapMode('agencies')" id="btn-agencies" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700">
-        Agencies
-    </button>
-</div>
-                </div>
+    <div id="header-root"></div>
 
-                <div class="bg-white border border-slate-200 rounded-3xl shadow-sm min-h-[600px] relative overflow-hidden flex flex-col">
-                    <div class="bg-slate-50/50 border-b border-slate-100 p-3 flex flex-wrap gap-2 justify-center" id="manager-filters"></div>
-                    
-                    <div class="flex-1 relative" id="map-canvas"></div>
-                    
-                    <div class="p-4 flex flex-wrap gap-4 items-center justify-center border-t border-slate-50" id="map-legend"></div>
-                </div>
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-b border-slate-100">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tight">SALES TERRITORIES</h2>
+                <p class="text-slate-500 mt-1 font-medium italic text-xs">Sales Manager Territories & Regional Allocations.</p>
+            </div>
+            
+            <div class="flex bg-slate-200/50 p-1 rounded-2xl w-fit border border-slate-200 shadow-inner">
+                <button onclick="updateMapMode('all')" id="btn-all" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white text-slate-900 shadow-sm">All</button>
+                <button onclick="updateMapMode('countries')" id="btn-countries" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500">Countries</button>
+                <button onclick="updateMapMode('agencies')" id="btn-agencies" class="px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500">Agencies</button>
             </div>
         </div>
-    </main>
+
+        <div class="bg-white border-b border-slate-100 p-3 flex flex-wrap gap-2 justify-center" id="manager-filters"></div>
+        
+        <div class="flex-1 relative" id="map-canvas"></div>
+        
+        <div class="p-4 flex flex-wrap gap-4 items-center justify-center bg-white border-t border-slate-100" id="map-legend"></div>
+    </div>
+</main>
 
     <script>
     const map = L.map('map-canvas', { center: [20, 10], zoom: 2.5, attributionControl: false, zoomControl: false });
