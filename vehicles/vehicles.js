@@ -54,7 +54,7 @@ function renderSidebar() {
 
     let html = `
         <button onclick="filterType('ALL', this)" class="side-filter-btn active">
-            ALL TEAM
+            MASTER LIST
         </button>
     `;
 
