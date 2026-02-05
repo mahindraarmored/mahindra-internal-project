@@ -3,22 +3,20 @@
     --border-color: #e2e8f0;
 }
 
-/* Fix 7: Resetting containers for better overflow control */
-aside {
-    scrollbar-width: none; /* Firefox */
-}
-aside::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-}
-
-/* Container to hide scrollbar but allow scrolling */
-#sidebarFilters {
+/* 1. Global Reset for the new main layout */
+.no-scrollbar {
     scrollbar-width: none; 
-    ms-overflow-style: none;
+    -ms-overflow-style: none;
 }
-#sidebarFilters::-webkit-scrollbar { display: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* The Pill Button Design */
+/* 2. Horizontal Pill Filters */
+#sidebarFilters {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 1rem; /* Space between pills and grid */
+}
+
 .side-filter-btn {
     display: flex;
     align-items: center;
@@ -35,22 +33,19 @@ aside::-webkit-scrollbar {
     cursor: pointer;
 }
 
-/* The Dot */
 .side-filter-btn::before {
     content: '';
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #cbd5e1; /* Default Grey */
+    background: #cbd5e1;
 }
 
-/* Hover State */
 .side-filter-btn:hover {
-    border-color: #dc2626;
-    color: #dc2626;
+    border-color: var(--mahindra-red);
+    color: var(--mahindra-red);
 }
 
-/* Active State (Black Background like your "ALL TEAM" button) */
 .side-filter-btn.active {
     background: #1e293b; 
     color: white;
@@ -61,16 +56,14 @@ aside::-webkit-scrollbar {
     background: #ef4444; /* Red Dot when active */
 }
 
-/* Remove the count pill as it is not in your new design */
-.count-pill { display: none; }
-
-/* Updated Vehicle Card */
+/* 3. Updated Vehicle Card */
 .vehicle-card {
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 16px;
     overflow: hidden;
-    position: relative;
+    display: flex;
+    flex-direction: column;
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
@@ -80,12 +73,13 @@ aside::-webkit-scrollbar {
     border-color: var(--mahindra-red);
 }
 
-/* Tooltip & Icon Actions */
+/* 4. Tooltip & Icon Actions */
 .icon-action {
     width: 32px; height: 32px;
     display: flex; align-items: center; justify-content: center;
     border-radius: 8px; background: #f1f5f9; color: #64748b;
     transition: all 0.2s; position: relative;
+    text-decoration: none; /* Critical for <a> tags */
 }
 
 .icon-action:hover {
