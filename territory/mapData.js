@@ -188,7 +188,7 @@ const mapData = {
         // SUJITHA & OPEN Agencies
         { name: "UNOPS LTA", manager: "SUJITHA", coords: [55.6761, 12.5683] },
         { name: "WFP DUBAI", manager: "OPEN", coords: [25.2048, 55.2708] }
-    ]
+    ],
      corporates: [
     // MR. RAJIV Agencies
         { name: "Vallo Middle East", manager: "MR. RAJIV", coords: [25.0951, 55.1549] },
