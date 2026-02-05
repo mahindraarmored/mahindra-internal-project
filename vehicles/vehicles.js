@@ -43,12 +43,14 @@ function parseCSV(csv) {
 
         // MAPPING TO YOUR SPECIFIC COLUMNS (A-H)
         return {
-            type: row['category'] || 'Uncategorised',      // Column A
-            name: row['vehicle name'] || '',               // Column B
-            chassis: row['base vehicle / chassis'] || '',  // Column C
-            spec: row['sub heading'] || '',                // Column D
-            website: row['website'] || '',                 // Column G
-            status: row['future'] || 'Active'              // Column H
+            type: row['category'] || 'Uncategorised',      // Col A
+            name: row['vehicle name'] || '',               // Col B
+            chassis: row['base vehicle / chassis'] || '',  // Col C
+            spec: row['sub heading'] || '',                // Col D
+            gallery: row['image status'] || '',            // Col E (OneDrive)
+            datasheet: row['brochure link'] || '',         // Col F (OneDrive)
+            website: row['website'] || '',                 // Col G
+            status: row['for future'] || 'Active'          // Col H
         };
     }).filter(v => v.name); // Keeps only valid rows with a Vehicle Name
 }
@@ -105,6 +107,23 @@ function renderAssets() {
         const card = document.createElement('div');
         card.className = 'vehicle-card p-5 space-y-4 flex flex-col group';
 
+const hasPDF = v.datasheet && v.datasheet.length > 5;
+const hasGallery = v.gallery && v.gallery.length > 5;
+const hasWeb = v.website && v.website.length > 3;
+const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website}`;
+
+       
+       filtered.forEach(v => {
+        // 1. Validation for the links from Columns E, F, and G
+        const hasPDF = v.datasheet && v.datasheet.length > 5; // Column F: Brochure Link
+        const hasGallery = v.gallery && v.gallery.length > 5; // Column E: Image Status
+        const hasWeb = v.website && v.website.length > 3;    // Column G: Website
+        
+        const finalUrl = v.website.startsWith('http') ? v.website : `https://${v.website}`;
+
+        const card = document.createElement('div');
+        card.className = 'vehicle-card p-5 space-y-4 flex flex-col group';
+
         card.innerHTML = `
             <div class="flex justify-between items-start">
                 <span class="text-[10px] font-black px-2 py-1 rounded ${getCategoryColor(v.type)} uppercase tracking-widest">
@@ -127,13 +146,26 @@ function renderAssets() {
             </div>
             <div class="pt-4 mt-auto border-t border-slate-50 flex items-center justify-between">
                 <div class="flex gap-2">
-                    <button class="icon-action"><i class="ri-file-list-3-line"></i><span class="tooltip">Datasheet</span></button>
-                    <button class="icon-action"><i class="ri-gallery-line"></i><span class="tooltip">Gallery</span></button>
+                    <a href="${hasPDF ? v.datasheet : '#'}" 
+                       target="_blank" 
+                       class="icon-action ${hasPDF ? '' : 'disabled'}">
+                        <i class="ri-file-list-3-line"></i>
+                        <span class="tooltip">${hasPDF ? 'View Brochure' : 'No Brochure'}</span>
+                    </a>
+
+                    <a href="${hasGallery ? v.gallery : '#'}" 
+                       target="_blank" 
+                       class="icon-action ${hasGallery ? '' : 'disabled'}">
+                        <i class="ri-gallery-line"></i>
+                        <span class="tooltip">${hasGallery ? 'View Photos' : 'No Gallery'}</span>
+                    </a>
                 </div>
+                
                 <a href="${hasWeb ? finalUrl : '#'}" 
                    class="icon-action ${hasWeb ? '' : 'disabled'}" 
                    target="${hasWeb ? '_blank' : '_self'}">
-                    <i class="ri-global-line"></i><span class="tooltip">${hasWeb ? 'View Online' : 'No Link'}</span>
+                    <i class="ri-global-line"></i>
+                    <span class="tooltip">${hasWeb ? 'View Online' : 'No Link'}</span>
                 </a>
             </div>
         `;
