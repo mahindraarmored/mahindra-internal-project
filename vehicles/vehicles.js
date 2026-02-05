@@ -50,7 +50,6 @@ function renderSidebar() {
     const container = document.getElementById('sidebarFilters');
     if (!container) return;
 
-    // Get unique categories (or managers) from your data
     const categories = [...new Set(assets.map(v => v.type.toUpperCase()))].sort();
 
     let html = `
@@ -69,6 +68,7 @@ function renderSidebar() {
     
     container.innerHTML = html;
 }
+
 function renderAssets() {
     const grid = document.getElementById('assetGrid');
     const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
