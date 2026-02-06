@@ -5,10 +5,10 @@
 =============================== */
 
 // 1. LINK FOR "INHAND" TAB (Sheet 1)
-const INHAND_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?output=csv';
+const INHAND_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?gid=0&single=true&output=csv';
 
 // 2. LINK FOR "COMMENTS" TAB (Sheet 2)
-const COMMENTS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?output=csv';
+const COMMENTS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?gid=537406788&single=true&output=csv';
 
 let orders = [];
 let commentsDB = [];
