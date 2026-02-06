@@ -74,6 +74,7 @@ const sidebarContent = `
             <a href="/overview/index.html" class="nav-link" id="nav-overview"><i class="ri-building-4-line"></i> MEVA Profile</a>
             <a href="/territory/index.html" class="nav-link" id="nav-territory"><i class="ri-map-pin-2-line"></i> Territory Map</a>
             <a href="/vehicles/index.html" class="nav-link" id="nav-vehicles"><i class="ri-truck-line"></i> Vehicle Library</a>
+            <a href="/salesboard/index.html" class="nav-link" id="nav-orderboard"><i class="ri-table-alt-line"></i>Sales Board</a>
             <a href="/events/index.html" class="nav-link" id="nav-events"><i class="ri-calendar-event-line"></i> Global Events</a>
             <a href="/mission/index.html" class="nav-link" id="nav-mission"><i class="ri-shield-user-line"></i> Mission Database</a>
             
@@ -152,6 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Priority order: folders first, then files
     const navLinks = [
+        { path: '/salesboard/', id: 'nav-orderboard' },
         { path: '/vehicles/', id: 'nav-vehicles' },
         { path: '/territory/', id: 'nav-territory' },
         { path: '/events/', id: 'nav-events' },
