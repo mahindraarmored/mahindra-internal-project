@@ -9,7 +9,7 @@ const INHAND_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9Iyf
 
 // 2. LINK FOR "COMMENTS" TAB 
 // CRITICAL: You must change "Entire document" -> "Comments" in the publish menu to get this link!
-const COMMENTS_SHEET_URL = 'PASTE_YOUR_UNIQUE_COMMENTS_LINK_HERE';
+const COMMENTS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?gid=537406788&single=true&output=csv';
 
 let orders = [];
 let commentsDB = [];
