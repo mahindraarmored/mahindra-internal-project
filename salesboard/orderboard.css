@@ -10,67 +10,30 @@
 }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* 2. Filter Pills (Reused from vehicles.css) */
+/* 2. Filter Pills */
 .side-filter-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 99px;
-    font-size: 11px;
-    font-weight: 800;
-    color: #475569;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-    cursor: pointer;
+    display: flex; align-items: center; gap: 8px; padding: 6px 14px;
+    background: white; border: 1px solid #e2e8f0; border-radius: 99px;
+    font-size: 11px; font-weight: 800; color: #475569; white-space: nowrap;
+    transition: all 0.2s ease; cursor: pointer;
 }
-
-.side-filter-btn::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #cbd5e1;
-}
-
-.side-filter-btn:hover {
-    border-color: var(--mahindra-red);
-    color: var(--mahindra-red);
-}
-
-.side-filter-btn.active {
-    background: #1e293b; 
-    color: white;
-    border-color: #1e293b;
-}
-
+.side-filter-btn:hover { border-color: var(--mahindra-red); color: var(--mahindra-red); }
+.side-filter-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
 .side-filter-btn.active::before {
-    background: #ef4444; 
+    content: ''; width: 6px; height: 6px; border-radius: 50%; background: #ef4444;
 }
 
-/* 3. Icon Actions */
-.icon-action {
-    width: 32px; height: 32px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 8px; background: #f1f5f9; color: #64748b;
-    transition: all 0.2s; cursor: pointer; border: none;
-}
-
-.icon-action:hover {
-    background: var(--mahindra-red);
-    color: white;
-}
-
-/* 4. Table Specifics */
-/* Left Red Border on Hover for Rows */
+/* 3. Table Interactions */
+tr { cursor: pointer; }
 tr:hover td:first-child {
     border-left: 3px solid var(--mahindra-red);
-    padding-left: calc(1.5rem - 3px); /* Adjust padding to accommodate border */
+    padding-left: calc(1.5rem - 3px);
+}
+td:first-child {
+    border-left: 3px solid transparent; transition: all 0.2s ease;
 }
 
-td:first-child {
-    border-left: 3px solid transparent;
-    transition: all 0.2s ease;
-}
+/* 4. Modal Custom Scrollbar */
+#orderModal ::-webkit-scrollbar { width: 6px; }
+#orderModal ::-webkit-scrollbar-track { background: #f1f5f9; }
+#orderModal ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
