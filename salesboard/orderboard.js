@@ -4,16 +4,17 @@
    Sheet 2: Comments (Department Status)
 =============================== */
 
-// 1. LINK FOR "INHAND" TAB (Sheet 1)
-const INHAND_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?gid=0&single=true&output=csv';
+// 1. LINK FOR "INHAND" TAB (First tab = Entire Document link is OK)
+const INHAND_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?output=csv';
 
-// 2. LINK FOR "COMMENTS" TAB (Sheet 2)
-const COMMENTS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?gid=537406788&single=true&output=csv';
+// 2. LINK FOR "COMMENTS" TAB 
+// CRITICAL: You must change "Entire document" -> "Comments" in the publish menu to get this link!
+const COMMENTS_SHEET_URL = 'PASTE_YOUR_UNIQUE_COMMENTS_LINK_HERE';
 
 let orders = [];
 let commentsDB = [];
 let currentFilter = 'ALL';
-let activePWO = null; // Tracks which order is currently open
+let activePWO = null; 
 
 window.addEventListener('load', initDashboard);
 
@@ -44,9 +45,10 @@ async function initDashboard() {
     }
 }
 
-// --- PARSER 1: INHAND SHEET ---
+// --- PARSER 1: INHAND SHEET (Updated for your specific headers) ---
 function parseInhandCSV(csv) {
     const lines = csv.trim().split('\n');
+    // Clean headers to lowercase for easier matching
     const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/"/g, '').trim().toLowerCase());
 
     return lines.slice(1).map(line => {
@@ -54,24 +56,36 @@ function parseInhandCSV(csv) {
         const row = {};
         headers.forEach((h, i) => row[h] = values[i] || '');
 
+        // LOGIC: Map your specific sheet columns to our internal names
+        const pwoStart = row['pwo number (start)'] || row['pwo number'] || 'N/A';
+        const pwoEnd = row['pwo number (leave blank for 1 unit)'] || '';
+        
+        // Create a visual range if End exists (e.g. "1382-1393")
+        const displayID = (pwoEnd && pwoEnd !== pwoStart) ? `${pwoStart} - ${pwoEnd}` : pwoStart;
+
         return {
-            pwo: row['pwo number'] || row['proposal no'] || 'N/A',
+            pwo: pwoStart, // The technical ID for linking
+            displayID: displayID, // What we show on screen
             client: row['end user'] || 'Unknown User',
             vehicle: row['vehicle type'] || 'Unspecified',
             armour: row['armour level'] || '',
+            qty: row['quantity'] || '1',
             status: row['production status'] || 'Pending',
-            delivery: row['expected delivery date'] || 'TBD',
+            // Use 'Committed Delivery' first, fallback to 'Expected Dispatch'
+            delivery: row['committed delivery date'] || row['expected dispatch date'] || 'TBD',
             notes: row['notes'] || ''
         };
     }).filter(o => o.pwo !== 'N/A');
 }
 
-// --- PARSER 2: COMMENTS SHEET ---
+// --- PARSER 2: COMMENTS SHEET (Standard Dept Columns) ---
 function parseCommentsCSV(csv) {
     const lines = csv.trim().split('\n');
     const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/"/g, '').trim().toLowerCase());
 
     const comments = [];
+    
+    // Exact column names for Departments
     const departments = {
         'sales support': 'Sales Support',
         'bdm': 'BDM',
@@ -91,7 +105,7 @@ function parseCommentsCSV(csv) {
         const row = {};
         headers.forEach((h, i) => row[h] = values[i] || '');
 
-        const pwo = row['pwo number'];
+        const pwo = row['pwo number']; // Must match PWO Start from Inhand
         if (!pwo) return;
 
         for (const [key, label] of Object.entries(departments)) {
@@ -129,6 +143,7 @@ function renderTable() {
     tableBody.innerHTML = '';
 
     const filtered = orders.filter(o => {
+        // Search allows finding by Client or PWO Start
         const matchesSearch = o.client.toLowerCase().includes(search) || o.pwo.toLowerCase().includes(search);
         const matchesStatus = currentFilter === 'ALL' || o.status.toUpperCase() === currentFilter;
         return matchesSearch && matchesStatus;
@@ -144,7 +159,12 @@ function renderTable() {
         const vehicleDisplay = o.armour ? `${o.vehicle} <span class="text-slate-400 font-bold ml-1">(${o.armour})</span>` : o.vehicle;
 
         row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap"><span class="text-xs font-bold text-slate-500">#${o.pwo}</span></td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold text-slate-500">#${o.displayID}</span>
+                    ${o.qty > 1 ? `<span class="text-[9px] font-black text-slate-300 uppercase tracking-wider mt-0.5">${o.qty} UNITS</span>` : ''}
+                </div>
+            </td>
             <td class="px-6 py-4">
                 <div class="flex flex-col">
                     <span class="text-sm font-black text-slate-900 uppercase leading-tight">${o.client}</span>
@@ -167,11 +187,11 @@ function renderTable() {
 
 // --- MODAL LOGIC ---
 function openModal(pwo) {
-    activePWO = pwo; // Store active ID
+    activePWO = pwo;
     const order = orders.find(o => o.pwo === pwo);
     if (!order) return;
 
-    document.getElementById('modalTitle').innerText = `PWO #${order.pwo}`;
+    document.getElementById('modalTitle').innerText = `PWO #${order.displayID}`; // Shows range in title
     document.getElementById('modalSubtitle').innerText = order.client;
     document.getElementById('modalVehicle').innerText = order.armour ? `${order.vehicle} (${order.armour})` : order.vehicle;
     document.getElementById('modalDate').innerText = order.delivery;
@@ -181,25 +201,28 @@ function openModal(pwo) {
     document.getElementById('orderModal').classList.remove('hidden');
 }
 
-// Separate function to render comments (reused by refresh)
 function renderModalComments(pwo) {
     const timeline = document.getElementById('modalTimeline');
     timeline.innerHTML = '';
     
+    // Filter comments matching the PWO Start ID
     const relatedComments = commentsDB.filter(c => c.pwo === pwo);
 
     if (relatedComments.length === 0) {
         timeline.innerHTML = `<div class="text-xs text-slate-400 italic">No department updates found.</div>`;
     } else {
         relatedComments.forEach(c => {
+            const formattedText = c.text.replace(/\n/g, '<br>');
             const item = document.createElement('div');
-            item.className = "relative mb-6 last:mb-0";
+            item.className = "relative mb-8 last:mb-0";
             item.innerHTML = `
                 <div class="absolute -left-[31px] bg-white border-2 border-slate-200 w-4 h-4 rounded-full mt-1.5"></div>
-                <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-1">
-                    <span class="text-[10px] font-black text-slate-900 uppercase tracking-wide">${c.user}</span>
+                <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
+                    <span class="text-[11px] font-black text-slate-900 uppercase tracking-wide bg-slate-100 px-2 py-1 rounded">${c.user}</span>
                 </div>
-                <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">${c.text}</p>
+                <div class="text-xs text-slate-700 leading-relaxed bg-white border-l-2 border-slate-200 pl-4 py-1 max-h-64 overflow-y-auto">
+                    ${formattedText}
+                </div>
             `;
             timeline.appendChild(item);
         });
@@ -218,17 +241,15 @@ async function refreshComments() {
     const btn = document.getElementById('refreshBtn');
     const icon = document.getElementById('refreshIcon');
     
-    // UI Loading State
     icon.classList.add('animate-spin');
     btn.classList.add('opacity-75', 'cursor-not-allowed');
 
     try {
-        // Fetch with cache busting
         const res = await fetch(COMMENTS_SHEET_URL + '&t=' + new Date().getTime());
         if (res.ok) {
             const csv = await res.text();
-            commentsDB = parseCommentsCSV(csv); // Update global DB
-            renderModalComments(activePWO); // Re-render ONLY current modal
+            commentsDB = parseCommentsCSV(csv);
+            renderModalComments(activePWO);
         }
     } catch (e) {
         console.error("Refresh failed", e);
