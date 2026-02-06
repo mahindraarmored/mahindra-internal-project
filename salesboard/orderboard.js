@@ -8,18 +8,17 @@
 const INHAND_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?output=csv';
 
 // 2. LINK FOR "COMMENTS" TAB (Sheet 2)
-// Note: Ensure this link specifically points to the 2nd sheet if the data differs.
 const COMMENTS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9IyfBSWNxFFbSyPnci8ddRJHpCe8AFTkkjYBlsTD_MUJSDYiT6m98FXKF8Rouj3qHoGBTKqMePkLc/pub?output=csv';
 
 let orders = [];
 let commentsDB = [];
 let currentFilter = 'ALL';
+let activePWO = null; // Tracks which order is currently open
 
 window.addEventListener('load', initDashboard);
 
 async function initDashboard() {
     try {
-        // Fetch both sheets simultaneously
         const [inhandRes, commentsRes] = await Promise.all([
             fetch(INHAND_SHEET_URL),
             fetch(COMMENTS_SHEET_URL).catch(e => null)
@@ -46,10 +45,8 @@ async function initDashboard() {
 }
 
 // --- PARSER 1: INHAND SHEET ---
-// Maps: PWO Number, End User, Vehicle Type, Armour Level, Expected Delivery Date, Production Status, Notes
 function parseInhandCSV(csv) {
     const lines = csv.trim().split('\n');
-    // Clean headers
     const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/"/g, '').trim().toLowerCase());
 
     return lines.slice(1).map(line => {
@@ -70,14 +67,11 @@ function parseInhandCSV(csv) {
 }
 
 // --- PARSER 2: COMMENTS SHEET ---
-// Maps Dept Columns: Sales Support, BDM, Production, QC, Store, Purchase, Logistics, Accounts, Client, CFO, CEO
 function parseCommentsCSV(csv) {
     const lines = csv.trim().split('\n');
     const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/"/g, '').trim().toLowerCase());
 
     const comments = [];
-
-    // Map your CSV headers (lowercase) to Display Names
     const departments = {
         'sales support': 'Sales Support',
         'bdm': 'BDM',
@@ -98,15 +92,14 @@ function parseCommentsCSV(csv) {
         headers.forEach((h, i) => row[h] = values[i] || '');
 
         const pwo = row['pwo number'];
-        if (!pwo) return; // Skip if no PWO
+        if (!pwo) return;
 
-        // Check every department column for text
         for (const [key, label] of Object.entries(departments)) {
             if (row[key] && row[key].length > 0) {
                 comments.push({
                     pwo: pwo,
-                    user: label,      // Who wrote it (e.g. "Quality Control")
-                    text: row[key],   // The comment text
+                    user: label,
+                    text: row[key],
                     date: 'Dept Update' 
                 });
             }
@@ -143,7 +136,6 @@ function renderTable() {
 
     filtered.forEach(o => {
         const row = document.createElement('tr');
-        // CLICK EVENT - Open Modal
         row.onclick = (e) => {
             if(e.target.closest('button')) return;
             openModal(o.pwo);
@@ -175,6 +167,7 @@ function renderTable() {
 
 // --- MODAL LOGIC ---
 function openModal(pwo) {
+    activePWO = pwo; // Store active ID
     const order = orders.find(o => o.pwo === pwo);
     if (!order) return;
 
@@ -184,10 +177,15 @@ function openModal(pwo) {
     document.getElementById('modalDate').innerText = order.delivery;
     document.getElementById('modalNotes').innerText = order.notes || 'No internal notes.';
 
+    renderModalComments(pwo);
+    document.getElementById('orderModal').classList.remove('hidden');
+}
+
+// Separate function to render comments (reused by refresh)
+function renderModalComments(pwo) {
     const timeline = document.getElementById('modalTimeline');
     timeline.innerHTML = '';
     
-    // Find updates for this PWO in the comments DB
     const relatedComments = commentsDB.filter(c => c.pwo === pwo);
 
     if (relatedComments.length === 0) {
@@ -206,12 +204,38 @@ function openModal(pwo) {
             timeline.appendChild(item);
         });
     }
-
-    document.getElementById('orderModal').classList.remove('hidden');
 }
 
 function closeModal() {
     document.getElementById('orderModal').classList.add('hidden');
+    activePWO = null;
+}
+
+// --- REFRESH LOGIC ---
+async function refreshComments() {
+    if (!activePWO) return;
+
+    const btn = document.getElementById('refreshBtn');
+    const icon = document.getElementById('refreshIcon');
+    
+    // UI Loading State
+    icon.classList.add('animate-spin');
+    btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+    try {
+        // Fetch with cache busting
+        const res = await fetch(COMMENTS_SHEET_URL + '&t=' + new Date().getTime());
+        if (res.ok) {
+            const csv = await res.text();
+            commentsDB = parseCommentsCSV(csv); // Update global DB
+            renderModalComments(activePWO); // Re-render ONLY current modal
+        }
+    } catch (e) {
+        console.error("Refresh failed", e);
+    } finally {
+        icon.classList.remove('animate-spin');
+        btn.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
 }
 
 function getStatusClass(status) {
